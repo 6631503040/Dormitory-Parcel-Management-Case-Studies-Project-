@@ -1,6 +1,6 @@
 # Design Spec — Dormitory Parcel Management System
 
-> Version: 1.0 | Created: 2026-09-04 | Status: LOCKED
+> Version: 1.1 | Created: 2026-09-04 | Updated: 2026-09-04 | Status: LOCKED
 >
 > This file is the single source of truth for all design decisions.
 > Do NOT change values here without updating all code that references them.
@@ -29,9 +29,7 @@ in code, UI, tests, or documentation.
 | Parcel awaiting collection | Pending | `status = 'pending'` | Never "in storage", "waiting", "unclaimed", "open" |
 | Parcel collected by resident | Picked Up | `status = 'picked_up'` | Displayed "Picked Up"; never "completed", "done", "delivered", "closed" |
 | Parcel past retention window | Archived | `status = 'archived'` | Soft state; records are never hard-deleted |
-| One of the 10 dormitory buildings | Building | `building` | Codes `B1`–`B10`; never "block", "dorm", "hall" |
-| Shared area for oversized parcels | Common Area | `building.code = 'COMMON'` | Never "big items", "bulk area", "oversize shelf" |
-| Physical shelf/bin slot | Storage Location | `storage_location` | Never "spot", "slot", "bay", "position" |
+| One of the 10 dormitory buildings | Building | `building` | Codes `B1`–`B10`; never "block", "dorm", "hall". Reference data only — a room's building; not assigned to a parcel |
 | Value encoded in the courier barcode | Tracking Code | `tracking_code` | Never "tracking number", "barcode", "AWB", "ref", "parcel ID" |
 | Official list of who lives where | Resident Directory | `residents` | Never "student list", "tenant roster", "master list" |
 | Person a parcel is for | Resident | `resident` | Never "student", "tenant", "customer", "user", "recipient" in code |
@@ -68,7 +66,7 @@ system look). Tokens are theme-ready but only the light theme ships in v1.
 | onBackground | #202124 | Text/icons on background color |
 | onError | #FFFFFF | Text/icons on error color |
 | success | #188038 | Success toasts, "Picked Up" status chip |
-| warning | #F29900 | Warning states, "missing room number" flags, oversized badge |
+| warning | #F29900 | Warning states, "missing room number" flags |
 | neutral100 | #E8EAED | Borders, dividers, table gridlines, disabled fills |
 | neutral500 | #5F6368 | Secondary text, placeholder text, inactive icons |
 | neutral900 | #202124 | Primary text, headings |
@@ -151,10 +149,10 @@ Primary destinations, left to right: **Dashboard · Check-In · Check-Out · Sea
 |--------|-----------|---------|----------------|
 | Sign In | `/login` | Authenticate staff (username + password) | Centered card, username field, password field, Sign In button, inline error |
 | Dashboard | `/` | Daily status overview | Date selector (defaults today), 3 stat cards (Checked In / Picked Up / Pending), recent check-ins table |
-| Check-In | `/check-in` | Record an incoming parcel | Tracking Code scan/input, Room Number autocomplete (directory-validated), Building select (B1–B10 / Common), Storage Location select, Oversized toggle, Check In Parcel button, running list of today's check-ins |
+| Check-In | `/check-in` | Record an incoming parcel | Tracking Code scan/input, Room Number autocomplete (directory-validated), Check In Parcel button, running list of today's check-ins |
 | Check-Out | `/check-out` | Hand parcels to a resident | Room Number search field, resident header, pending-parcels table with row checkboxes, Check Out All button, Check Out Selected button |
 | Search & Lookup | `/search` | Find any parcel | Single search input (room number / tracking code / resident name), segmented result table, pagination, row → Parcel Detail |
-| Parcel Detail | `/parcels/:trackingCode` | Inspect one parcel + its history | Parcel summary card, status chip, storage location, Parcel History timeline (staff + timestamp per event) |
+| Parcel Detail | `/parcels/:trackingCode` | Inspect one parcel + its history | Parcel summary card, status chip, Parcel History timeline (staff + timestamp per event) |
 | Directory | `/directory` | Read-only resident/room reference | Search/filter input, paginated table (Room, Building, Resident, Nickname), no edit actions in v1 |
 | Not Found | `*` | Fallback for unknown routes | Message + link back to Dashboard |
 
@@ -196,11 +194,10 @@ Store: **PostgreSQL**. Backend: **Go + Gin** (see §7 note re: proposal text).
 
 | Entity | Table Name | Primary Key | Notes |
 |--------|-----------|-------------|-------|
-| Dormitory building | `buildings` | `id` | Seeded with B1–B10 + `COMMON`; reference data |
+| Dormitory building | `buildings` | `id` | Seeded with B1–B10; reference data (a room's building) |
 | Room | `rooms` | `id` | Belongs to a building; `(building_id, room_number)` unique |
 | Resident (directory) | `residents` | `id` | Reference data; the official name↔room source of truth |
 | Staff account | `staff` | `id` | Has a role for RBAC |
-| Storage location | `storage_locations` | `id` | Shelf/bin within a building; `(building_id, label)` unique |
 | Parcel | `parcels` | `id` | `tracking_code` is the unique natural/business key |
 | Parcel history event | `parcel_events` | `id` | Append-only audit trail (chain of custody) |
 
@@ -209,7 +206,7 @@ Store: **PostgreSQL**. Backend: **Go + Gin** (see §7 note re: proposal text).
 - **DB column case:** `snake_case`. **API JSON case:** `camelCase` (serializer maps between them).
 - **Timestamps:** `created_at`, `updated_at`, and event-specific (`checked_in_at`, …). Type `timestamptz`, always stored UTC, serialized as ISO 8601.
 - **IDs:** internal PK `id` = `bigint GENERATED ALWAYS AS IDENTITY`. No UUIDs. `parcels.tracking_code` is the externally meaningful key.
-- **Booleans:** prefix `is_` / `has_` (e.g. `is_active`, `is_oversized`). Serialized `isActive`, `isOversized`.
+- **Booleans:** prefix `is_` / `has_` (e.g. `is_active`). Serialized `isActive`.
 - **Enums:** native PostgreSQL `ENUM` types; values are `lowercase_snake`.
 
 ### Enums
@@ -218,7 +215,7 @@ Store: **PostgreSQL**. Backend: **Go + Gin** (see §7 note re: proposal text).
 |-----------|--------|
 | `staff_role` | `operator`, `admin` |
 | `parcel_status` | `pending`, `picked_up`, `archived` |
-| `parcel_event_type` | `checked_in`, `checked_out`, `checked_out_bulk`, `location_changed`, `note_added` |
+| `parcel_event_type` | `checked_in`, `checked_out`, `checked_out_bulk`, `note_added` |
 
 ### Core Models
 
@@ -226,8 +223,8 @@ Store: **PostgreSQL**. Backend: **Go + Gin** (see §7 note re: proposal text).
 | Field | Type | Required | Default | Notes |
 |-------|------|----------|---------|-------|
 | id | bigint | Y | identity | PK |
-| code | text | Y | — | `B1`..`B10`, `COMMON`; unique |
-| name | text | Y | — | Human label, e.g. "Building 1", "Common Area" |
+| code | text | Y | — | `B1`..`B10`; unique |
+| name | text | Y | — | Human label, e.g. "Building 1" |
 | created_at | timestamptz | Y | now() | |
 
 #### rooms
@@ -264,15 +261,6 @@ Store: **PostgreSQL**. Backend: **Go + Gin** (see §7 note re: proposal text).
 | created_at | timestamptz | Y | now() | |
 | updated_at | timestamptz | Y | now() | |
 
-#### storage_locations
-| Field | Type | Required | Default | Notes |
-|-------|------|----------|---------|-------|
-| id | bigint | Y | identity | PK |
-| building_id | bigint | Y | — | FK → buildings.id (may be the `COMMON` building) |
-| label | text | Y | — | Shelf/bin identifier, e.g. "A-03" |
-| created_at | timestamptz | Y | now() | |
-| — | — | — | — | UNIQUE(building_id, label) |
-
 #### parcels
 | Field | Type | Required | Default | Notes |
 |-------|------|----------|---------|-------|
@@ -280,8 +268,6 @@ Store: **PostgreSQL**. Backend: **Go + Gin** (see §7 note re: proposal text).
 | tracking_code | text | Y | — | Courier barcode value; UNIQUE |
 | room_id | bigint | Y | — | FK → rooms.id; chosen from directory, never free-text |
 | resident_id | bigint | N | null | FK → residents.id; set when a specific recipient is known |
-| storage_location_id | bigint | N | null | FK → storage_locations.id; null after check-out |
-| is_oversized | boolean | Y | false | Oversized parcels route to the `COMMON` building |
 | status | parcel_status | Y | `pending` | |
 | note | text | N | null | Free-text note (e.g. "no room number on box") |
 | checked_in_by | bigint | Y | — | FK → staff.id |
@@ -307,7 +293,7 @@ Indexes (Performance Risk — Med/High):
 | event_type | parcel_event_type | Y | — | |
 | staff_id | bigint | Y | — | FK → staff.id; who performed the action |
 | occurred_at | timestamptz | Y | now() | |
-| detail | jsonb | N | null | Before/after snapshot for `location_changed`, note text for `note_added` |
+| detail | jsonb | N | null | Note text for `note_added` |
 | — | — | — | — | INDEX(parcel_id, occurred_at); append-only, no UPDATE/DELETE |
 
 ---
@@ -329,7 +315,7 @@ Indexes (Performance Risk — Med/High):
 | Error — room not in directory | "Room "{value}" isn't in the resident directory. Pick a room from the list." | Blocks free-text room entry |
 | Error — duplicate tracking code | "Tracking code {trackingCode} is already checked in for Room {roomNumber} ({checkedInAt})." | Prevents double check-in |
 | Error — required field | "This field is required." | Inline under the field |
-| Success — check-in | "Checked in — {trackingCode} → Room {roomNumber} · {buildingCode} {storageLabel}." | Toast, `success` color |
+| Success — check-in | "Checked in — {trackingCode} → Room {roomNumber}." | Toast, `success` color |
 | Success — check-out (single) | "Checked out 1 parcel for Room {roomNumber}." | Toast |
 | Success — check-out (all) | "Checked out {count} parcels for Room {roomNumber}." | Toast |
 | Confirm — check out all | "Check out all {count} pending parcels for Room {roomNumber}?" | Dialog title; buttons "Check Out All" / "Cancel" |
@@ -341,7 +327,6 @@ Indexes (Performance Risk — Med/High):
 | Loading — search | "Searching…" | |
 | Hint — tracking code field | "Scan or type the tracking code" | |
 | Hint — room number field | "Type a resident name or room number" | Autocomplete against directory |
-| Badge — oversized | "Oversized" | `warning` chip |
 | Badge — missing room | "No room number" | `warning` chip on Search/Detail |
 | Status chip — pending | "Pending" | `neutral500` on `neutral100` |
 | Status chip — picked up | "Picked Up" | `success` |
@@ -375,9 +360,7 @@ Icon set: **lucide-react** (MIT, tree-shakeable, Tailwind-friendly). One set onl
 | Sign Out | `log-out` | Nav (right side) |
 | Success toast | `circle-check` | `success` color |
 | Error / warning | `alert-triangle` | `error` / `warning` color |
-| Building | `building-2` | Building select, Parcel Detail |
-| Storage location | `map-pin` | Storage select, Parcel Detail |
-| Oversized | `package-2` | Oversized badge |
+| Building | `building-2` | Directory, Parcel Detail |
 | Loading | `loader-circle` (spin) | Buttons, list placeholders |
 | Row selected | `check` | Check-Out table checkboxes |
 | History event | `history` | Parcel History timeline |
@@ -435,3 +418,4 @@ No hardcoded colors, strings, spacing values, or field names exist to migrate ye
 | Date | Section | Change | Reason |
 |------|---------|--------|--------|
 | 2026-09-04 | — | Initial spec created | Lock design decisions before implementation begins |
+| 2026-09-04 | §1, §3, §4, §5, §6 | Removed Storage Location entirely: `storage_locations` table, `parcels.storage_location_id`, `parcels.is_oversized`, the Common Area / `COMMON` building code, the Oversized toggle & badge, the `location_changed` event type, and the Building select on Check-In. Check-In is now scan + directory-validated room only. `buildings` stays as reference data (a room's building). | Advisor/team decision — physical storage-location tracking is out of scope; parcels are set aside for pickup without a system-tracked location. See `docs/05-log/20260904-remove-storage-location.md` |

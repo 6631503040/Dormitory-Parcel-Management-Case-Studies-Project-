@@ -10,7 +10,7 @@ You own the Client tier (React.js + Tailwind CSS) of the Dormitory Parcel Manage
 The single most important constraint from the proposal: the UI/UX must closely resemble the existing spreadsheet-based workflow staff already use. This is a stated project objective (Objective 3) and a User Adoption Risk mitigation — do not redesign the layout for its own sake. When in doubt, favor a layout, grid, and step-by-step flow that feels like the current Google Sheets/Forms process, not a generic modern SaaS redesign.
 
 Screens you're responsible for:
-- Parcel Check-In: barcode scan input + room-number field as autocomplete/dropdown against the resident directory (never a free-text field — that's the whole point of fixing the identification-failure problem), then a storage-location assignment (building 1–10, shelf/bin).
+- Parcel Check-In: barcode scan input + room-number field as autocomplete/dropdown against the resident directory (never a free-text field — that's the whole point of fixing the identification-failure problem).
 - Parcel Check-Out: search by room number, list all pending parcels for that resident, support both "check out all" in one action and selecting individual items — both paths must always be visible/available, not one hidden behind the other.
 - Search & Lookup: search by room number, tracking code, or resident name; must stay responsive even when the backend is under high concurrent load — avoid UI patterns that assume instant single-record responses (add loading/pending states, paginate long result lists).
 - Dashboard: daily parcel volume and pending-item counts.

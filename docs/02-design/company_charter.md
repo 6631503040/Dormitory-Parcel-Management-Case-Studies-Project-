@@ -34,7 +34,7 @@ Five roles per the course guardrail (Product Owner, Tech Lead, AI Lead, Designer
 
 ## 4. Product direction
 
-Web app that validates room/resident against the official directory at check-in, tracks shelf location across all 10 buildings, and supports bulk + selective check-out — same flow staff already use.
+Web app that validates room/resident against the official directory at check-in and supports bulk + selective check-out — same flow staff already use.
 
 ## 5. Target users & where to find them
 
@@ -43,7 +43,7 @@ Web app that validates room/resident against the official directory at check-in,
 
 ## 6. Core workflow (one sentence)
 
-Scan → validate room/resident → shelve → notify (LINE, opt-in) → check out (bulk or selective).
+Scan → validate room/resident → notify (LINE, opt-in) → check out (bulk or selective).
 
 ## 7. Success metric
 

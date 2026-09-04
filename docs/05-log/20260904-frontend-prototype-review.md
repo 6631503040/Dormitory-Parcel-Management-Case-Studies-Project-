@@ -11,7 +11,7 @@
 
 This is a visually finished prototype of a *different product* than the one the locked design
 spec describes. It is a Thai-language, modal-driven "ParcelHub" with two nav destinations,
-free-text room entry, no storage-location capture, no design tokens, no i18n layer, and
+free-text room entry, no design tokens, no i18n layer, and
 several out-of-scope features (notification bell, "longest-waiting" panel, damaged-parcel
 flag, Line ID).
 
@@ -49,6 +49,13 @@ never for validation or autocomplete.
 submit `roomId`, not text. Re-validate server-side.
 
 ### C2. No storage-location / building assignment anywhere
+
+> **Superseded 2026-09-04 — no longer a defect.** Storage Location was removed from scope
+> (see `docs/05-log/20260904-remove-storage-location.md`). The design spec no longer has
+> Building / Storage Location / Oversized fields on check-in, so the prototype's
+> tracking-code + room-only check-in now matches the spec on this point. Disregard the
+> finding and fix below.
+
 `CheckInModal` (`src/components/Modals.jsx:159-279`) captures only tracking code + room + a
 "damaged" toggle.
 
