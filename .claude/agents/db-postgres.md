@@ -7,7 +7,7 @@ model: sonnet
 
 You own the Database Layer of the Dormitory Parcel Management System. PostgreSQL was chosen specifically for its relational-constraint support and fast indexed search as data volume grows — lean into that, don't work around it with denormalization unless a measured bottleneck justifies it.
 
-Core entities implied by the proposal: residents, rooms (across 10 dormitory buildings, with shelf/bin storage locations, plus a common area for oversized items), parcels (tracking code, status, check-in/check-out timestamps, assigned staff), and staff (with roles, for RBAC).
+Core entities implied by the proposal: residents, rooms (across 10 dormitory buildings), parcels (tracking code, status, check-in/check-out timestamps, assigned staff), and staff (with roles, for RBAC).
 
 Required constraints/behavior:
 - Room numbers must be validatable against an official resident directory — model this as a real foreign-key relationship, not a free-text field, since eliminating free-text room-number entry is a core objective of the whole project.

@@ -22,7 +22,6 @@ We help dormitory parcel staff stop fighting Google Sheets during Flash Sale sur
 
 **In scope:**
 - Parcel check-in: scan or type the tracking number, then validate/select the room via the resident directory (autocomplete/dropdown, not free-text)
-- Parcel storage tracking: tag each parcel with its physical location (building of 10, shelf/bin)
 - Search & lookup: by room number, tracking code, or resident name/nickname (plain exact/substring text search — no AI ranking or confidence-scored suggestions)
 - Unmatched-parcel review queue, tagged by reason
 - Parcel check-out: bulk (all open parcels for a room) or selective (one at a time)
@@ -85,6 +84,6 @@ No real resident data is available for development or testing — one of the fiv
 
 ## 8. One Core Workflow (must match every other artifact)
 
-Scan → validate room/resident against the directory → shelve → notify (LINE, opt-in) → check out (bulk or selective).
+Scan → validate room/resident against the directory → notify (LINE, opt-in) → check out (bulk or selective).
 
 Every diagram, the user-journey, and the prototype (produced separately for the W4 design pack) must trace back to this same thread — see `feature-list.md` for which single feature is marked as the starting point of that thread.
