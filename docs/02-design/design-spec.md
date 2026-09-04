@@ -393,7 +393,7 @@ illustrations. Empty states are text-only per the spreadsheet-like aesthetic.
 |----------|-------|-----------|
 | Backend framework | **Go + Gin** | All six `.claude/agents` definitions and the three-tier architecture spec name Go/Gin. Proposal §5.3 text says "Next.js" — treated as stale; see Migration Items. |
 | Frontend | React.js + Tailwind CSS (Vite) | Proposal §5.3 + `frontend-react` agent. Vite chosen over Next.js — no SSR need for an internal tool; simplest conventional React setup. |
-| Target platforms | Web only | Mobile app is explicitly Out-of-Scope (proposal §4.2) |
+| Target platforms | Web app only | Mobile app is explicitly Out-of-Scope (proposal §4.2) |
 | Min browser support | Last 2 versions of Chrome, Edge, Firefox, Safari | Staff use managed counter PCs; no legacy-IE requirement |
 | Layout baseline | Desktop-first, 1280px design width; usable down to 768px | Staff work at counter workstations; tablet is the realistic small case, phones are not |
 | Orientation lock | N/A (web) | — |
