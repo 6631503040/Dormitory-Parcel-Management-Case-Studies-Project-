@@ -1,5 +1,5 @@
-Smart Dormitory Parcel Management System (SDPMS) — Legal & Compliance Rules for AI Agents
-# rule.md — SDPMS legal rules
+Dormitory Parcel Management System (DPMS) — Legal & Compliance Rules for AI Agents
+# rule.md — DPMS legal rules
 **Company name:** JOBAS Company
 Read this before writing any code that touches user data or user actions. Rules are written as `If the system ___, it must ___` so an agent can act on them directly — see product_backlog.md Epic E5 (LR-01–LR-05) for the user stories these rules back.
 

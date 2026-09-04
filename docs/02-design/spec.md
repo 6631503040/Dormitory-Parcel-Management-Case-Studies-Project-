@@ -1,4 +1,4 @@
-# spec.md — Smart Dormitory Parcel Management System (SDPMS)
+# spec.md — Dormitory Parcel Management System (DPMS)
 
 **Course:** 1305493 Software Engineering Case Studies, 2569 · **Stage:** DISCOVER → Design (feeds the W5 Gate) · **Sources:** company_charter.md, product_backlog.md, Proposal_Dormitory-Parcel-Management-System.pdf, survey_interview_analysis.md
 **Status:** Draft — requirements + design collapsed into one spec per the course's AI-Native SDLC playbook (Stage 2). Team should review before submitting alongside feature-list.md.
@@ -7,7 +7,7 @@
 
 ## 1. Overview
 
-We help dormitory parcel staff stop fighting Google Sheets during Flash Sale surges, and get residents their parcels faster. SDPMS replaces the current Google Forms/Sheets workflow with a dedicated web app for dormitory parcel staff (10 buildings) and student residents, covering intake → room/resident matching → optional LINE notification → checkout, while preserving the same step-by-step flow staff already use today.
+We help dormitory parcel staff stop fighting Google Sheets during Flash Sale surges, and get residents their parcels faster. DPMS replaces the current Google Forms/Sheets workflow with a dedicated web app for dormitory parcel staff (10 buildings) and student residents, covering intake → room/resident matching → optional LINE notification → checkout, while preserving the same step-by-step flow staff already use today.
 
 **Observed load (confirmed, not a target):** ~417.5 in / ~417.6 out parcels/day average, peaking at **1,024/day** during Flash Sale.
 
