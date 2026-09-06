@@ -1,4 +1,4 @@
-# Product Backlog — Smart Dormitory Parcel Management System (SDPMS)
+# Product Backlog — Dormitory Parcel Management System (DPMS)
 **Course:** 1305493 Software Engineering Case Studies, 2569 · **Phase:** DISCOVER (W1–W5) · **Deliverable:** Week 3 → Week 5 User Validation Gate
 **Scope:** Core workflow only — intake → match → notify → checkout, with legal/AI-ethics compliance built into the workflow, per the course guardrail *"buildable in 1 month, exactly 1 core workflow, no more."*
 
