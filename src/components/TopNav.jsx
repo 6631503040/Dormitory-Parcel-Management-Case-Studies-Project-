@@ -11,24 +11,27 @@ function NavItem({ id, label, page, setPage }) {
 }
 
 function NotificationItem({ parcel, onConfirm }) {
-  const [room, setRoom] = useState(parcel.room || "");
-  const [line, setLine] = useState(parcel.line && parcel.line !== "-" ? parcel.line : "");
-
   const save = () => {
-    if (!room.trim()) return;
-    onConfirm(parcel.id, { room: room.trim(), line: line.trim() || "-" });
+    onConfirm(parcel.id, { room: parcel.room, line: parcel.line || "-" });
   };
 
   return (
-    <div className="rounded-xl p-3.5" style={{ background: C.warningLight }}>
-      <p className="text-xs font-bold mb-0.5" style={{ ...bodyFont, color: C.text }}>{parcel.code}</p>
-      {parcel.damageReason && <p className="text-xs mb-2.5" style={{ ...bodyFont, color: C.warning }}>เหตุ: {parcel.damageReason}</p>}
-      <div className="space-y-2 mb-2.5">
-        <input value={room} onChange={(e) => setRoom(e.target.value)} placeholder="ยืนยันเลขห้อง" className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={{ ...bodyFont, borderColor: C.border, color: C.text, background: C.card }} />
-        <input value={line} onChange={(e) => setLine(e.target.value)} placeholder="ยืนยัน Line ID" className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={{ ...bodyFont, borderColor: C.border, color: C.text, background: C.card }} />
+    <div className="rounded-xl p-4" style={{ background: C.warningLight }}>
+      <p className="text-sm font-bold mb-1" style={{ ...bodyFont, color: C.text }}>LINE ID นี้ตรงกับห้องนี้หรือไม่?</p>
+      <p className="text-xs mb-3" style={{ ...bodyFont, color: C.warning }}>กรุณาตรวจสอบข้อมูลก่อนยืนยัน</p>
+      <div className="rounded-lg border p-3 mb-3" style={{ background: C.card, borderColor: C.border }}>
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <span style={{ ...bodyFont, color: C.textMuted }}>ห้อง</span>
+          <span className="font-semibold" style={{ ...bodyFont, color: C.text }}>{parcel.room || "-"}</span>
+        </div>
+        <div className="flex items-center justify-between gap-3 text-sm mt-2">
+          <span style={{ ...bodyFont, color: C.textMuted }}>LINE ID</span>
+          <span className="font-semibold truncate" style={{ ...bodyFont, color: C.text }}>{parcel.line || "-"}</span>
+        </div>
       </div>
-      <button disabled={!room.trim()} onClick={save} className="w-full py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-40" style={{ ...bodyFont, background: C.primary }}>
-        ยืนยันข้อมูล
+      <p className="text-xs mb-2.5" style={{ ...bodyFont, color: C.textMuted }}>รหัสพัสดุ: {parcel.code}</p>
+      <button onClick={save} className="w-full py-2.5 rounded-lg text-sm font-semibold text-white" style={{ ...bodyFont, background: C.primary }}>
+        ยืนยันว่า LINE ID ตรงกัน
       </button>
     </div>
   );
@@ -36,7 +39,7 @@ function NotificationItem({ parcel, onConfirm }) {
 
 function NotificationBell({ parcels, onConfirm }) {
   const [open, setOpen] = useState(false);
-  const flagged = parcels.filter((p) => p.damaged);
+  const flagged = parcels.filter((p) => p.damaged && p.line && p.line !== "-");
 
   return (
     <div className="relative">
@@ -54,7 +57,7 @@ function NotificationBell({ parcels, onConfirm }) {
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-full mt-2 w-80 max-h-[28rem] overflow-y-auto rounded-2xl border shadow-xl z-50" style={{ background: C.card, borderColor: C.border }}>
             <div className="flex items-center justify-between px-4 py-3 border-b sticky top-0" style={{ borderColor: C.border, background: C.card }}>
-              <p className="text-sm font-bold" style={{ ...bodyFont, color: C.text }}>พัสดุที่ต้องยืนยันข้อมูล</p>
+              <p className="text-sm font-bold" style={{ ...bodyFont, color: C.text }}>การแจ้งเตือน</p>
               <button onClick={() => setOpen(false)} className="p-1 rounded-lg hover:bg-gray-100">
                 <X size={16} style={{ color: C.textMuted }} />
               </button>

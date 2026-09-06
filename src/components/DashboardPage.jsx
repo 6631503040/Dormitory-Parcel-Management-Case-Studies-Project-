@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { Search, PackagePlus, ScanLine, AlertTriangle, Clock, Package, Check } from "lucide-react";
-import { C, bodyFont, displayFont, roomLabel, ParcelTable, waitSeverity, daysWaiting, waitLabel, WAIT_CRITICAL_DAYS } from "./shared";
+import { Search, PackagePlus, ScanLine, AlertTriangle } from "lucide-react";
+import { C, bodyFont, displayFont, ParcelTable } from "./shared";
 
 function SearchStatusBadge({ hasQuery, matchCount, pendingCount }) {
   let label = "รอค้นหา";
@@ -30,15 +30,9 @@ function SearchStatusBadge({ hasQuery, matchCount, pendingCount }) {
 }
 
 function BottleneckPanel({ parcels }) {
-  const pending = parcels.filter((p) => p.status === "in");
-  const ranked = [...pending].sort((a, b) => new Date(a.receivedAt) - new Date(b.receivedAt)).slice(0, 5);
-  const criticalCount = pending.filter((p) => waitSeverity(daysWaiting(p.receivedAt)) === "critical").length;
-
-  const sevStyle = {
-    ok: { bg: C.navyChip, fg: C.navy },
-    warn: { bg: C.primaryLight, fg: C.primaryDark },
-    critical: { bg: C.warningLight, fg: C.warning },
-  };
+  const damaged = parcels
+    .filter((p) => p.status === "in" && p.damaged)
+    .sort((a, b) => new Date(a.receivedAt) - new Date(b.receivedAt));
 
   return (
     <div className="rounded-2xl border p-5 mb-6" style={{ background: C.card, borderColor: C.border }}>
@@ -48,43 +42,20 @@ function BottleneckPanel({ parcels }) {
             <AlertTriangle size={17} style={{ color: C.warning }} />
           </div>
           <div>
-            <p className="text-sm font-semibold" style={{ ...bodyFont, color: C.text }}>พัสดุตกค้างนานที่สุด</p>
-            <p className="text-xs" style={{ ...bodyFont, color: C.textMuted }}>เรียงลำดับพัสดุที่รอรับนานที่สุดก่อน</p>
+            <p className="text-sm font-semibold" style={{ ...bodyFont, color: C.text }}>พัสดุชำรุด</p>
+            <p className="text-xs" style={{ ...bodyFont, color: C.textMuted }}>รายการพัสดุชำรุดที่ต้องนำออก</p>
           </div>
         </div>
-        {criticalCount > 0 && (
+        {damaged.length > 0 && (
           <span className="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: C.warningLight, color: C.warning, ...bodyFont }}>
-            {criticalCount} รายการเกิน {WAIT_CRITICAL_DAYS} วัน
+            ต้องนำออก {damaged.length} รายการ
           </span>
         )}
       </div>
 
-      {ranked.length === 0 ? (
-        <p className="text-sm py-6 text-center" style={{ ...bodyFont, color: C.textMuted }}>ไม่มีพัสดุตกค้างในขณะนี้</p>
-      ) : (
-        <div className="mt-3">
-          {ranked.map((p, i) => {
-            const days = daysWaiting(p.receivedAt);
-            const sev = waitSeverity(days);
-            const style = sevStyle[sev];
-            return (
-              <div key={p.id} className="flex items-center justify-between gap-3 py-3" style={{ borderBottom: i < ranked.length - 1 ? `1px solid ${C.border}` : "none" }}>
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-xs font-bold w-5 text-center flex-shrink-0" style={{ ...bodyFont, color: C.textMuted }}>{i + 1}</span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate" style={{ ...bodyFont, color: C.text }}>{roomLabel(p)}</p>
-                    <p className="text-xs truncate" style={{ ...bodyFont, color: C.textMuted }}>{p.code}</p>
-                  </div>
-                </div>
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0" style={{ background: style.bg, color: style.fg, ...bodyFont }}>
-                  <Clock size={11} />
-                  {waitLabel(days)}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <div className="mt-3">
+        <ParcelTable parcels={damaged} showLine={false} emptyLabel="ไม่มีพัสดุชำรุด" />
+      </div>
     </div>
   );
 }
@@ -128,7 +99,7 @@ export default function DashboardPage({ parcels, onOpenCheckOut, onOpenCheckIn }
         </div>
         <p className="text-xs mb-1" style={{ ...bodyFont, color: C.textMuted }}>ค้นหาได้ด้วยเลขห้อง ชื่อผู้รับ หรือรหัสพัสดุ</p>
         <div className="mt-4">
-          <ParcelTable parcels={filtered} emptyLabel={query.trim() ? "ไม่พบพัสดุที่ตรงกับคำค้นหา" : "ยังไม่มีพัสดุที่รอรับในขณะนี้"} />
+          <ParcelTable parcels={filtered} showLine={false} emptyLabel={query.trim() ? "ไม่พบพัสดุที่ตรงกับคำค้นหา" : "ยังไม่มีพัสดุที่รอรับในขณะนี้"} />
         </div>
       </div>
 

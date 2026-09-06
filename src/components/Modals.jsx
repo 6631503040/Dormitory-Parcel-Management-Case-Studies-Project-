@@ -35,7 +35,6 @@ function CheckOutModal({ parcels, onClose, onConfirm }) {
   const [scan, setScan] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
   const [notFound, setNotFound] = useState(false);
-  const [confirming, setConfirming] = useState(false);
 
   const pending = parcels.filter((p) => p.status === "in");
   const q = scan.trim().toLowerCase();
@@ -83,32 +82,6 @@ function CheckOutModal({ parcels, onClose, onConfirm }) {
     setNotFound(!exact);
   };
 
-  if (confirming) {
-    return (
-      <ModalShell title="ยืนยันนำพัสดุออก" icon={ScanLine} onClose={onClose}>
-        <p className="text-xs font-medium mb-3 flex items-center gap-1.5" style={{ ...bodyFont, color: C.success }}>
-          <Check size={13} strokeWidth={3} />
-          กรุณายืนยันรายการก่อนนำพัสดุออก ({selectedParcels.length} ชิ้น)
-        </p>
-        <div className="max-h-64 overflow-y-auto -mx-1 px-1 space-y-2 mb-4">
-          {selectedParcels.map((p) => (
-            <div key={p.id} className="rounded-xl p-3.5" style={{ background: C.bg }}>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="font-semibold" style={{ ...bodyFont, color: C.text }}>{roomLabel(p)}</span>
-                <span style={{ ...bodyFont, color: C.textMuted }}>x{p.qty}</span>
-              </div>
-              <p className="text-xs" style={{ ...bodyFont, color: C.textMuted }}>{p.code}{p.line && p.line !== "-" ? ` · ${p.line}` : ""}</p>
-            </div>
-          ))}
-        </div>
-        <div className="flex gap-2.5">
-          <button onClick={() => setConfirming(false)} className="flex-1 py-2.5 rounded-xl text-sm font-medium border" style={{ ...bodyFont, borderColor: C.border, color: C.text }}>ย้อนกลับ</button>
-          <button onClick={() => onConfirm(selectedParcels)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ ...bodyFont, background: C.primary }}>ยืนยันนำออก ({selectedParcels.length})</button>
-        </div>
-      </ModalShell>
-    );
-  }
-
   return (
     <ModalShell title="สแกนพัสดุออก" icon={ScanLine} onClose={onClose}>
       <label className="block text-xs font-medium mb-2" style={{ ...bodyFont, color: C.textMuted }}>สแกน หรือ พิมพ์เลขพัสดุ / ชื่อ / เลขห้อง</label>
@@ -149,8 +122,8 @@ function CheckOutModal({ parcels, onClose, onConfirm }) {
         })}
       </div>
 
-      <button disabled={selectedIds.length === 0} onClick={() => setConfirming(true)} className="w-full py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40" style={{ ...bodyFont, background: C.primary }}>
-        ดำเนินการต่อ{selectedIds.length > 0 ? ` (เลือกแล้ว ${selectedIds.length} ชิ้น)` : ""}
+      <button disabled={selectedIds.length === 0} onClick={() => onConfirm(selectedParcels)} className="w-full py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40" style={{ ...bodyFont, background: C.primary }}>
+        ยืนยันนำออก{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
       </button>
     </ModalShell>
   );
