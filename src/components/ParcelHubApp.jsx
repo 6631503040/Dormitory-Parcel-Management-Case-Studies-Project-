@@ -10,12 +10,27 @@ const AUTH_STORAGE_KEY = "parcelhub-authenticated";
 const PARCELS_STORAGE_KEY = "parcelhub-parcels";
 const DEMO_NOTIFICATION_SEEDED_KEY = "parcelhub-demo-notification-seeded";
 
+function isValidParcel(p) {
+  return (
+    !!p &&
+    typeof p.code === "string" && p.code.trim() !== "" &&
+    typeof p.room === "string" && p.room.trim() !== "" &&
+    (p.status === "in" || p.status === "out") &&
+    Number.isFinite(Number(p.qty)) && Number(p.qty) > 0
+  );
+}
+
 function readStoredParcels() {
   try {
     const stored = localStorage.getItem(PARCELS_STORAGE_KEY);
     if (!stored) return INITIAL_PARCELS;
     const parcels = JSON.parse(stored);
-    if (!Array.isArray(parcels)) return INITIAL_PARCELS;
+    // Guard against stale/corrupted state (e.g. blank fields from earlier
+    // testing) so the app self-heals back to sample data instead of showing
+    // an empty-looking dashboard/archive forever.
+    if (!Array.isArray(parcels) || parcels.length === 0 || !parcels.every(isValidParcel)) {
+      return INITIAL_PARCELS;
+    }
     if (localStorage.getItem(DEMO_NOTIFICATION_SEEDED_KEY) === "true") return parcels;
 
     const demoParcel = parcels.find((parcel) => parcel.id === "1");
@@ -67,7 +82,7 @@ export default function ParcelHubApp() {
     const exitedAt = new Date().toISOString();
     setParcels((ps) => ps.map((p) => (ids.includes(p.id) ? { ...p, status: "out", exitedAt } : p)));
     setModal(null);
-    if (selectedParcels.length === 1) {
+    if (selectedParcels.length === 1) {git a
       showBanner(`นำพัสดุของ ${roomLabel(selectedParcels[0])} ออกแล้ว`);
     } else {
       showBanner(`นำพัสดุออกแล้ว ${selectedParcels.length} ชิ้น`);
