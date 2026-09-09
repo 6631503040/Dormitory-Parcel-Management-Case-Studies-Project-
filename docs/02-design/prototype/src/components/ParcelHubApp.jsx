@@ -82,7 +82,7 @@ export default function ParcelHubApp() {
     const exitedAt = new Date().toISOString();
     setParcels((ps) => ps.map((p) => (ids.includes(p.id) ? { ...p, status: "out", exitedAt } : p)));
     setModal(null);
-    if (selectedParcels.length === 1) {git a
+    if (selectedParcels.length === 1) {
       showBanner(`นำพัสดุของ ${roomLabel(selectedParcels[0])} ออกแล้ว`);
     } else {
       showBanner(`นำพัสดุออกแล้ว ${selectedParcels.length} ชิ้น`);
