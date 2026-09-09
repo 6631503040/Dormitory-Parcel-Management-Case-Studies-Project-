@@ -7,9 +7,8 @@
 | 1. Parcel arrives at the counter | Pick up the parcel and prepare to scan it |
 | 2. Scan the parcel barcode | Scan the tracking barcode with the scanner |
 | 3. Identify the recipient's room | Type the name/room number and select from the autocomplete, which is validated against the official resident directory |
-| 4. Select the storage location | Choose the building (1 of 10) and the shelf/bin |
-| 5. Confirm and save | Confirm to save the record into the system |
-| 6. Place the parcel in storage | Place the parcel at the specified building/shelf location |
+| 4. Confirm and save | Confirm to save the record into the system |
+| 5. Set the parcel aside for pickup | Place it with the other pending parcels |
 
 ## 2. Journey — Resident: Parcel Pickup
 

@@ -10,7 +10,7 @@ You generate synthetic datasets for the Dormitory Parcel Management System, addr
 Target realism, matching the volume patterns stated in the proposal:
 - ~418 incoming and ~418 outgoing parcels/day on a normal day (based on the dormitory's own 15–20 August 2026 data).
 - Up to ~1,024 parcels/day during Flash Sale surges — generate a separate "peak day" dataset variant for load-testing scenarios, don't just scale the normal-day dataset linearly without also modeling burst timing (Flash Sale volume tends to cluster, not spread evenly across the day).
-- Residents distributed across 10 dormitory buildings, with a subset of oversized items routed to a shared common-area storage location instead of per-building shelves.
+- Residents distributed across 10 dormitory buildings.
 
 Data quality — deliberately inject the failure modes the real system has to handle, otherwise the synthetic data will be too clean to catch real bugs:
 - Some parcels with missing/ambiguous room numbers.

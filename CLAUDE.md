@@ -17,13 +17,13 @@ Seminar project (team of 3, Agile Scrum, 2-week sprints, ~20-week timeline).
 The dormitory handles ~418 incoming + ~418 outgoing parcels/day, surging to **~1,024
 parcels/day during Flash Sale periods**. The current spreadsheet workflow is slow under
 load and error-prone: parcels arrive with no room number, names on labels are nicknames
-that don't match official records, handwriting is unreadable, parcels get mis-shelved,
+that don't match official records, handwriting is unreadable,
 and room numbers get swapped so parcels reach the wrong resident.
 
 The system centralizes parcel records in PostgreSQL, **validates room numbers against the
-official resident directory at entry** (no free-text room numbers), tracks physical
-storage location, and stays fast under peak load — **while keeping a UI that closely
-mirrors the existing spreadsheet**, so staff need almost no retraining.
+official resident directory at entry** (no free-text room numbers), and stays fast under
+peak load — **while keeping a UI that closely mirrors the existing spreadsheet**, so staff
+need almost no retraining.
 
 ## Status
 
@@ -53,7 +53,7 @@ beyond this set without flagging it (Technical Risk mitigation).
 ## Scope — strict
 
 **In scope (4 features only):**
-1. **Parcel Check-In** — scan tracking barcode, select+validate room number against the directory, assign storage location (building 1–10 or Common Area, plus shelf/bin)
+1. **Parcel Check-In** — scan tracking barcode, select+validate room number against the directory
 2. **Parcel Check-Out** — search by room number, view all pending parcels; check out ALL in one action OR select individual items. Both paths always available.
 3. **Search & Lookup** — by room number, tracking code, or resident name; fast under concurrent load
 4. **Daily Status Dashboard** — counts of received / picked up / pending for the day
@@ -76,7 +76,7 @@ New feature requests go through advisor review — flag them as scope creep, don
 
 ## Conventions (from docs/02-design/design-spec.md)
 
-- **Terminology is locked** — see docs/02-design/design-spec.md §1. Use exactly: Parcel, Check-In, Check-Out, Pending, Picked Up, Tracking Code, Room Number, Resident, Staff, Storage Location, Common Area. No synonyms in code, UI, tests, or docs.
+- **Terminology is locked** — see docs/02-design/design-spec.md §1. Use exactly: Parcel, Check-In, Check-Out, Pending, Picked Up, Tracking Code, Room Number, Resident, Staff. No synonyms in code, UI, tests, or docs.
 - **DB columns:** `snake_case`. **API JSON:** `camelCase`. Timestamps `timestamptz`, UTC, ISO 8601. PKs `bigint` identity; `parcels.tracking_code` is the business key. Booleans `is_`/`has_`. Enums = native PG enums, `lowercase_snake` values.
 - **Colors/spacing/typography:** reference design tokens only — zero hardcoded hex or inline font sizes. Tailwind config maps the tokens.
 - **User-facing strings:** live in `src/i18n/en.json` (frontend); backend returns stable machine `code` values the frontend maps to messages. Zero hardcoded UI strings.
@@ -85,7 +85,7 @@ New feature requests go through advisor review — flag them as scope creep, don
 ## Data model (see docs/02-design/design-spec.md §4 for full field lists)
 
 Tables: `buildings`, `rooms`, `residents` (the official directory), `staff`,
-`storage_locations`, `parcels`, `parcel_events` (audit trail).
+`parcels`, `parcel_events` (audit trail).
 Enums: `staff_role`, `parcel_status` (`pending` / `picked_up` / `archived`),
 `parcel_event_type`.
 

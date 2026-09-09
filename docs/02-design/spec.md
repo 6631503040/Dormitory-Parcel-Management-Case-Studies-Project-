@@ -1,4 +1,4 @@
-# spec.md — Smart Dormitory Parcel Management System (SDPMS)
+# spec.md — Dormitory Parcel Management System (DPMS)
 
 **Course:** 1305493 Software Engineering Case Studies, 2569 · **Stage:** DISCOVER → Design (feeds the W5 Gate) · **Sources:** company_charter.md, product_backlog.md, Proposal_Dormitory-Parcel-Management-System.pdf, survey_interview_analysis.md
 **Status:** Draft — requirements + design collapsed into one spec per the course's AI-Native SDLC playbook (Stage 2). Team should review before submitting alongside feature-list.md.
@@ -7,7 +7,7 @@
 
 ## 1. Overview
 
-We help dormitory parcel staff stop fighting Google Sheets during Flash Sale surges, and get residents their parcels faster. SDPMS replaces the current Google Forms/Sheets workflow with a dedicated web app for dormitory parcel staff (10 buildings) and student residents, covering intake → room/resident matching → optional LINE notification → checkout, while preserving the same step-by-step flow staff already use today.
+We help dormitory parcel staff stop fighting Google Sheets during Flash Sale surges, and get residents their parcels faster. DPMS replaces the current Google Forms/Sheets workflow with a dedicated web app for dormitory parcel staff (10 buildings) and student residents, covering intake → room/resident matching → optional LINE notification → checkout, while preserving the same step-by-step flow staff already use today.
 
 **Observed load (confirmed, not a target):** ~417.5 in / ~417.6 out parcels/day average, peaking at **1,024/day** during Flash Sale.
 
@@ -22,7 +22,6 @@ We help dormitory parcel staff stop fighting Google Sheets during Flash Sale sur
 
 **In scope:**
 - Parcel check-in: scan or type the tracking number, then validate/select the room via the resident directory (autocomplete/dropdown, not free-text)
-- Parcel storage tracking: tag each parcel with its physical location (building of 10, shelf/bin)
 - Search & lookup: by room number, tracking code, or resident name/nickname (plain exact/substring text search — no AI ranking or confidence-scored suggestions)
 - Unmatched-parcel review queue, tagged by reason
 - Parcel check-out: bulk (all open parcels for a room) or selective (one at a time)
@@ -85,6 +84,6 @@ No real resident data is available for development or testing — one of the fiv
 
 ## 8. One Core Workflow (must match every other artifact)
 
-Scan → validate room/resident against the directory → shelve → notify (LINE, opt-in) → check out (bulk or selective).
+Scan → validate room/resident against the directory → notify (LINE, opt-in) → check out (bulk or selective).
 
 Every diagram, the user-journey, and the prototype (produced separately for the W4 design pack) must trace back to this same thread — see `feature-list.md` for which single feature is marked as the starting point of that thread.

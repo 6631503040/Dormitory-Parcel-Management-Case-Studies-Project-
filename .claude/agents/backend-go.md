@@ -8,7 +8,7 @@ model: sonnet
 You own the Application Server tier of the Dormitory Parcel Management System (three-tier architecture: React frontend / Go+Gin backend / PostgreSQL database).
 
 Core responsibilities, grounded in the project proposal:
-- Parcel Check-In endpoint: accept a tracking barcode + room number, re-validate the room number server-side against the resident directory (never trust client-side autocomplete alone), and assign a storage location (building 1–10 + shelf/bin).
+- Parcel Check-In endpoint: accept a tracking barcode + room number, re-validate the room number server-side against the resident directory (never trust client-side autocomplete alone).
 - Parcel Check-Out endpoints: support both "check out all pending parcels for a room" in one action and "check out a single parcel" — both must stay available, this flexibility is a stated project objective, not optional.
 - Search & Lookup endpoint: query by room number, tracking code, or resident name; must stay fast under high concurrent load (up to 1,024 parcels/day during Flash Sale).
 - Dashboard endpoint(s): daily parcel volume and pending-item counts.

@@ -5,7 +5,7 @@
 > subfolder — or change what one is for — update this file in the same change. `CLAUDE.md`
 > points here.
 
-Last updated: 2026-09-04 | Phase: pre-implementation (Milestones 1–2: requirements & design)
+Last updated: 2026-09-04 (reconciled with actual tree) | Phase: pre-implementation (Milestones 1–2: requirements & design)
 
 ---
 
@@ -27,16 +27,35 @@ Case Studies Project/
 │   │       ├── README.md      #     Naming: {YYYYMMDD}-{no}-{topic}.md
 │   │       └── {YYYYMMDD}-{no}-{topic}.md   #  the specs themselves
 │   ├── 02-design/             # Milestone 2 — design
-│   │   ├── design-spec.md     #   LOCKED design decisions (identity, terminology, tokens, screens, data models, copy)
-│   │   └── user_journey.md    #   Staff check-in and resident pickup journeys
+│   │   ├── design-spec.md               #   LOCKED design decisions (identity, terminology, tokens, screens, data models, copy)
+│   │   ├── user_journey.md              #   Staff check-in and resident pickup journeys
+│   │   ├── company_charter.md           #   Course Week 1 deliverable — JOBAS Company charter
+│   │   ├── product_backlog.md           #   Course Week 3→5 backlog (SDPMS naming) — see "Parallel doc set" note below
+│   │   ├── feature-list.md              #   Course Week 4 deliverable — features grouped from product_backlog.md
+│   │   ├── spec.md                      #   Requirements + design collapsed into one spec (SDPMS)
+│   │   ├── rule.md                      #   SDPMS legal/compliance rules (parallel to root rule.md — see note)
+│   │   ├── survey_interview_analysis.md #   Survey + interview findings (Thai) from 10 users + staff PDF
+│   │   ├── diagram/                     #   Design diagrams (empty placeholder, not yet tracked)
+│   │   └── prototype/                   #   Throwaway React+Vite UI prototype (was "pototype/" — typo rename in progress)
+│   │       ├── index.html, package.json, vite/tailwind/postcss configs
+│   │       └── src/  App.jsx, main.jsx, styles.css, components/ (ParcelHub, Dashboard, Login, TopNav, Modals, Archive, …)
 │   └── 05-log/                # Dated working log + meeting notes + audit reports
 │       ├── README.md          #   Naming: {YYYYMMDD}-log.md, {YYYYMMDD}-backlog-audit.md, {YYYYMMDD}-{topic}.md
-│       └── {YYYYMMDD}-log.md
+│       ├── {YYYYMMDD}-log.md
+│       └── 20260904-frontend-prototype-review.md   #  review of the docs/02-design/prototype/ app
 │
 └── .claude/
     ├── agents/               # Specialist subagent definitions (see table below)
     └── skills/               # Installed skills — see "Skills" below
 ```
+
+> **Parallel doc set (unresolved):** the `docs/02-design/*.md` files added via PR #4/#5
+> (`company_charter.md`, `product_backlog.md`, `feature-list.md`, `spec.md`, `rule.md`,
+> `survey_interview_analysis.md`) use different naming — "Smart Dormitory Parcel Management
+> System (SDPMS)" / "JOBAS Company" — and partly duplicate the canonical docs
+> (`docs/01-requirements/backlog.md`, root `rule.md`). Which set is authoritative has not
+> been decided. Until it is, treat `CLAUDE.md` + `design-spec.md` + `docs/01-requirements/`
+> + root `rule.md` as canonical and the `02-design/*.md` set as course-deliverable inputs.
 
 `docs/` folders `03-*` and `04-*` are reserved by the course's numbering scheme and not
 created yet. Add them when the corresponding phase starts and record them here.
@@ -68,7 +87,9 @@ conventions — read it before adding files.
 | A requirement / user story (one-line index) | `docs/01-requirements/backlog.md` |
 | The full spec for a requirement | `docs/01-requirements/01-spec/{YYYYMMDD}-{no}-{topic}.md` (from `_template.md`) |
 | A feature request outside the locked scope | `docs/01-requirements/backlog.md` → scope-creep parking lot (status `SCOPE-CREEP`) |
-| A wireframe, mockup, or UX flow diagram | `docs/02-design/` |
+| A wireframe, mockup, or UX flow diagram | `docs/02-design/` (diagrams → `docs/02-design/diagram/`) |
+| Throwaway UI prototype code (not the real app) | `docs/02-design/prototype/` |
+| A course deliverable doc (charter, survey analysis, etc.) | `docs/02-design/` — see "Parallel doc set" note |
 | A design decision (color, term, screen, data model, copy) | `docs/02-design/design-spec.md` (LOCKED — update every reference too) |
 | A daily working note / decision / blocker | `docs/05-log/{YYYYMMDD}-log.md` |
 | Advisor meeting notes / sprint review | `docs/05-log/{YYYYMMDD}-{topic}.md` |
