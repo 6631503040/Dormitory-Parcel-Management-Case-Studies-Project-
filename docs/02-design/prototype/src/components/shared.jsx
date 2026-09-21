@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Package, Check, X, Clock, AlertTriangle, Search } from "lucide-react";
 
 export const C = {
@@ -23,7 +23,7 @@ export const displayFont = { fontFamily: "'Space Grotesk', sans-serif" };
 export const bodyFont = { fontFamily: "'DM Sans', sans-serif" };
 
 export const INITIAL_PARCELS = [
-  { id: "1", code: "TH3344556677", room: "090", name: "สมชาย ใจดี", line: "@somchai_j", qty: 1, receivedAt: "2026-08-15T08:30:00", status: "in" },
+  { id: "1", code: "TH3344556677", room: "090", name: "สมชาย ใจดี", line: "@somchai_j", qty: 1, damaged: true, damageReason: "ตัวอย่าง: กรุณาตรวจสอบว่า LINE ID ตรงกับห้อง 090", receivedAt: "2026-08-15T08:30:00", status: "in" },
   { id: "2", code: "TH8827301923", room: "101/2", name: "ณัฐพล สุขใจ", line: "@nattapon_s", qty: 1, receivedAt: "2026-08-18T09:14:00", status: "in" },
   { id: "3", code: "TH1029384756", room: "203/1", name: "พิมพ์ชนก แสงทอง", line: "pimchanok.st", qty: 2, receivedAt: "2026-08-21T10:02:00", status: "in" },
   { id: "4", code: "PK12345678910TH", room: "305", name: "กันตพงศ์ วงศ์ไพร", line: "@kantapong99", qty: 1, receivedAt: "2026-08-22T16:02:00", status: "in" },
@@ -127,7 +127,9 @@ export function SearchBar({ value, onChange, placeholder }) {
   );
 }
 
-export function ParcelTable({ parcels, emptyLabel }) {
+export function ParcelTable({ parcels, emptyLabel, showLine = true }) {
+  const [expandedDamageId, setExpandedDamageId] = useState(null);
+
   if (parcels.length === 0) {
     return (
       <div className="py-16 flex flex-col items-center justify-center text-center">
@@ -144,27 +146,41 @@ export function ParcelTable({ parcels, emptyLabel }) {
       <table className="w-full text-base" style={bodyFont}>
         <thead>
           <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-            {["ห้อง / ชื่อ / Line", "เลขพัสดุ", "จำนวน", "วันที่รับเข้า", "สถานะ", "วันที่นำจ่าย"].map((h) => (
+            {[(showLine ? "ห้อง / ชื่อ / Line" : "ห้อง / ชื่อ"), "เลขพัสดุ", "จำนวน", "วันที่รับเข้า", "สถานะ", "วันที่นำจ่าย"].map((h) => (
               <th key={h} className="text-left py-3 px-3 font-medium first:pl-1" style={{ color: C.textMuted, fontSize: 12.5 }}>{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {parcels.map((p) => (
-            <tr key={p.id} style={{ borderBottom: `1px solid ${C.border}` }}>
+            <React.Fragment key={p.id}>
+              <tr style={{ borderBottom: `1px solid ${C.border}` }}>
               <td className="py-3.5 px-3 pl-1">
                 <div className="flex items-center gap-1.5">
                   <p className="font-semibold" style={{ color: C.text }}>{roomLabel(p)}</p>
-                  {p.damaged && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: C.warning, color: "#fff" }} title={p.damageReason || "พัสดุมีปัญหา"}>ชำรุด</span>}
+                  {p.damaged && <button type="button" onClick={() => setExpandedDamageId((id) => (id === p.id ? null : p.id))} aria-expanded={expandedDamageId === p.id} className="text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: C.warning, color: "#fff" }}>ชำรุด</button>}
                 </div>
-                {p.line && p.line !== "-" && <p className="text-xs mt-0.5" style={{ color: C.textMuted }}>{p.line}</p>}
+                {showLine && p.line && p.line !== "-" && <p className="text-xs mt-0.5" style={{ color: C.textMuted }}>{p.line}</p>}
               </td>
-              <td className="py-3.5 px-3" style={{ color: C.text }}>{p.code}</td>
+              <td className="py-3.5 px-3">
+                <p style={{ color: C.text }}>{p.code}</p>
+              </td>
               <td className="py-3.5 px-3" style={{ color: C.text }}>{p.qty}</td>
               <td className="py-3.5 px-3" style={{ color: C.textMuted }}>{formatThaiDateTime(p.receivedAt)}</td>
               <td className="py-3.5 px-3"><StatusChip status={p.status} /></td>
               <td className="py-3.5 px-3" style={{ color: C.textMuted }}>{p.exitedAt ? formatThaiDateTime(p.exitedAt) : "-"}</td>
-            </tr>
+              </tr>
+              {p.damaged && expandedDamageId === p.id && (
+                <tr>
+                <td colSpan="6" className="px-3 pb-3 pt-0">
+                  <div className="rounded-lg border px-4 py-3" style={{ background: C.warningLight, borderColor: C.warning }}>
+                    <p className="text-xs font-semibold mb-1" style={{ color: C.warning }}>เหตุผลพัสดุชำรุด</p>
+                    <p className="text-sm whitespace-pre-wrap break-words" style={{ color: C.text }}>{p.damageReason || "ไม่ได้ระบุเหตุผล"}</p>
+                  </div>
+                </td>
+                </tr>
+              )}
+            </React.Fragment>
           ))}
         </tbody>
       </table>
@@ -191,7 +207,7 @@ export function BottleneckPanel({ parcels }) {
             <AlertTriangle size={17} style={{ color: C.warning }} />
           </div>
           <div>
-            <p className="text-sm font-semibold" style={{ ...bodyFont, color: C.text }}>พัสดุตกค้างนานที่สุด</p>
+            <p className="text-sm font-semibold" style={{ ...bodyFont, color: C.text }}>พัสดุตกค้างนานที่สุดและพัสดุมีปัญหา</p>
             <p className="text-xs" style={{ ...bodyFont, color: C.textMuted }}>เรียงลำดับพัสดุที่รอรับนานที่สุดก่อน</p>
           </div>
         </div>

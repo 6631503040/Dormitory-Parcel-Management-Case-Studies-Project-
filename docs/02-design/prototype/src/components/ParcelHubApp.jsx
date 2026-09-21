@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LoginPage from "./LoginPage";
 import DashboardPage from "./DashboardPage";
 import ArchivePage from "./ArchivePage";
@@ -6,15 +6,71 @@ import TopNav from "./TopNav";
 import { Banner, PageHeader, C, bodyFont, INITIAL_PARCELS, roomLabel, useFonts } from "./shared";
 import { CheckOutModal, CheckInModal } from "./Modals";
 
-let idCounter = INITIAL_PARCELS.length + 1;
+const AUTH_STORAGE_KEY = "parcelhub-authenticated";
+const PARCELS_STORAGE_KEY = "parcelhub-parcels";
+const DEMO_NOTIFICATION_SEEDED_KEY = "parcelhub-demo-notification-seeded";
+
+function isValidParcel(p) {
+  return (
+    !!p &&
+    typeof p.code === "string" && p.code.trim() !== "" &&
+    typeof p.room === "string" && p.room.trim() !== "" &&
+    (p.status === "in" || p.status === "out") &&
+    Number.isFinite(Number(p.qty)) && Number(p.qty) > 0
+  );
+}
+
+function readStoredParcels() {
+  try {
+    const stored = localStorage.getItem(PARCELS_STORAGE_KEY);
+    if (!stored) return INITIAL_PARCELS;
+    const parcels = JSON.parse(stored);
+    // Guard against stale/corrupted state (e.g. blank fields from earlier
+    // testing) so the app self-heals back to sample data instead of showing
+    // an empty-looking dashboard/archive forever.
+    if (!Array.isArray(parcels) || parcels.length === 0 || !parcels.every(isValidParcel)) {
+      return INITIAL_PARCELS;
+    }
+    if (localStorage.getItem(DEMO_NOTIFICATION_SEEDED_KEY) === "true") return parcels;
+
+    const demoParcel = parcels.find((parcel) => parcel.id === "1");
+    localStorage.setItem(DEMO_NOTIFICATION_SEEDED_KEY, "true");
+    return demoParcel
+      ? parcels.map((parcel) => (
+          parcel.id === "1"
+            ? { ...parcel, damaged: true, damageReason: "ตัวอย่าง: กรุณาตรวจสอบว่า LINE ID ตรงกับห้อง 090" }
+            : parcel
+        ))
+      : parcels;
+  } catch {
+    return INITIAL_PARCELS;
+  }
+}
+
+const storedParcels = readStoredParcels();
+let idCounter = storedParcels.reduce((max, parcel) => Math.max(max, Number(parcel.id) || 0), 0) + 1;
 
 export default function ParcelHubApp() {
   useFonts();
-  const [authed, setAuthed] = useState(false);
+  const [authed, setAuthed] = useState(() => localStorage.getItem(AUTH_STORAGE_KEY) === "true");
   const [page, setPage] = useState("dashboard");
-  const [parcels, setParcels] = useState(INITIAL_PARCELS);
+  const [parcels, setParcels] = useState(storedParcels);
   const [modal, setModal] = useState(null);
   const [banner, setBanner] = useState(null);
+
+  useEffect(() => {
+    localStorage.setItem(PARCELS_STORAGE_KEY, JSON.stringify(parcels));
+  }, [parcels]);
+
+  const handleLogin = () => {
+    localStorage.setItem(AUTH_STORAGE_KEY, "true");
+    setAuthed(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    setAuthed(false);
+  };
 
   const showBanner = (message, tone = "success") => {
     setBanner({ message, tone });
@@ -66,7 +122,7 @@ export default function ParcelHubApp() {
   };
 
   if (!authed) {
-    return <LoginPage onLogin={() => setAuthed(true)} />;
+    return <LoginPage onLogin={handleLogin} />;
   }
 
   return (
@@ -80,7 +136,7 @@ export default function ParcelHubApp() {
       <TopNav
         page={page}
         setPage={setPage}
-        onLogout={() => setAuthed(false)}
+        onLogout={handleLogout}
         parcels={parcels}
         onConfirmParcel={handleConfirmParcelInfo}
       />
