@@ -1,0 +1,8 @@
+# Secrets and local config — never commit
+docker/.env
+.env
+
+# Build output
+backend/server
+backend/seed
+backend/*.exe

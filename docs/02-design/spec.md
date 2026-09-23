@@ -7,14 +7,14 @@
 
 ## 1. Overview
 
-We help dormitory parcel staff stop fighting Google Sheets during Flash Sale surges, and get residents their parcels faster. DPMS replaces the current Google Forms/Sheets workflow with a dedicated web app for dormitory parcel staff (10 buildings) and student residents, covering intake → room/resident matching → optional LINE notification → checkout, while preserving the same step-by-step flow staff already use today.
+We help dormitory parcel staff stop fighting Google Sheets during Flash Sale surges, and get residents their parcels faster. DPMS replaces the current Google Forms/Sheets workflow with a dedicated web app for dormitory parcel staff (10 buildings) and student residents, covering intake → room/resident matching → optional LINE status check → checkout, while preserving the same step-by-step flow staff already use today.
 
 **Observed load (confirmed, not a target):** ~417.5 in / ~417.6 out parcels/day average, peaking at **1,024/day** during Flash Sale.
 
 ## 2. Actors
 
 - **Dormitory parcel staff** (front-desk/operator) — one role across all 10 buildings. Runs intake, matching, notifications, and checkout.
-- **Student resident** — receives parcels; optionally opts in to LINE notifications; not authenticated at pickup today (no ID check).
+- **Student resident** — receives parcels; optionally links LINE (OTP-verified) to check parcel status on demand; not authenticated at pickup today (no ID check).
 
 *(Use these exact two actor names in D1/D2 diagrams — anything else won't trace back to this spec.)*
 
@@ -25,14 +25,14 @@ We help dormitory parcel staff stop fighting Google Sheets during Flash Sale sur
 - Search & lookup: by room number, tracking code, or resident name/nickname (plain exact/substring text search — no AI ranking or confidence-scored suggestions)
 - Unmatched-parcel review queue, tagged by reason
 - Parcel check-out: bulk (all open parcels for a room) or selective (one at a time)
-- LINE notification on check-in, opt-in, staff-confirmed link only
+- LINE parcel-status check button, opt-in, OTP-verified link only
 - Legal/compliance logging (consent, access/action log, verifiable consent records) and AI-ethics safeguards (human confirmation, graceful degradation)
 
 **Out of scope (this build):**
 - Automated handwriting recognition (OCR) of hand-written labels — deferred, see backlog US-03
 - Nickname-to-legal-name fuzzy/AI-ranked matching — search is plain text only (see §4, US-05)
 - Mobile app (iOS/Android) — web application only
-- Direct API integration with courier companies for automatic tracking-status updates — this also means the "courier says delivered but staff haven't keyed it in yet" gap (the most common resident complaint in interviews, 6/9, `survey_interview_analysis.md` §1) isn't closed by this build; LINE notifications correctly fire only once staff actually check the parcel in
+- Direct API integration with courier companies for automatic tracking-status updates — this also means the "courier says delivered but staff haven't keyed it in yet" gap (the most common resident complaint in interviews, 6/9, `survey_interview_analysis.md` §1) isn't closed by this build; a LINE status check made before staff key the parcel in correctly returns "not yet"
 - Any identity check or digital signature at pickup — the existing paper logbook stays a separate, unchanged, out-of-system process
 - Resident self-service checkout (scan-your-own-QR) — raised by a resident in interviews, not adopted; noted as a future-version idea
 
@@ -46,9 +46,9 @@ Full Gherkin acceptance criteria live in `product_backlog.md` — this table is 
 | E1 | US-02 | Manual tracking-number entry when scan fails; same room-ID handoff as US-01 |
 | E2 — Resident & Room Matching | US-05 | Look up resident/LINE-link status by room number, or by plain-text name/nickname search (no AI ranking) |
 | E2 | US-06 | Unmatched parcels parked in a visible queue, tagged by reason (No match / No resident / Ambiguous / Other) |
-| E3 — Real-Time LINE Notifications | US-08 | Auto-send a LINE message on check-in, only if the resident's link is staff-confirmed |
-| E3 | US-10 | Notification content is minimal: building, room, parcel reference only |
-| E3 | US-11 | Two-step opt-in: resident adds the LINE account, staff confirms the match before notifications start |
+| E3 — LINE Parcel-Status Check & OTP Identity Verification | US-08 | Resident taps a "Check Parcel" button in LINE to see pending-parcel status on demand |
+| E3 | US-10 | Status-reply content is minimal: building, room, parcel reference only |
+| E3 | US-11 | Four-step OTP challenge: resident claims a room number in LINE, system generates a code, staff reads it to the resident in person, resident types it back to confirm the link |
 | E4 — Parcel Check-Out | US-12 | Bulk check-out: one digital action closes every open parcel for a room, matched by per-item barcode scan at physical handover |
 | E4 | US-13 | Selective single-parcel check-out, with a required reason code for anything marked missing/unclaimed |
 | E4 | US-15 | Soft, dismissible name/room mismatch warning at checkout (not a hard block) |
@@ -74,7 +74,7 @@ D3 (architecture diagram) must show this exact three-tier shape and must not con
 - **Performance:** scan-to-record under 2 seconds; room/resident search under 1 second; no degradation at the observed 1,024/day Flash Sale peak.
 - **Security:** HTTPS on all traffic; staff passwords hashed and salted; PostgreSQL encrypted at rest and in transit; role-based access so staff only see data relevant to their duties.
 - **Compliance:** PDPA, Computer Crime Act §26, Electronic Transactions Act §9/26/28 — agent-executable rules in `rule.md`.
-- **Reliability / graceful degradation:** if OCR or the LINE API is unreachable, check-in/check-out must still work — OCR failure falls back to manual entry (US-02); LINE failure queues the notification instead of blocking the workflow (ET-04).
+- **Reliability / graceful degradation:** if OCR or the LINE API is unreachable, check-in/check-out must still work — OCR failure falls back to manual entry (US-02); LINE failure simply reports "try again later" for OTP issuance and status checks instead of blocking the workflow (ET-04).
 - **Data retention:** parcel records kept only as long as operationally necessary, then archived or removed; access/action logs kept a **minimum** of 90 days regardless.
 - **Accessibility:** low-typing workflow (autocomplete/dropdown, barcode scan over free-text), sufficient color contrast, keyboard navigation — usable under peak-hour pressure by staff of varying technical proficiency.
 
@@ -84,6 +84,6 @@ No real resident data is available for development or testing — one of the fiv
 
 ## 8. One Core Workflow (must match every other artifact)
 
-Scan → validate room/resident against the directory → notify (LINE, opt-in) → check out (bulk or selective).
+Scan → validate room/resident against the directory → status check (LINE, opt-in, OTP-linked) → check out (bulk or selective).
 
 Every diagram, the user-journey, and the prototype (produced separately for the W4 design pack) must trace back to this same thread — see `feature-list.md` for which single feature is marked as the starting point of that thread.

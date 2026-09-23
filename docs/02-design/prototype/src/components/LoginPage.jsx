@@ -1,19 +1,30 @@
 import React, { useState } from "react";
 import { Package, User, Lock, LogIn } from "lucide-react";
 import { C, bodyFont, displayFont } from "./shared";
+import { api } from "../api/client";
+import { errorMessage } from "../api/errorMessages";
 
 export default function LoginPage({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const submit = () => {
+  const submit = async () => {
     if (!username.trim() || !password.trim()) {
       setError("กรุณากรอกชื่อผู้ใช้และรหัสผ่าน");
       return;
     }
     setError("");
-    onLogin(username.trim());
+    setSubmitting(true);
+    try {
+      const res = await api.login(username.trim(), password);
+      onLogin(res.staff);
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -35,23 +46,23 @@ export default function LoginPage({ onLogin }) {
 
         <div className="rounded-3xl border p-6 space-y-4 shadow-sm" style={{ background: C.card, borderColor: C.border }}>
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ ...bodyFont, color: C.textMuted }}>ชื่อผู้ใช้</label>
+            <label htmlFor="login-username" className="block text-xs font-medium mb-1.5" style={{ ...bodyFont, color: C.textMuted }}>ชื่อผู้ใช้</label>
             <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border" style={{ borderColor: C.border }}>
               <User size={16} style={{ color: C.textMuted }} />
-              <input value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={handleKeyDown} placeholder="admin" className="w-full outline-none text-sm bg-transparent" style={bodyFont} />
+              <input id="login-username" disabled={submitting} value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={handleKeyDown} placeholder="somsri" className="w-full outline-none text-sm bg-transparent disabled:opacity-60" style={bodyFont} />
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ ...bodyFont, color: C.textMuted }}>รหัสผ่าน</label>
+            <label htmlFor="login-password" className="block text-xs font-medium mb-1.5" style={{ ...bodyFont, color: C.textMuted }}>รหัสผ่าน</label>
             <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border" style={{ borderColor: C.border }}>
               <Lock size={16} style={{ color: C.textMuted }} />
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={handleKeyDown} placeholder="••••••••" className="w-full outline-none text-sm bg-transparent" style={bodyFont} />
+              <input id="login-password" disabled={submitting} type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={handleKeyDown} placeholder="••••••••" className="w-full outline-none text-sm bg-transparent disabled:opacity-60" style={bodyFont} />
             </div>
           </div>
-          {error && <p className="text-xs" style={{ ...bodyFont, color: "#D64545" }}>{error}</p>}
-          <button type="button" onClick={submit} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ ...bodyFont, background: C.primary }}>
+          {error && <p role="alert" className="text-xs" style={{ ...bodyFont, color: "#D64545" }}>{error}</p>}
+          <button type="button" disabled={submitting} onClick={submit} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60" style={{ ...bodyFont, background: C.primary }}>
             <LogIn size={16} />
-            เข้าสู่ระบบ
+            {submitting ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}
           </button>
         </div>
       </div>
