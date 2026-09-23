@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Package, Check, X, Clock, AlertTriangle, Search } from "lucide-react";
+import React from "react";
+import { Package, Check, HelpCircle, X, Search } from "lucide-react";
+import { unmatchedReasonLabel } from "../constants/unmatchedReasons";
 
 export const C = {
   bg: "#FFFDF8",
@@ -22,87 +23,78 @@ export const C = {
 export const displayFont = { fontFamily: "'Space Grotesk', sans-serif" };
 export const bodyFont = { fontFamily: "'DM Sans', sans-serif" };
 
-export const INITIAL_PARCELS = [
-  { id: "1", code: "TH3344556677", room: "090", name: "สมชาย ใจดี", line: "@somchai_j", qty: 1, damaged: true, damageReason: "ตัวอย่าง: กรุณาตรวจสอบว่า LINE ID ตรงกับห้อง 090", receivedAt: "2026-08-15T08:30:00", status: "in" },
-  { id: "2", code: "TH8827301923", room: "101/2", name: "ณัฐพล สุขใจ", line: "@nattapon_s", qty: 1, receivedAt: "2026-08-18T09:14:00", status: "in" },
-  { id: "3", code: "TH1029384756", room: "203/1", name: "พิมพ์ชนก แสงทอง", line: "pimchanok.st", qty: 2, receivedAt: "2026-08-21T10:02:00", status: "in" },
-  { id: "4", code: "PK12345678910TH", room: "305", name: "กันตพงศ์ วงศ์ไพร", line: "@kantapong99", qty: 1, receivedAt: "2026-08-22T16:02:00", status: "in" },
-  { id: "5", code: "TH5566778899", room: "108/1", name: "อารียา คงสวัสดิ์", line: "areeya_ks", qty: 3, receivedAt: "2026-08-19T13:40:00", status: "out", exitedAt: "2026-08-20T08:10:00" },
-  { id: "6", code: "TH2233445566", room: "212", name: "ธีรภัทร มั่นคง", line: "@teerapat.m", qty: 1, receivedAt: "2026-08-18T11:25:00", status: "out", exitedAt: "2026-08-18T18:47:00" },
-  { id: "7", code: "TH9988001122", room: "150/3", name: "ชญานิษฐ์ เพชรรัตน์", line: "chayanit.p", qty: 1, receivedAt: "2026-08-17T09:05:00", status: "out", exitedAt: "2026-08-17T17:30:00" },
-];
-
 export const THAI_MONTHS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
+const pad = (n) => String(n).padStart(2, "0");
+
 export function formatThaiDateTime(iso) {
+  if (!iso) return "-";
   const d = new Date(iso);
-  const pad = (n) => String(n).padStart(2, "0");
   return `${d.getDate()} ${THAI_MONTHS[d.getMonth()]} ${d.getFullYear() + 543} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function daysWaiting(iso) {
-  return (Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24);
+// yyyy-mm-dd in local time, the format <input type="date"> and the API's `date` param both use.
+export function toDateInputValue(d = new Date()) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-export function waitLabel(days) {
-  if (days < 1) return `${Math.max(1, Math.round(days * 24))} ชม.`;
-  return `${Math.floor(days)} วัน`;
+// A Parcel from the API has `room: null` exactly when it is parked in the unmatched queue
+// (backend/README.md: room_id is nullable only while status is pending and unmatched_reason is set).
+export function isUnmatched(parcel) {
+  return !parcel.room;
 }
 
-export const WAIT_WARN_DAYS = 2;
-export const WAIT_CRITICAL_DAYS = 4;
-
-export function waitSeverity(days) {
-  if (days >= WAIT_CRITICAL_DAYS) return "critical";
-  if (days >= WAIT_WARN_DAYS) return "warn";
-  return "ok";
+// A room's resident-facing number is building+floor+room concatenated with no separator, e.g.
+// building 3, floor 1, room 01 -> "3101" — never "B3 101".
+export function roomLabel(parcel) {
+  if (!parcel.room) return "ไม่ระบุห้อง";
+  const names = (parcel.residents || []).map((r) => r.fullName);
+  const place = `${parcel.room.buildingCode}${parcel.room.roomNumber}`;
+  return names.length ? `${place} · ${names.join(" / ")}` : place;
 }
 
-export const ROOM_DIRECTORY = {
-  "090": ["สมชาย ใจดี"],
-  "101/2": ["ณัฐพล สุขใจ"],
-  "203/1": ["พิมพ์ชนก แสงทอง"],
-  "305": ["กันตพงศ์ วงศ์ไพร"],
-  "108/1": ["อารียา คงสวัสดิ์"],
-  "212": ["ธีรภัทร มั่นคง"],
-  "150/3": ["ชญานิษฐ์ เพชรรัตน์"],
-};
-
-export function roomLabel(p) {
-  const residents = ROOM_DIRECTORY[p.room];
-  if (residents && residents.length) return `${p.room} · ${residents.join(" / ")}`;
-  if (p.name && p.name !== "-") return `${p.room} · ${p.name}`;
-  return p.room;
-}
-
-export function StatusChip({ status }) {
-  if (status === "in") {
+export function StatusChip({ parcel }) {
+  if (parcel.status === "picked_up") {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: C.navyChip, color: C.navy }}>
-        <span className="w-1.5 h-1.5 rounded-full" style={{ background: C.navy }} />
-        รอรับ
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: C.successLight, color: C.success }}>
+        <Check size={12} strokeWidth={3} />
+        นำออกแล้ว
       </span>
     );
   }
-
+  if (parcel.status === "archived") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: C.bg, color: C.textMuted }}>
+        เก็บประวัติ
+      </span>
+    );
+  }
+  if (isUnmatched(parcel)) {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: C.warningLight, color: C.warning }}>
+        <HelpCircle size={12} strokeWidth={3} />
+        มีปัญหา
+      </span>
+    );
+  }
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: C.successLight, color: C.success }}>
-      <Check size={12} strokeWidth={3} />
-      นำออกแล้ว
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: C.navyChip, color: C.navy }}>
+      <span className="w-1.5 h-1.5 rounded-full" style={{ background: C.navy }} />
+      รอรับ
     </span>
   );
 }
 
 export function Banner({ message, tone = "success", onClose }) {
   if (!message) return null;
-  const bg = tone === "success" ? C.successLight : C.primaryLight;
-  const fg = tone === "success" ? C.success : C.primaryDark;
+  const bg = tone === "success" ? C.successLight : tone === "error" ? C.warningLight : C.primaryLight;
+  const fg = tone === "success" ? C.success : tone === "error" ? C.warning : C.primaryDark;
 
   return (
-    <div className="fixed top-5 right-5 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-medium animate-fade" style={{ background: bg, color: fg, ...bodyFont }}>
-      <Check size={16} strokeWidth={3} />
-      {message}
-      <button onClick={onClose} className="ml-2 opacity-60 hover:opacity-100">
+    <div role="status" aria-live="polite" className="fixed top-5 right-5 z-[70] flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-medium animate-fade max-w-md" style={{ background: bg, color: fg, ...bodyFont }}>
+      <Check size={16} strokeWidth={3} className="flex-shrink-0" />
+      <span>{message}</span>
+      <button onClick={onClose} aria-label="ปิดข้อความ" className="ml-2 opacity-60 hover:opacity-100 flex-shrink-0">
         <X size={14} />
       </button>
     </div>
@@ -120,16 +112,31 @@ export function PageHeader({ eyebrow, title }) {
 
 export function SearchBar({ value, onChange, placeholder }) {
   return (
-    <div className="flex items-center gap-3 px-5 py-4 rounded-2xl border-2 w-full" style={{ borderColor: C.border, background: C.card }}>
+    <div className="flex items-center gap-3 px-5 py-4 rounded-2xl border-2 w-full focus-within:ring-2 focus-within:ring-blue-300" style={{ borderColor: C.border, background: C.card }}>
       <Search size={24} strokeWidth={2.5} style={{ color: C.textMuted }} />
-      <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="w-full outline-none text-lg bg-transparent" style={{ ...bodyFont, color: C.text }} />
+      <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} aria-label={placeholder} className="w-full outline-none text-lg bg-transparent" style={{ ...bodyFont, color: C.text }} />
     </div>
   );
 }
 
-export function ParcelTable({ parcels, emptyLabel, showLine = true }) {
-  const [expandedDamageId, setExpandedDamageId] = useState(null);
+export function LoadMoreFooter({ shown, total, onLoadMore, loading }) {
+  return (
+    <div className="flex items-center justify-between gap-3 pt-3">
+      <p className="text-xs" style={{ ...bodyFont, color: C.textMuted }}>แสดง {shown.toLocaleString()} จาก {total.toLocaleString()} รายการ</p>
+      {shown < total && (
+        <button onClick={onLoadMore} disabled={loading} className="text-sm font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-50 disabled:opacity-50" style={{ ...bodyFont, color: C.primaryDark }}>
+          {loading ? "กำลังโหลด…" : "แสดงเพิ่ม"}
+        </button>
+      )}
+    </div>
+  );
+}
 
+const TABLE_HEADERS = ["ห้อง / ผู้พัก", "เลขพัสดุ", "วันที่รับเข้า", "สถานะ", "วันที่นำจ่าย"];
+
+// A plain table: it renders exactly the Parcels it is given. Callers own pagination (the API
+// paginates every list, so there is never an unbounded array to slice client-side).
+export function ParcelTable({ parcels, emptyLabel, onSelect }) {
   if (parcels.length === 0) {
     return (
       <div className="py-16 flex flex-col items-center justify-center text-center">
@@ -146,104 +153,34 @@ export function ParcelTable({ parcels, emptyLabel, showLine = true }) {
       <table className="w-full text-base" style={bodyFont}>
         <thead>
           <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-            {[(showLine ? "ห้อง / ชื่อ / Line" : "ห้อง / ชื่อ"), "เลขพัสดุ", "จำนวน", "วันที่รับเข้า", "สถานะ", "วันที่นำจ่าย"].map((h) => (
+            {TABLE_HEADERS.map((h) => (
               <th key={h} className="text-left py-3 px-3 font-medium first:pl-1" style={{ color: C.textMuted, fontSize: 12.5 }}>{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {parcels.map((p) => (
-            <React.Fragment key={p.id}>
-              <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+            <tr
+              key={p.trackingCode}
+              onClick={onSelect ? () => onSelect(p) : undefined}
+              onKeyDown={onSelect ? (e) => { if (e.key === "Enter") onSelect(p); } : undefined}
+              tabIndex={onSelect ? 0 : undefined}
+              title={onSelect ? "ดูประวัติพัสดุ" : undefined}
+              className={onSelect ? "cursor-pointer hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-400" : ""}
+              style={{ borderBottom: `1px solid ${C.border}` }}
+            >
               <td className="py-3.5 px-3 pl-1">
-                <div className="flex items-center gap-1.5">
-                  <p className="font-semibold" style={{ color: C.text }}>{roomLabel(p)}</p>
-                  {p.damaged && <button type="button" onClick={() => setExpandedDamageId((id) => (id === p.id ? null : p.id))} aria-expanded={expandedDamageId === p.id} className="text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: C.warning, color: "#fff" }}>ชำรุด</button>}
-                </div>
-                {showLine && p.line && p.line !== "-" && <p className="text-xs mt-0.5" style={{ color: C.textMuted }}>{p.line}</p>}
+                <p className="font-semibold" style={{ color: isUnmatched(p) ? C.warning : C.text }}>{roomLabel(p)}</p>
+                {isUnmatched(p) && p.unmatchedReason && <p className="text-xs mt-0.5" style={{ color: C.textMuted }}>{unmatchedReasonLabel(p.unmatchedReason)}</p>}
               </td>
-              <td className="py-3.5 px-3">
-                <p style={{ color: C.text }}>{p.code}</p>
-              </td>
-              <td className="py-3.5 px-3" style={{ color: C.text }}>{p.qty}</td>
-              <td className="py-3.5 px-3" style={{ color: C.textMuted }}>{formatThaiDateTime(p.receivedAt)}</td>
-              <td className="py-3.5 px-3"><StatusChip status={p.status} /></td>
-              <td className="py-3.5 px-3" style={{ color: C.textMuted }}>{p.exitedAt ? formatThaiDateTime(p.exitedAt) : "-"}</td>
-              </tr>
-              {p.damaged && expandedDamageId === p.id && (
-                <tr>
-                <td colSpan="6" className="px-3 pb-3 pt-0">
-                  <div className="rounded-lg border px-4 py-3" style={{ background: C.warningLight, borderColor: C.warning }}>
-                    <p className="text-xs font-semibold mb-1" style={{ color: C.warning }}>เหตุผลพัสดุชำรุด</p>
-                    <p className="text-sm whitespace-pre-wrap break-words" style={{ color: C.text }}>{p.damageReason || "ไม่ได้ระบุเหตุผล"}</p>
-                  </div>
-                </td>
-                </tr>
-              )}
-            </React.Fragment>
+              <td className="py-3.5 px-3" style={{ color: C.text }}>{p.trackingCode}</td>
+              <td className="py-3.5 px-3" style={{ color: C.textMuted }}>{formatThaiDateTime(p.checkedInAt)}</td>
+              <td className="py-3.5 px-3"><StatusChip parcel={p} /></td>
+              <td className="py-3.5 px-3" style={{ color: C.textMuted }}>{p.checkedOutAt ? formatThaiDateTime(p.checkedOutAt) : "-"}</td>
+            </tr>
           ))}
         </tbody>
       </table>
-    </div>
-  );
-}
-
-export function BottleneckPanel({ parcels }) {
-  const pending = parcels.filter((p) => p.status === "in");
-  const ranked = [...pending].sort((a, b) => new Date(a.receivedAt) - new Date(b.receivedAt)).slice(0, 5);
-  const criticalCount = pending.filter((p) => waitSeverity(daysWaiting(p.receivedAt)) === "critical").length;
-
-  const sevStyle = {
-    ok: { bg: C.navyChip, fg: C.navy },
-    warn: { bg: C.primaryLight, fg: C.primaryDark },
-    critical: { bg: C.warningLight, fg: C.warning },
-  };
-
-  return (
-    <div className="rounded-2xl border p-5 mb-6" style={{ background: C.card, borderColor: C.border }}>
-      <div className="flex items-center justify-between gap-3 flex-wrap mb-1">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: C.warningLight }}>
-            <AlertTriangle size={17} style={{ color: C.warning }} />
-          </div>
-          <div>
-            <p className="text-sm font-semibold" style={{ ...bodyFont, color: C.text }}>พัสดุตกค้างนานที่สุดและพัสดุมีปัญหา</p>
-            <p className="text-xs" style={{ ...bodyFont, color: C.textMuted }}>เรียงลำดับพัสดุที่รอรับนานที่สุดก่อน</p>
-          </div>
-        </div>
-        {criticalCount > 0 && (
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: C.warningLight, color: C.warning, ...bodyFont }}>
-            {criticalCount} รายการเกิน {WAIT_CRITICAL_DAYS} วัน
-          </span>
-        )}
-      </div>
-
-      {ranked.length === 0 ? (
-        <p className="text-sm py-6 text-center" style={{ ...bodyFont, color: C.textMuted }}>ไม่มีพัสดุตกค้างในขณะนี้</p>
-      ) : (
-        <div className="mt-3">
-          {ranked.map((p, i) => {
-            const days = daysWaiting(p.receivedAt);
-            const sev = waitSeverity(days);
-            const style = sevStyle[sev];
-            return (
-              <div key={p.id} className="flex items-center justify-between gap-3 py-3" style={{ borderBottom: i < ranked.length - 1 ? `1px solid ${C.border}` : "none" }}>
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-xs font-bold w-5 text-center flex-shrink-0" style={{ ...bodyFont, color: C.textMuted }}>{i + 1}</span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate" style={{ ...bodyFont, color: C.text }}>{roomLabel(p)}</p>
-                    <p className="text-xs truncate" style={{ ...bodyFont, color: C.textMuted }}>{p.code}</p>
-                  </div>
-                </div>
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0" style={{ background: style.bg, color: style.fg, ...bodyFont }}>
-                  <Clock size={11} />
-                  {waitLabel(days)}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 }

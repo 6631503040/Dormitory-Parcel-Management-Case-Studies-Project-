@@ -5,7 +5,7 @@
 > subfolder — or change what one is for — update this file in the same change. `CLAUDE.md`
 > points here.
 
-Last updated: 2026-09-04 (reconciled with actual tree) | Phase: pre-implementation (Milestones 1–2: requirements & design)
+Last updated: 2026-09-22 (frontend wired to the API) | Phase: implementation started — Go API + PostgreSQL exist; the React client in `docs/02-design/prototype/` now calls that API (see its `src/api/`)
 
 ---
 
@@ -18,6 +18,14 @@ Case Studies Project/
 ├── README.md                  # Repo readme (stub — needs rewriting)
 ├── rule.md                    # Legal/compliance rules (PDPA, Computer Crime Act §26, Electronic Transactions Act)
 ├── Project Proposal_Dormitory Parcel Management System.docx   # Original proposal (source of truth for scope/goals/risks)
+│
+├── backend/                   # Go + Gin REST API (module `dpms/backend`) — see backend/README.md
+│   ├── cmd/server/            #   API entrypoint (applies db/migrations on start)
+│   ├── cmd/seed/              #   Synthetic data: directory, staff, ~1,000 parcels (dev only)
+│   └── internal/              #   apperr (error codes) · config · db (pool + migrator) · auth · store (all SQL) · api (routes, handlers, integration tests)
+├── db/
+│   └── migrations/            # PostgreSQL schema, applied in filename order (0001 = design-spec §4; 0002+ = documented extensions)
+├── docker/                    # docker-compose.yml (db + backend), backend.Dockerfile, .env.example (copy to .env, gitignored)
 │
 ├── docs/                      # Numbered documentation, one folder per project phase/artifact
 │   ├── 01-requirements/       # Milestone 1 — requirements & SRS
@@ -36,9 +44,13 @@ Case Studies Project/
 │   │   ├── rule.md                      #   SDPMS legal/compliance rules (parallel to root rule.md — see note)
 │   │   ├── survey_interview_analysis.md #   Survey + interview findings (Thai) from 10 users + staff PDF
 │   │   ├── diagram/                     #   Design diagrams (empty placeholder, not yet tracked)
-│   │   └── prototype/                   #   Throwaway React+Vite UI prototype (was "pototype/" — typo rename in progress)
-│   │       ├── index.html, package.json, vite/tailwind/postcss configs
-│   │       └── src/  App.jsx, main.jsx, styles.css, components/ (ParcelHub, Dashboard, Login, TopNav, Modals, Archive, …)
+│   │   └── prototype/                   #   React+Vite client — visually a prototype, but now calls the real backend API
+│   │       ├── index.html, package.json, vite/tailwind/postcss/vitest configs
+│   │       └── src/
+│   │           ├── api/           #   client.js (fetch wrapper) + errorMessages.js (code → Thai text)
+│   │           ├── constants/     #   unmatchedReasons.js (mirrors the DB enum)
+│   │           ├── test/          #   Vitest setup, MSW server, fixtures shared by *.test.jsx files
+│   │           └── components/    #   ParcelHubApp, Dashboard, Login, TopNav, Modals, Archive, RoomCombobox, UnmatchedQueue, ParcelHistoryModal, …
 │   └── 05-log/                # Dated working log + meeting notes + audit reports
 │       ├── README.md          #   Naming: {YYYYMMDD}-log.md, {YYYYMMDD}-backlog-audit.md, {YYYYMMDD}-{topic}.md
 │       ├── {YYYYMMDD}-log.md
@@ -72,10 +84,7 @@ conventions — read it before adding files.
 | Folder | Purpose | Owning agent |
 |--------|---------|--------------|
 | `frontend/` | React.js + Tailwind CSS client, Vite (Client tier) | `frontend-react` |
-| `backend/` | Go + Gin REST API — check-in/out, room validation, search, dashboard, RBAC, audit (Application Server tier) | `backend-go` |
-| `db/migrations/` | PostgreSQL schema migrations | `db-postgres` |
-| `db/seed/` | Synthetic resident/parcel datasets | `data-seeder` |
-| `docker/` | Dockerfiles + `docker-compose.yml` for the 3 tiers | `devops-docker` |
+| `db/seed/` | (not needed yet — seeding lives in `backend/cmd/seed`; move here only if SQL seeds are wanted) | `data-seeder` |
 | `scripts/` | Dev/ops helper scripts (setup, load-test runners, data import) | `devops-docker` / `qa-tester` |
 
 ---
@@ -98,10 +107,10 @@ conventions — read it before adding files.
 | A legal/compliance rule for the system | `rule.md` |
 | A new specialist subagent | `.claude/agents/<name>.md` |
 | React components, pages, styles | `frontend/` *(once created)* |
-| Go handlers, business logic, data access | `backend/` *(once created)* |
-| A `CREATE TABLE` / `ALTER TABLE` migration | `db/migrations/` *(once created)* |
-| Synthetic test data | `db/seed/` *(once created)* |
-| A Dockerfile or compose change | `docker/` *(once created)* |
+| Go handlers, business logic, data access | `backend/internal/` (SQL only in `store/`) |
+| A `CREATE TABLE` / `ALTER TABLE` migration | `db/migrations/` (new numbered file; never edit an applied one; log spec deviations in design-spec §9) |
+| Synthetic test data | `backend/cmd/seed/` |
+| A Dockerfile or compose change | `docker/` |
 
 ---
 
