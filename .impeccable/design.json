@@ -1,0 +1,297 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-05T05:16:56.200626+00:00",
+  "title": "Design System: ParcelHub prototype",
+  "extensions": {
+    "colorMeta": {
+      "bg": {
+        "role": "neutral",
+        "displayName": "bg"
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "card"
+      },
+      "sidebar": {
+        "role": "neutral",
+        "displayName": "sidebar"
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "border"
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "text"
+      },
+      "textMuted": {
+        "role": "neutral",
+        "displayName": "textMuted"
+      },
+      "primary": {
+        "role": "primary",
+        "displayName": "primary"
+      },
+      "primaryDark": {
+        "role": "primary",
+        "displayName": "primaryDark"
+      },
+      "primaryLight": {
+        "role": "primary",
+        "displayName": "primaryLight"
+      },
+      "success": {
+        "role": "secondary",
+        "displayName": "success"
+      },
+      "successLight": {
+        "role": "secondary",
+        "displayName": "successLight"
+      },
+      "navyChip": {
+        "role": "primary",
+        "displayName": "navyChip"
+      },
+      "navy": {
+        "role": "primary",
+        "displayName": "navy"
+      },
+      "warning": {
+        "role": "secondary",
+        "displayName": "warning"
+      },
+      "warningLight": {
+        "role": "secondary",
+        "displayName": "warningLight"
+      },
+      "controlBorder": {
+        "role": "neutral",
+        "displayName": "controlBorder"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Page heading",
+        "purpose": "28px/600 on desktop, 25px on mobile; one Thai-capable family."
+      },
+      "title": {
+        "displayName": "Dialog heading",
+        "purpose": "17px/600."
+      },
+      "body": {
+        "displayName": "Body and table",
+        "purpose": "14px/400; resident names use 500."
+      },
+      "label": {
+        "displayName": "Field label",
+        "purpose": "13px/500 or 600."
+      },
+      "caption": {
+        "displayName": "Supporting metadata",
+        "purpose": "12px/400."
+      }
+    },
+    "shadows": [
+      {
+        "name": "notification",
+        "value": "0 8px 32px rgb(32 33 36 / .16)",
+        "purpose": "Transient notification panel."
+      },
+      {
+        "name": "banner",
+        "value": "0 4px 18px rgb(32 33 36 / .12)",
+        "purpose": "Status banner."
+      },
+      {
+        "name": "dialog",
+        "value": "0 16px 60px rgb(32 33 36 / .2)",
+        "purpose": "Native modal dialog."
+      }
+    ],
+    "motion": [
+      {
+        "name": "control-transition",
+        "value": "150ms ease-out",
+        "purpose": "Background/color state changes; removed under reduced motion."
+      },
+      {
+        "name": "banner-fade",
+        "value": "200ms ease-out",
+        "purpose": "Existing banner fade; removed under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile",
+        "value": "640px"
+      },
+      {
+        "name": "compact-desktop",
+        "value": "1000px"
+      }
+    ],
+    "hardening": {
+      "date": "2026-10-06",
+      "scope": "Frontend prototype guards: room-scoped complete-code scanning, retained in-memory intake drafts, associated validation feedback, 25-row pagination, explicit Bangkok time, and safe local persistence. Production API/directory/authentication remain outside this refinement."
+    },
+    "fieldFocus": {
+      "outline": "2px solid semantic color",
+      "offset": "-1px",
+      "purpose": "One contiguous border for focused fields; invalid fields use warning color. Button/link keyboard outlines remain separated."
+    },
+    "scannerPreparation": {
+      "label": "เตรียมสแกน",
+      "behavior": "Focus existing tracking input; require intake room; preserve typed code; announce keyboard-style scanner instructions. No hardware connection or camera activation.",
+      "layout": "Icon-only 44px button beside the input on desktop and mobile; accessible name and tooltip retained."
+    },
+    "modalGuidance": {
+      "default": "Short field labels, room identity/counts, condition notes and actionable errors.",
+      "help": "All visible วิธีใช้งาน disclosures removed from intake and checkout by user request; field labels, error/confirmation copy and assistive input descriptions remain.",
+      "scanStatus": "พร้อมรับรหัส"
+    },
+    "damageDetail": {
+      "surface": "Neutral table row, no nested alert card",
+      "content": "Warning icon, muted หมายเหตุชำรุด label and original reason text",
+      "disclosure": "44px control beside tracking code with 12px gap in desktop tables; chevron, aria-expanded and aria-controls retained. Mobile keeps native details."
+    },
+    "checkoutHierarchy": {
+      "list": "Native labeled checkboxes; whole-row activation, visible unchecked/checked states and mixed Select All state",
+      "actions": "Select All beside list heading; one anchored primary checkout action; explicit room/count confirmation when every pending parcel is selected",
+      "multiplePages": "Up to 8 records on tall desktop viewports; 4, 3 or 2 on shorter viewports. Selection persists across pages; scans show the matching page; collapsed review/removal across all selected records",
+      "geometry": "Fixed selected-room dialog geometry for its page size and record count; independently anchored header/footer, one scrollable content region for overflow",
+      "feedback": "Scanner error linked beneath its field; save error near primary action; keyboard focus goes to safe cancellation and returns to primary action; failed saves preserve selection",
+      "tones": {
+        "scope": "Checkout dialog only; root palette unchanged",
+        "primary": "#3267BD",
+        "primaryHover": "#2856A5",
+        "text": "#374151",
+        "selectedText": "#40546F",
+        "trackingWeight": 500
+      }
+    },
+    "roomLookup": {
+      "control": "Search-only choose-room state. Matching flat room rows appear only after a nonblank query; compact identity plus เปลี่ยนห้อง after explicit selection.",
+      "filter": "Pending rooms only; room/resident/tracking lookup; no options before typing and no default highlighted candidate.",
+      "keyboard": "Arrow keys/Enter, tabbable options, Escape clears search or cancels changing room",
+      "safety": "Prefilled Dashboard queries require explicit selection; changing state preserves selections and candidate changes require confirmation; scanner receives focus after choosing or returning to room.",
+      "searchGeometry": "Content-sized search dialog without blank results reservation. Anchored dropdown below field appears only for nonblank queries; list max-height min(216px, max(44px, 50dvh - 128px)) with internal scrolling. Filtering preserves dialog height and input position; ใช้ห้องเดิม sits beside the search label while editing.",
+      "help": "No instruction disclosure in any room-search or selected-room state; footer retains selected count and checkout action."
+    },
+    "archivePagination": {
+      "pageSize": 8,
+      "position": "Above table",
+      "controls": "Numbered pages, previous/next, aria-current, bounded ellipsis window",
+      "reset": "First page when searching or filtering",
+      "visual": "28px pale-blue current-page mark, 13px number, 16px arrows, 44px hit targets, no inter-button gap."
+    },
+    "dashboardPagination": {
+      "pageSize": 8,
+      "tables": [
+        "Main parcel search results",
+        "Expanded damaged parcels"
+      ],
+      "position": "Above each table",
+      "controls": "Numbered pages and previous/next; active page and record range",
+      "search": "Pending-only search; query resets main results only. Parcel history is searched in Archive.",
+      "damageState": "Memoized damage records; preserve page during main search, clamp after record-count changes.",
+      "geometry": "Reserve normal 8-row table area only for multi-page desktop results; mobile and single-page results keep natural height.",
+      "visual": "28px pale-blue current-page mark, 13px number, 16px arrows, 44px hit targets, no inter-button gap."
+    },
+    "dashboardPresentation": {
+      "heading": "Actions beside heading on desktop, below it on mobile.",
+      "counts": "One range indicator above results; no duplicated total, scope toggle or default search explanation.",
+      "pendingColumns": [
+        "Room/name",
+        "Tracking code",
+        "Quantity",
+        "Received time"
+      ],
+      "historyColumns": "Status and checkout time are shown in Archive; Dashboard remains pending-only.",
+      "mobile": "Flat native list at <=640px; room/name and full tracking visible together, quantity in details summary, dates/notes disclosed with native details.",
+      "palette": "Existing root and checkout-scoped tokens preserved."
+    }
+  },
+  "components": [
+    {
+      "name": "Check-Out",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Filled primary action with hover, focus, active and disabled states.",
+      "html": "<button class=\"desk-button desk-button-primary\">นำพัสดุออก</button>",
+      "css": ":host {\n  --desk-bg: #F8F9FB;\n  --desk-surface: #FFFFFF;\n  --desk-border: #DDE3EC;\n  --desk-control-border: #596579;\n  --desk-text: #202124;\n  --desk-muted: #596579;\n  --desk-primary: #1A56B8;\n  --desk-primary-hover: #164A9D;\n  --desk-primary-light: #E8F0FE;\n  --desk-success: #188038;\n  --desk-success-light: #E6F4EA;\n  --desk-warning: #B42318;\n  --desk-warning-light: #FCE8E6;\n  --desk-font: 'Noto Sans Thai', system-ui, sans-serif;\n  color-scheme: light;\n} * {box-sizing:border-box} button,input {font:inherit} button {cursor:pointer} :host {font-family:var(--desk-font);font-size:14px;color:var(--desk-text)} button:focus-visible,input:focus-visible {outline:2px solid var(--desk-primary);outline-offset:3px} \n.desk-button { min-height: 44px; padding: 10px 17px; display: inline-flex; gap: 8px; align-items: center; justify-content: center; border-radius: 6px; font-weight: 600; font-size: 14px; line-height: 22px; border: 1px solid transparent; } \n.desk-button-primary { color: var(--desk-surface); background: var(--desk-primary); } \n.desk-button-primary:hover:not(:disabled) { background: var(--desk-primary-hover); } \n.desk-button-in { color: var(--desk-success); background: var(--desk-surface); border-color: var(--desk-border); } \n.desk-button-in:hover { background: var(--desk-success-light); } \n.desk-button:active:not(:disabled) { transform: translateY(1px); } \n.desk-button:disabled { background: var(--desk-border); color: var(--desk-muted); } \n.notification-item .desk-button { width: 100%; } \n.login-form > .desk-button { width: 100%; margin-top: 12px; } \n  .desk-actions .desk-button { flex: 1; padding-left: 8px; padding-right: 8px; } \n  .desk-button:active:not(:disabled) { transform: none; }"
+    },
+    {
+      "name": "Check-In",
+      "kind": "button",
+      "refersTo": "button-check-in",
+      "description": "Bordered green action; primary visual weight stays on Check-Out.",
+      "html": "<button class=\"desk-button desk-button-in\">รับพัสดุเข้า</button>",
+      "css": ":host {\n  --desk-bg: #F8F9FB;\n  --desk-surface: #FFFFFF;\n  --desk-border: #DDE3EC;\n  --desk-control-border: #596579;\n  --desk-text: #202124;\n  --desk-muted: #596579;\n  --desk-primary: #1A56B8;\n  --desk-primary-hover: #164A9D;\n  --desk-primary-light: #E8F0FE;\n  --desk-success: #188038;\n  --desk-success-light: #E6F4EA;\n  --desk-warning: #B42318;\n  --desk-warning-light: #FCE8E6;\n  --desk-font: 'Noto Sans Thai', system-ui, sans-serif;\n  color-scheme: light;\n} * {box-sizing:border-box} button,input {font:inherit} button {cursor:pointer} :host {font-family:var(--desk-font);font-size:14px;color:var(--desk-text)} button:focus-visible,input:focus-visible {outline:2px solid var(--desk-primary);outline-offset:3px} \n.desk-button { min-height: 44px; padding: 10px 17px; display: inline-flex; gap: 8px; align-items: center; justify-content: center; border-radius: 6px; font-weight: 600; font-size: 14px; line-height: 22px; border: 1px solid transparent; } \n.desk-button-primary { color: var(--desk-surface); background: var(--desk-primary); } \n.desk-button-primary:hover:not(:disabled) { background: var(--desk-primary-hover); } \n.desk-button-in { color: var(--desk-success); background: var(--desk-surface); border-color: var(--desk-border); } \n.desk-button-in:hover { background: var(--desk-success-light); } \n.desk-button:active:not(:disabled) { transform: translateY(1px); } \n.desk-button:disabled { background: var(--desk-border); color: var(--desk-muted); } \n.notification-item .desk-button { width: 100%; } \n.login-form > .desk-button { width: 100%; margin-top: 12px; } \n  .desk-actions .desk-button { flex: 1; padding-left: 8px; padding-right: 8px; } \n  .desk-button:active:not(:disabled) { transform: none; }"
+    },
+    {
+      "name": "Parcel search",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "Persistent label and container focus-within treatment.",
+      "html": "<div class=\"register-search\"><label for=\"preview-search\">ค้นหาพัสดุ</label><div class=\"search-control\"><input id=\"preview-search\" placeholder=\"เลขห้อง ชื่อผู้รับ หรือเลขพัสดุ\"></div></div>",
+      "css": ":host {\n  --desk-bg: #F8F9FB;\n  --desk-surface: #FFFFFF;\n  --desk-border: #DDE3EC;\n  --desk-control-border: #596579;\n  --desk-text: #202124;\n  --desk-muted: #596579;\n  --desk-primary: #1A56B8;\n  --desk-primary-hover: #164A9D;\n  --desk-primary-light: #E8F0FE;\n  --desk-success: #188038;\n  --desk-success-light: #E6F4EA;\n  --desk-warning: #B42318;\n  --desk-warning-light: #FCE8E6;\n  --desk-font: 'Noto Sans Thai', system-ui, sans-serif;\n  color-scheme: light;\n} * {box-sizing:border-box} button,input {font:inherit} button {cursor:pointer} :host {font-family:var(--desk-font);font-size:14px;color:var(--desk-text)} button:focus-visible,input:focus-visible {outline:2px solid var(--desk-primary);outline-offset:3px} \n.register-search { width: 100%; min-width: 0; } \n.register-search label, .field-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; } \n.search-control { display: flex; gap: 10px; align-items: center; min-height: 46px; padding: 0 13px; border: 1px solid var(--desk-control-border); border-radius: 6px; background: var(--desk-surface); color: var(--desk-muted); } \n.search-control:focus-within { border-color: var(--desk-primary); outline: 2px solid var(--desk-primary); outline-offset: -1px; } \n.search-control input { min-width: 0; width: 100%; padding: 11px 0; color: var(--desk-text); background: transparent; font-size: 15px; outline: none; } \n.search-control .icon-button { margin: -1px -12px -1px 0; } \n  .register-search { width: 100%; } \n  .search-control input { font-size: 16px; } \n  .desk-dialog .search-control input { font-size: 16px; }"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": "nav-active",
+      "description": "Current destination uses a line and programmatic current state.",
+      "html": "<nav class=\"desk-navigation\"><button class=\"nav-item\" aria-current=\"page\">Dashboard</button><button class=\"nav-item\">Archive</button></nav>",
+      "css": ":host {\n  --desk-bg: #F8F9FB;\n  --desk-surface: #FFFFFF;\n  --desk-border: #DDE3EC;\n  --desk-control-border: #596579;\n  --desk-text: #202124;\n  --desk-muted: #596579;\n  --desk-primary: #1A56B8;\n  --desk-primary-hover: #164A9D;\n  --desk-primary-light: #E8F0FE;\n  --desk-success: #188038;\n  --desk-success-light: #E6F4EA;\n  --desk-warning: #B42318;\n  --desk-warning-light: #FCE8E6;\n  --desk-font: 'Noto Sans Thai', system-ui, sans-serif;\n  color-scheme: light;\n} * {box-sizing:border-box} button,input {font:inherit} button {cursor:pointer} :host {font-family:var(--desk-font);font-size:14px;color:var(--desk-text)} button:focus-visible,input:focus-visible {outline:2px solid var(--desk-primary);outline-offset:3px} \n.desk-navigation { display: flex; gap: 28px; align-self: stretch; } \n.nav-item { position: relative; min-height: 48px; font-size: 14px; font-weight: 500; color: var(--desk-muted); } \n.nav-item:hover { color: var(--desk-text); } \n.nav-item[aria-current=\"page\"] { color: var(--desk-primary); font-weight: 600; } \n.nav-item[aria-current=\"page\"]::after { content: ''; position: absolute; height: 2px; bottom: -1px; left: 0; right: 0; background: var(--desk-primary); } \n  .desk-navigation { order: 3; width: 100%; gap: 24px; } \n  .nav-item { min-height: 44px; }"
+    },
+    {
+      "name": "Pending",
+      "kind": "chip",
+      "refersTo": "chip-pending",
+      "description": "Unfilled text-bearing status with a dot.",
+      "html": "<span class=\"parcel-status parcel-status-pending\"><span class=\"pending-dot\"></span>รอรับ</span>",
+      "css": ":host {\n  --desk-bg: #F8F9FB;\n  --desk-surface: #FFFFFF;\n  --desk-border: #DDE3EC;\n  --desk-control-border: #596579;\n  --desk-text: #202124;\n  --desk-muted: #596579;\n  --desk-primary: #1A56B8;\n  --desk-primary-hover: #164A9D;\n  --desk-primary-light: #E8F0FE;\n  --desk-success: #188038;\n  --desk-success-light: #E6F4EA;\n  --desk-warning: #B42318;\n  --desk-warning-light: #FCE8E6;\n  --desk-font: 'Noto Sans Thai', system-ui, sans-serif;\n  color-scheme: light;\n} * {box-sizing:border-box} button,input {font:inherit} button {cursor:pointer} :host {font-family:var(--desk-font);font-size:14px;color:var(--desk-text)} button:focus-visible,input:focus-visible {outline:2px solid var(--desk-primary);outline-offset:3px} \n.pending-dot { display: inline-block; width: 6px; height: 6px; background: var(--desk-primary); border-radius: 50%; flex-shrink: 0; } \n.parcel-status { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; white-space: nowrap; } \n.parcel-status-pending { color: var(--desk-primary); } \n.parcel-status-out { color: var(--desk-success); }"
+    },
+    {
+      "name": "Picked Up",
+      "kind": "chip",
+      "refersTo": "chip-picked-up",
+      "description": "Unfilled green status with a check icon.",
+      "html": "<span class=\"parcel-status parcel-status-out\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m20 6-11 11-5-5\"/></svg>นำออกแล้ว</span>",
+      "css": ":host {\n  --desk-bg: #F8F9FB;\n  --desk-surface: #FFFFFF;\n  --desk-border: #DDE3EC;\n  --desk-control-border: #596579;\n  --desk-text: #202124;\n  --desk-muted: #596579;\n  --desk-primary: #1A56B8;\n  --desk-primary-hover: #164A9D;\n  --desk-primary-light: #E8F0FE;\n  --desk-success: #188038;\n  --desk-success-light: #E6F4EA;\n  --desk-warning: #B42318;\n  --desk-warning-light: #FCE8E6;\n  --desk-font: 'Noto Sans Thai', system-ui, sans-serif;\n  color-scheme: light;\n} * {box-sizing:border-box} button,input {font:inherit} button {cursor:pointer} :host {font-family:var(--desk-font);font-size:14px;color:var(--desk-text)} button:focus-visible,input:focus-visible {outline:2px solid var(--desk-primary);outline-offset:3px} \n.parcel-status { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; white-space: nowrap; } \n.parcel-status-pending { color: var(--desk-primary); } \n.parcel-status-out { color: var(--desk-success); }"
+    },
+    {
+      "name": "Parcel register",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "One bordered work surface. Its contents are a search toolbar and data table.",
+      "html": "<section class=\"parcel-register\"><div class=\"register-toolbar\"><div class=\"register-search\"><label>ค้นหาพัสดุ</label><p class=\"search-feedback\">แสดงพัสดุที่รอรับทั้งหมด</p></div></div></section>",
+      "css": ":host {\n  --desk-bg: #F8F9FB;\n  --desk-surface: #FFFFFF;\n  --desk-border: #DDE3EC;\n  --desk-control-border: #596579;\n  --desk-text: #202124;\n  --desk-muted: #596579;\n  --desk-primary: #1A56B8;\n  --desk-primary-hover: #164A9D;\n  --desk-primary-light: #E8F0FE;\n  --desk-success: #188038;\n  --desk-success-light: #E6F4EA;\n  --desk-warning: #B42318;\n  --desk-warning-light: #FCE8E6;\n  --desk-font: 'Noto Sans Thai', system-ui, sans-serif;\n  color-scheme: light;\n} * {box-sizing:border-box} button,input {font:inherit} button {cursor:pointer} :host {font-family:var(--desk-font);font-size:14px;color:var(--desk-text)} button:focus-visible,input:focus-visible {outline:2px solid var(--desk-primary);outline-offset:3px} \n.parcel-register { background: var(--desk-surface); border: 1px solid var(--desk-border); border-radius: 8px; } \n.register-toolbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; padding: 22px 24px 20px; } \n.register-search { width: 100%; min-width: 0; } \n.register-search label, .field-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; } \n.search-feedback { font-size: 12px; color: var(--desk-muted); margin: 7px 0 0; } \n  .register-toolbar { padding: 18px 16px; gap: 10px; flex-wrap: wrap; } \n  .register-search { width: 100%; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "เคาน์เตอร์พัสดุที่เป็นมิตร",
+    "overview": "**Creative North Star: \"เคาน์เตอร์พัสดุที่เป็นมิตร\"**\n\nThe frontend was refined on 2026-10-05 in response to the user's request to reduce the AI-pattern appearance, on branch `codex/frontend-ux-ui-refresh`. This keeps the incumbent ParcelHub identity and parcel-counter workflow, while reducing decorative chrome and making the table the main work surface. The recorded metaphor remains “เคาน์เตอร์พัสดุที่เป็นมิตร”; this is refinement of that system rather than a new product concept.\n\nAuthority: PRODUCT.md and docs/02-design/design-spec.md continue to describe confirmed target scope. These tokens record the current frontend refinement; they do not change backend scope, naming requirements, or language requirements in the locked specification. Prototype naming, Thai copy, and Dashboard/Archive destinations remain known differences from that target.",
+    "keyCharacteristics": [
+      "Compact action controls and readable parcel rows.",
+      "One shared Thai-capable type family, with a restrained size/weight hierarchy.",
+      "Flat white table surfaces on a light neutral workspace.",
+      "Text and icons express state; color is reserved for actions and semantic cues.",
+      "Damage entries are progressively disclosed rather than duplicated on arrival."
+    ],
+    "rules": [],
+    "dos": [
+      "Do consult design-spec.md for product scope and distinguish the frontend prototype from the target implementation.",
+      "Do prioritize room/name/tracking-code scanning and clear parcel actions.",
+      "Do use the CSS properties and shared type family for active components.",
+      "Do retain text/icons alongside semantic colors, visible focus, and native dialog behavior.",
+      "Do keep table scrolling inside the register on small screens."
+    ],
+    "donts": [
+      "Don't add decorative patterns, floating icon tiles, giant search fields, or repeated pill containers.",
+      "Don't turn every section into a card or duplicate the damage table by default.",
+      "Don't remove persistent labels or replace focus with query-value styling.",
+      "Don't represent this UI refinement as a change to locked product requirements or implemented backend capability."
+    ]
+  }
+}
