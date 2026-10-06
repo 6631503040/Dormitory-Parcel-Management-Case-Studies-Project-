@@ -1,8 +1,8 @@
 import { pageNumbers } from "../lib/pagination";
-import React, { useEffect, useId, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import { ROOM_DIRECTORY, residentsFor, formatBangkokDate, parseParcelDate } from "../lib/parcelRules";
 export { ROOM_DIRECTORY } from "../lib/parcelRules";
-import { Package, Check, X, Clock, AlertTriangle, Search, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Package, Check, Info, X, Clock, AlertTriangle, Search, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const C = {
   bg: "var(--desk-bg)",
@@ -82,18 +82,42 @@ export function StatusChip({ status }) {
   );
 }
 
-export function Banner({ message, tone = "success", onClose }) {
-  if (!message) return null;
-  const bg = tone === "success" ? C.successLight : C.primaryLight;
-  const fg = tone === "success" ? C.success : C.primaryDark;
-
+export function Banner({ message, tone = "success", onClose, notificationId, duration = 6000 }) {
+  const timer = useRef(null);
+  const remaining = useRef(duration);
+  const started = useRef(0);
+  const hovered = useRef(false);
+  const focused = useRef(false);
+  const close = useRef(onClose);
+  close.current = onClose;
+  const clearTimer = () => { clearTimeout(timer.current); timer.current = null; };
+  const resume = () => {
+    if (!message || hovered.current || focused.current || timer.current !== null) return;
+    started.current = performance.now();
+    timer.current = setTimeout(() => { timer.current = null; close.current(); }, remaining.current);
+  };
+  const pause = () => {
+    if (timer.current === null) return;
+    remaining.current = Math.max(0, remaining.current - (performance.now() - started.current));
+    clearTimer();
+  };
+  useEffect(() => {
+    clearTimer(); remaining.current = duration;
+    if (!message) { hovered.current = false; focused.current = false; return; }
+    resume();
+    return clearTimer;
+  }, [message, notificationId, duration]);
+  const Icon = tone === "success" ? Check : Info;
   return (
-    <div role="status" className="desk-banner animate-fade" style={{ background: bg, color: fg, ...bodyFont }}>
-      <Check size={16} strokeWidth={3} aria-hidden="true" />
-      {message}
-      <button onClick={onClose} className="icon-button" aria-label="ปิดข้อความแจ้งผล">
-        <X size={14} aria-hidden="true" />
-      </button>
+    <div className="desk-banner" data-visible={!!message} data-tone={tone}
+      onMouseEnter={() => { hovered.current = true; pause(); }}
+      onMouseLeave={() => { hovered.current = false; resume(); }}
+      onFocusCapture={() => { focused.current = true; pause(); }}
+      onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) { focused.current = false; resume(); } }}>
+      <div role="status" aria-live="polite" aria-atomic="true" className={message ? "desk-banner-status" : "sr-only"}>
+        {message && <><span className="desk-banner-icon" aria-hidden="true"><Icon size={18} strokeWidth={2.5} /></span><p className="desk-banner-message">{message}</p></>}
+      </div>
+      {message && <button type="button" onClick={onClose} className="icon-button desk-banner-close" aria-label="ปิดข้อความแจ้งผล"><X size={16} aria-hidden="true" /></button>}
     </div>
   );
 }
@@ -157,7 +181,7 @@ export function ParcelTable({ parcels, emptyLabel, showLine = true, label = "ร
             <caption className="sr-only">{label}</caption>
             <thead>
               <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-                {[(showLine ? "ห้อง / ชื่อ / Line" : "ห้อง / ชื่อ"), "เลขพัสดุ", "จำนวน", "วันที่รับเข้า", ...(historyColumns ? ["สถานะ", "วันที่นำจ่าย"] : [])].map((h) => <th key={h} scope="col">{h}</th>)}
+                {[(showLine ? "ห้อง / ชื่อ / Line" : "ห้อง / ชื่อ"), "เลขพัสดุ", "จำนวน", "วันที่รับเข้า", "สถานะ", ...(historyColumns ? ["วันที่นำจ่าย"] : [])].map((h) => <th key={h} scope="col">{h}</th>)}
               </tr>
             </thead>
             <tbody>
@@ -174,11 +198,12 @@ export function ParcelTable({ parcels, emptyLabel, showLine = true, label = "ร
                     </div></td>
                     <td className="quantity-cell">{p.qty}</td>
                     <td className="date-cell">{formatThaiDateTime(p.receivedAt)}</td>
-                    {historyColumns && <><td><StatusChip status={p.status} /></td><td className="date-cell">{p.exitedAt ? formatThaiDateTime(p.exitedAt) : "–"}</td></>}
+                    <td><StatusChip status={p.status} /></td>
+                    {historyColumns && <td className="date-cell">{p.exitedAt ? formatThaiDateTime(p.exitedAt) : "–"}</td>}
                   </tr>
                   {p.damaged && expandedDamageId === p.id && (
                     <tr className="damage-detail-row">
-                      <td colSpan={historyColumns ? 6 : 4} className="damage-reason-cell">
+                      <td colSpan={historyColumns ? 6 : 5} className="damage-reason-cell">
                         <div className="damage-reason" id={`${damagePrefix}-${p.id}`}>
                           <AlertTriangle size={18} aria-hidden="true" />
                           <div><p className="damage-reason-heading">หมายเหตุชำรุด</p><p className="damage-reason-text">{p.damageReason || "ไม่ได้ระบุเหตุผล"}</p></div>
@@ -194,7 +219,7 @@ export function ParcelTable({ parcels, emptyLabel, showLine = true, label = "ร
         {isDashboard && <ul className="parcel-mobile-list" aria-label={label}>
           {pageParcels.map((p) => (
             <li key={p.id}>
-              <div className="parcel-mobile-identity"><p>{roomLabel(p)}</p>{historyColumns && <StatusChip status={p.status} />}</div>
+              <div className="parcel-mobile-identity"><p>{roomLabel(p)}</p><StatusChip status={p.status} /></div>
               <p className="parcel-mobile-code">{p.code}</p>
               <details className="parcel-mobile-details">
                 <summary aria-label={`${p.damaged ? "พัสดุชำรุด · " : ""}รายละเอียดพัสดุ ${p.code} จำนวน ${p.qty} ชิ้น`}>
@@ -203,7 +228,6 @@ export function ParcelTable({ parcels, emptyLabel, showLine = true, label = "ร
                 </summary>
                 <dl>
                   <div><dt>รับเข้า</dt><dd>{formatThaiDateTime(p.receivedAt)}</dd></div>
-                  {!historyColumns && <div><dt>สถานะ</dt><dd><StatusChip status={p.status} /></dd></div>}
                   {p.exitedAt && <div><dt>นำจ่าย</dt><dd>{formatThaiDateTime(p.exitedAt)}</dd></div>}
                 </dl>
                 {p.damaged && <div className="parcel-mobile-note"><p className="damage-reason-heading">หมายเหตุชำรุด</p><p className="damage-reason-text">{p.damageReason || "ไม่ได้ระบุเหตุผล"}</p></div>}

@@ -27,7 +27,7 @@ export default function DashboardPage({ parcels, onOpenCheckOut, onOpenCheckIn }
         <PageHeader title="Dashboard" description="ค้นหาและจัดการพัสดุที่เคาน์เตอร์" />
         <div className="desk-actions">
           <button onClick={onOpenCheckIn} className="desk-button desk-button-in"><PackagePlus size={18} aria-hidden="true" />รับพัสดุเข้า</button>
-          <button onClick={() => onOpenCheckOut(query)} className="desk-button desk-button-primary"><ScanLine size={18} aria-hidden="true" />นำพัสดุออก</button>
+          <button onClick={() => onOpenCheckOut()} className="desk-button desk-button-primary"><ScanLine size={18} aria-hidden="true" />นำพัสดุออก</button>
         </div>
       </div>
       <section className="parcel-register dashboard-register" aria-labelledby="search-heading">

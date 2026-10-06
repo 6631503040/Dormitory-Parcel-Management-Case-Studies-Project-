@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parcelMatches, resolveRoom, entryErrors, validateBatch, scanResult, validateCheckOut, emptyDraft, hasCurrentEntry, hasDraft, parseParcelDate, formatBangkokDate, loadParcelState, persistParcels, dashboardResults, pendingDamagedParcels } from '../src/lib/parcelRules.js';
+import { parcelMatches, resolveRoom, entryErrors, validateBatch, checkoutLookup, scanResult, validateCheckOut, emptyDraft, hasCurrentEntry, hasDraft, parseParcelDate, formatBangkokDate, loadParcelState, persistParcels, dashboardResults, pendingDamagedParcels } from '../src/lib/parcelRules.js';
 const p = (id, code, room = '090', extra = {}) => ({ id, code, room, name: '-', qty: 1, status: 'in', receivedAt: '2026-08-15T08:30:00', ...extra });
 const parcels = [p('1', 'PK123'), p('2', 'PK1234'), p('3', 'OTHER', '101/2'), p('4', 'OUT', '090', { status: 'out' })];
 const entry = (code, extra = {}) => ({ code, room: '090', damaged: false, damageReason: '', ...extra });
@@ -111,5 +111,17 @@ test('pending damage ranking uses Bangkok wall time regardless of device timezon
       assert.deepEqual(pendingDamagedParcels(records).map((item) => item.id), ['earlier', 'later']);
     }
   } finally { if (previous === undefined) delete process.env.TZ; else process.env.TZ = previous; }
+  assert.deepEqual(records, before);
+});
+
+test('scan-first checkout resolves an exact code without preselecting its room', () => {
+  assert.equal(checkoutLookup(parcels, ' other ').parcel.room, '101/2');
+  assert.equal(checkoutLookup(parcels, 'PK1234').parcel.id, '2');
+  for (const code of ['', '090', 'PK12', 'PK1234X', 'OUT', 'A'.repeat(257), 'PK\u0000123']) assert.ok(checkoutLookup(parcels, code).error);
+});
+test('scan-first checkout blocks ambiguous codes and does not mutate records', () => {
+  const records = [...parcels, p('duplicate', 'pk123', '101/2')];
+  const before = structuredClone(records);
+  assert.ok(checkoutLookup(records, 'PK123').error);
   assert.deepEqual(records, before);
 });

@@ -120,13 +120,13 @@ Runtime source: CSS custom properties in `docs/02-design/prototype/src/styles.cs
 
 ### Neutral
 
-`bg` is the light neutral workspace. `card` / `sidebar` are white surfaces; `border` separates fields and table rows; `text` and `textMuted` establish reading hierarchy. The dotted background and login's colored decorations were removed.
+`bg` is the light neutral workspace. `card` / `sidebar` are white surfaces; `border` separates fields and table rows; `text` and `textMuted` establish reading hierarchy. The work surfaces retain the plain neutral background. Login keeps the same UI palette and uses one generated illustration of three matching minimal cartoon dormitories with subtle 3D depth in its separate powder-blue right panel; the image colors do not extend the global token palette.
 
 ## Typography
 
 Noto Sans Thai with system sans fallback is used for headings, labels, controls, and tabular data. `useFonts()` loads the Google Fonts stylesheet with `display=swap`; a single family replaces the display/body pairing and covers Thai explicitly. Font fetching still depends on the network, with usable system fallback.
 
-Page headings are 28px/600, decreasing to 25px on mobile. Dialog titles are 17px/600. Body/table rows use 14px; controls 14–16px; metadata and table headers 12–13px. Tabular numerals align dates, counts, and tracking codes without a separate monospace face.
+Work-surface page headings are 28px/600, decreasing to 25px on mobile. Login uses a scoped 32px/600 heading with 1.35 line height and -.025em tracking, decreasing to 28px below 760px; its supporting copy and field labels use 14px, inputs 16px and submit text 15px. Dialog titles are 17px/600. Body/table rows use 14px; controls 14–16px; metadata and table headers 12–13px. Tabular numerals align dates, counts, and tracking codes without a separate monospace face.
 
 ## Layout
 
@@ -134,15 +134,25 @@ Active entry: App.jsx → ParcelHubApp.jsx. The older ParcelHub.jsx is not the a
 
 Header and main content share a centered 1280px outer container, 40px horizontal padding on desktop, 24px below 1000px, and 20px below 640px. Header height is at least 76px; mobile uses a brand/account row and a separate navigation row. Main top padding is 40/32/28px at those sizes.
 
-Dashboard actions sit beside its page heading on desktop and below it on mobile. Search spans the register width. Dashboard shows and searches Pending Parcels only; history is available through Archive. Dashboard shows four useful columns for Pending results; Archive retains status/checkout dates. On mobile it uses flat parcel rows with room/name, full tracking code and quantity, with dates/notes in native details. Archive retains its full table and named, keyboard-focusable horizontal scrolling region, including its 850px mobile minimum width. The page itself does not overflow horizontally.
+Dashboard actions sit beside its page heading on desktop and below it on mobile. Search spans the register width. Dashboard shows and searches Pending Parcels only; history is available through Archive. Dashboard shows five columns for Pending results, including Status; Archive also retains checkout dates. On mobile it uses flat parcel rows with room/name, visible status, full tracking code and quantity, with dates/notes in native details. Archive retains its full table and named, keyboard-focusable horizontal scrolling region, including its 850px mobile minimum width. The page itself does not overflow horizontally.
 
-Damage entries sit under a native disclosure. Archive uses inline stateful filters above search and history. Login is a 360px-wide form on a plain white surface. Native dialogs are at most 480px wide, constrained to available dynamic viewport height with internal scrolling.
+Damage entries sit under a native disclosure. Archive uses inline stateful filters above search and history. Native dialogs are at most 480px wide, constrained to available dynamic viewport height with internal scrolling.
+
+Login follows the user's 2026-10-06 split-screen reference: a white form panel at left and a full-height powder-blue panel containing three staggered minimal cartoon dormitories at right. At desktop sizes the grid is `minmax(360px, 44%) 1fr`, yielding the approved 44/56 split where the minimum is inactive. The ParcelHub brand sits at upper left; the form is horizontally centered within its panel at a maximum width of 360px. The panel has 40px vertical/48px horizontal padding, becoming 32px at widths ≤1000px. Auto margins center the form vertically when space allows, with 48px top/78px bottom content padding. The right image uses centered object-fit: contain; the complete group of three matching buildings stays visible without edge cropping. Below 760px it is hidden; the panel uses 28px vertical/24px horizontal insets and the form uses 48px vertical padding. Both panel and page use minimum dynamic viewport height rather than fixed height, so a short viewport scrolls to the full form. This composition is Login-specific and does not change register or dialog layout.
+
+Fresh scoped finish review returned **ship** for the current campus artwork, with no material fixes. The full group and minimal cartoon style were maintained on desktop/tablet; form behavior remains unchanged. Current evidence is `.impeccable/review/login-campus-desktop-20261006.jpg` (1440×900), `login-campus-tablet-20261006.jpg` (900×900), and `login-campus-mobile-20261006.jpg` (390×844). Retained `login-split-short-top-20261006.jpg` / `login-split-short-bottom-20261006.jpg` remain evidence for the unchanged mobile form at a 390×480 viewport (capture API reports 375×462 excluding scrollbars). The prototype build passed; the browser loaded the current image with the complete building group visible and no page overflow or console warnings. The scoped anti-pattern detector returned no findings, and raster provenance was verified. Physical touch, a real software keyboard and screen-reader behavior were not verified.
 
 Desktop (1440px), mobile (390px), and a 480px-high viewport were exercised in the browser. Physical touch, a real software keyboard, and assistive-technology behavior were not verified.
 
 ## Elevation & Depth
 
 Main content uses a single border with no shadow. Shadows are reserved for transient overlays: notification panel `0 8px 32px rgb(32 33 36 / .16)`, banner `0 4px 18px rgb(32 33 36 / .12)`, native dialog `0 16px 60px rgb(32 33 36 / .2)`. Native dialog backdrops use `rgb(32 33 36 / .42)`. Native top-layer behavior handles modal stacking.
+
+### Transaction feedback
+
+Successful transaction feedback uses a white toast with neutral 14px text, a small green success icon and a muted 44px close control. Preserve the actual operation, room and record count in one concise message; no extra heading, instructions or progress bar. Desktop placement is bottom-right with 24px insets and a 440px maximum width. Mobile uses 16px side/bottom insets, safe-area-aware offsets and natural wrapping, preserving the navigation area.
+
+A persistent polite, atomic status region receives message updates without taking focus. The existing six-second timeout pauses while hovered or focused and resumes the remaining time on leaving; a notification id renews the lifetime even for identical successive messages. Timers are cleared when feedback disappears or unmounts. A visible 6px upward settling motion lasts 180ms; reduced motion shows a static notification. Failed transactions keep their existing inline error and prepared data, without generating success feedback.
 
 ## Shapes
 
@@ -168,9 +178,15 @@ Pending uses a dot and blue text; Picked Up uses a check and green text. Tables 
 
 ### Dialogs and feedback
 
-Native `<dialog>` provides modal focus containment. Escape closes it; focus returns to the opener. It scrolls within the viewport and initially focuses the first field. Check-Out has a persistent selected-parcel summary, including selections outside the current search, with a remove-selection action. Banner motion and color transitions respect reduced-motion preferences.
+Native `<dialog>` provides modal focus containment. Escape closes it; focus returns to the opener. It scrolls within the viewport and initially focuses the first field. Check-Out presents the verified scanned parcel before an explicit confirmation, with collapsed same-room checkbox additions; a fresh lookup replaces uncommitted selection. Banner motion and color transitions respect reduced-motion preferences.
 
-The 2026-10-06 hardening keeps this appearance while separating room lookup from complete-code scans, requiring room-scoped checkout confirmation, retaining intake drafts across modal closes, rejecting duplicate/incomplete entries, and reporting storage failures without overwriting saved data. Intake uses the existing mock room directory; timestamps render explicitly in Bangkok time; identity confirmation retains physical damage notes. These frontend guards do not implement production authentication, a real directory/API, or the full locked design-spec. No backend files were changed.
+Earlier 2026-10-06 hardening separated room lookup from complete-code scans; the scanner-first checkout policy below now supersedes that room-first composition. The retained guards include same-room checkout revalidation, intake drafts across modal closes, duplicate/incomplete-entry rejection and storage-failure feedback without overwriting saved data. Intake uses the existing mock room directory; timestamps render explicitly in Bangkok time; identity confirmation retains physical damage notes. These frontend guards do not implement production authentication, a real directory/API, or the full locked design-spec. No backend files were changed.
+
+### Login
+
+Login retains the ParcelHub mark, Thai labels and the existing demo sign-in callback. Its fields and full-width submit control are at least 50px high, with 6px control corners; fields use 12px vertical/14px horizontal padding. Password has 52px right padding and a 44px square reveal/hide button inset 3px from the top/right, with a state-specific accessible name. Persistent labels, native autocomplete, the shared focus border and associated alert text remain. Missing values focus the first invalid field; validation and callback errors retain entered values. A 24px minimum feedback region limits movement when errors appear.
+
+The user rejected the earlier realistic architectural image as too AI-like. Current Login imagery uses matte, minimal cartoon geometry with only gentle 3D depth: three matching white three-storey dormitories arranged at staggered depths, sparse blue windows and rails, rounded shrubs and a simple shared courtyard/lawn on powder blue. The image-panel fallback is `#E6EFFA`, sampled from the illustration corner and local to Login. The decorative illustration is `docs/02-design/prototype/public/images/dormitory-login-campus.webp`, with adjacent `.webp.json` provenance and the exact built-in generator prompt recorded in `.impeccable/assets/dormitory-login-campus.json`. It is hidden from assistive technology and supplies no property or production claim. This imagery revision preserves the form, split layout and existing demo callback; it does not implement production authentication or alter the locked product authority.
 
 ## Do's and Don'ts
 
@@ -189,7 +205,7 @@ The 2026-10-06 hardening keeps this appearance while separating room lookup from
 
 ### Scanner preparation
 
-Tracking fields in Check-In and room-scoped Check-Out have an icon-only scanner button with the accessible name and tooltip “เตรียมสแกน”. It focuses the existing input and announces readiness to receive keyboard-style scanner input; it neither connects hardware nor opens a camera. Check-In first requires a room from the mock directory. The action has a 44px hit target and sits beside the input on desktop and mobile, retaining all existing validation and explicit save behavior.
+Tracking fields in Check-In and scanner-first Check-Out have an icon-only scanner button with the accessible name and tooltip “เตรียมสแกน”. It focuses the existing input and announces readiness to receive keyboard-style scanner input; it neither connects hardware nor opens a camera. Check-In first requires a room from the mock directory. The action has a 44px hit target and sits beside the input on desktop and mobile, retaining all existing validation and explicit save behavior.
 
 ### Concise modal guidance
 
@@ -199,21 +215,17 @@ Intake and checkout keep field labels, room identity/counts, condition notes, va
 
 Damage detail uses a neutral full-width table row, one small warning icon, a muted “หมายเหตุชำรุด” label and readable reason text. It has no nested pink card. In desktop tables the “ชำรุด” disclosure sits 12px after the tracking code, in the tracking column, so condition belongs to the parcel rather than the resident. The control retains a 44px hit area, adds a directional chevron and links to the expanded content. Existing note data and mobile native-detail presentation are preserved.
 
-### Checkout action hierarchy
+### Scan-first checkout — 2026-10-06
 
-The room selector carries room identity; native checkbox rows and Select All make selection visible. A single anchored “นำออกที่เลือก” action leads; selecting every pending parcel triggers explicit room/count confirmation through that same action. For multi-page rooms, a collapsed selected-items disclosure preserves review/removal across pages. Validation and room-change guards are retained.
+The current user-pinned flow replaces room-first lookup: open “นำพัสดุออก” → scan or type the full tracking code → Enter or “ค้นหาพัสดุ” → inspect parcel details → explicitly confirm checkout. The initial dialog has only its labeled scanner input, the retained icon-only focus control and a manual lookup button. Dashboard search is not copied into this scanner. No room list, help disclosure or checkout action appears before a successful lookup.
 
-### Combined room lookup
+The result identifies the parcel by code, status, room, recipient, quantity, Bangkok receipt time and any recorded damage reason. A successful lookup selects that parcel alone. Enter only resolves the code; it cannot commit checkout. Changing the code leaves the prior details visible for context but disables checkout and optional selection until the code is verified. An unsuccessful lookup removes the prior result and gives an associated inline error. Unknown, ambiguous and already-out codes are blocked; commit retains the existing same-room/stale-record revalidation and callback.
 
-Checkout uses one editable “ค้นหาและเลือกห้อง” combobox in place of separate search and select fields. Room number, resident name and tracking-code queries filter room options with pending counts. Mouse selection or Arrow keys/Enter chooses a room; Escape closes suggestions. Uncommitted typing does not change the active room and leaving the field restores its confirmed label. Changing room with selected parcels asks for confirmation, focuses that action and temporarily disables checkout controls; cancelling retains selections. The search container owns the single focus border.
+Optional “พัสดุอื่นของห้องนี้” is collapsed after a result. Native checkboxes select additional pending records from that room; Select All includes the scanned record. Normal additions paginate at 8/4/3/2 records depending on viewport height, with reserved 64px normal rows and selection preserved across pages. Selecting all multiple records uses explicit room/count confirmation with safe cancellation focus. A single record uses the ordinary explicit checkout action. A new lookup replaces the uncommitted selection rather than accumulating parcels across rooms.
 
-### Revised room selection flow
+Per the later user request, the dialog is centered vertically and horizontally using auto margins on desktop and mobile, with a maximum height of 100dvh minus 32px. Both the initial scanner and the result dialog remain centered; short screens retain 16px top/bottom clearance. The initial dialog is content-sized. Header/footer remain anchored when the result needs scrolling; content provides one overflow region for small screens, long notes or expanded additions. Busy state blocks repeat saves, save errors retain selection and focus returns to the action. Local checkout palette is preserved. Surface contract: `docs/02-design/checkout-scan-surface-brief.md`. The prior scanner-first flow received a fresh scoped **ship** review over six captures; the later centering change received targeted layout verification.
 
-Checkout separates choosing a room from handling its parcels within the same modal. The first state has only the search field. Nonblank queries reveal matching room rows with room number, resident and pending-record count; rooms without pending parcels are omitted. Clearing the query hides the results. Even a prefilled Dashboard query requires explicit pointer or keyboard confirmation before selecting a room. Rows are not preselected on arrival. Arrow keys highlight deliberately, Enter selects, and Tab reaches row buttons. After selection, a compact room/resident heading replaces the picker with a “เปลี่ยนห้อง” action and focus moves to the scanner input. Editing rooms hides the old parcel controls without discarding selection; candidate changes still use the existing explicit confirmation.
-
-### Stable search geometry
-
-The room-search dialog fits its label and input, without a reserved blank result region. Matching rooms or no-match feedback open in an anchored dropdown below the field only after a nonblank query. The dropdown sits outside normal layout so filtering keeps dialog height and input position unchanged. Its list scrolls within a maximum of min(216px, max(44px, 50dvh - 128px)), leaving space on short viewports. When changing rooms, “ใช้ห้องเดิม” sits beside the search label. The selected-room footer contains its selected count, any necessary confirmation/error, and the sole checkout action.
+The scoped audit is `docs/02-design/checkout-scan-audit-2026-10-06.md`. Evidence is `.impeccable/review/checkout-scan-initial-desktop-20261006.jpg`, `checkout-scan-result-desktop-20261006.jpg`, `checkout-scan-bulk-desktop-20261006.jpg`, `checkout-scan-initial-mobile-20261006.jpg`, `checkout-scan-result-mobile-20261006.jpg` and `checkout-scan-short-mobile-20261006.jpg`. Requested viewports were 1440×900, 390×844 and 390×480; capture content measures 1425×891, 375×812 and 375×462 excluding browser chrome/scrollbars. Before the centering follow-up, the scanner stayed in place as desktop results appeared; optional-list pages 2 and 3 retained a 280px list and 788px dialog. Short mobile uses an anchored footer with one content scroller, without horizontal overflow; visible measured buttons were at least 44px. Build and 18 rule tests passed; the detector returned no findings. Synthetic callback failure/retry checks preserved selection and focus before successful confirmation, without saved-data, API or authentication transactions. Physical barcode hardware, physical touch, a real software keyboard and screen-reader audio were not verified.
 
 ### Archive pagination
 
@@ -222,10 +234,7 @@ Archive displays at most 8 parcel records per page. A range label and numbered n
 
 ## Checkout audit follow-up (2026-10-06)
 
-Checkout now uses native checkbox rows with whole-row activation and a mixed-state Select All checkbox next to the list heading. One primary action remains in an anchored footer; choosing all parcels requires explicit room/count confirmation, whose safe cancellation receives focus and returns to the primary action. Failed writes keep selections and restore focus. Scanner errors are linked directly beneath the tracking field; save errors stay near the primary action.
-
-The selected-room dialog reserves stable geometry for its record count/page capacity. Its header and footer are anchored; the content has the only vertical overflow region. Normal rows paginate at up to 8 on desktop viewports at least 1100px high, 4 at heights at least 820px, 3 at heights at least 700px, otherwise 2. Selection survives page and viewport changes; exact-code scans reveal the matching page. Each page reserves its row area, so a sparse last page does not resize the dialog. Long notes, expanded selection review and unusually short viewports may use the single content scroll region. Archive's 8-record pagination remains unchanged.
-
+Earlier room-first audit findings and fixes remain historical evidence in `docs/02-design/checkout-modal-audit-2026-10-06.md`. The current scanner-first policy above supersedes that room-picker composition. Native checkbox semantics, linked errors, same-room validation, anchored footer, scoped palette and adaptive optional-list pagination remain.
 
 ### Softer checkout tones
 
@@ -239,9 +248,9 @@ Dashboard's main parcel results and expanded damaged-parcel table each display a
 
 ### Dashboard audit follow-up — 2026-10-06
 
-The heading and intake/checkout actions share a desktop row. Dashboard removes the duplicated total and default search feedback; its range indicator is the primary result count. Search is restricted to Pending Parcels regardless of query text. Per the user’s follow-up, the “รวมประวัติ” checkbox is removed; history search lives in Archive. The persistent label is “ค้นหาพัสดุรอรับ”. The Dashboard and damage tables omit repeated status and empty checkout-date columns; Archive retains them.
+The heading and intake/checkout actions share a desktop row. Dashboard removes the duplicated total and default search feedback; its range indicator is the primary result count. Search is restricted to Pending Parcels regardless of query text. Per the user’s follow-up, the “รวมประวัติ” checkbox is removed; history search lives in Archive. The persistent label is “ค้นหาพัสดุรอรับ”. The Dashboard and damage tables show Status and omit only the empty checkout-date column; Archive retains both.
 
-At widths ≤640px, Dashboard replaces the desktop table with an equivalent flat list. Each row shows room/name, the full tracking code and quantity; native details reveal received time, pending status and damage note. CSS hides the unused representation from the accessibility tree. Pagination still shows at most 8 records with its controls above the list; no horizontal swipe is needed to read the code. Long names, 256-character codes and long notes wrap.
+At widths ≤640px, Dashboard replaces the desktop table with an equivalent flat list. Each row shows room/name, visible status, the full tracking code and quantity; native details reveal received time and damage note. CSS hides the unused representation from the accessibility tree. Pagination still shows at most 8 records with its controls above the list; no horizontal swipe is needed to read the code. Long names, 256-character codes and long notes wrap.
 
 Pagination reset is tied to the main query, not every parcel-array render. The damage table preserves its page during main search and clamps to the last valid page when records shrink. Damaged records are memoized and sorted with parseParcelDate, matching the Bangkok-time rendering convention. Multi-page desktop results reserve the normal 8-row table area so a sparse last page stays aligned; single-page searches and mobile rows use natural height. Root tokens and checkout-local softer colors remain unchanged.
 
@@ -256,6 +265,15 @@ The user removed the Include History control as unnecessary. Dashboard now has a
 Dashboard, damaged-parcel tables and Archive share a compact pagination treatment: 13px page numbers, 16px arrows, no gap between 44px hit targets. The current page uses a 28px pale-blue mark with blue text and weight 500, replacing the heavy full-size filled button. Hover, disabled, keyboard outline and aria-current remain. Page size and navigation position are unchanged.
 
 
-### Search-first checkout room selection — 2026-10-06
+### Superseded room-search iteration — 2026-10-06
 
-Per the user’s request, checkout no longer lists all pending rooms on arrival. Blank/whitespace input shows no options or no-match warning. Typing a room/name/tracking query reveals matching pending rooms; choosing a result by pointer or Arrow/Enter confirms the room. Dashboard-prefilled queries do not auto-select. aria-expanded/controls reflect the actual result list. Clearing search hides it. Room-change confirmation and selection preservation remain unchanged.
+The earlier search-first room selector was superseded by the user-requested scan-first checkout flow above. Checkout no longer renders a room combobox or room options.
+
+### Intake condition and Dashboard status — 2026-10-06
+
+Intake uses a native labeled checkbox for “พัสดุชำรุด”, with an 18px visible unchecked/checked box and a 44px-high clickable label. Selecting it reveals the existing required reason field; keyboard Space and busy-state disabling remain available. Dashboard and damaged-parcel results include Status as the fifth column, using the shared status treatment. Mobile shows status beside room identity without requiring expansion. Damage notes span all five columns; Archive keeps its six columns and table pagination remains 8 records per page.
+
+
+### Centered checkout placement — 2026-10-06
+
+The user requested viewport centering in place of the top anchor. Targeted verification measured dialog centers at (720, 450) in 1440×900 for both initial and result states, and (195, 422) in 390×844 for the initial state. At 390×480, the result remains within top16px/bottom464px with its footer reachable and content scrolling retained. Build passed; no console warnings/errors or layout detector findings. Current placement evidence: `.impeccable/review/checkout-centered-desktop-20261006.jpg` and `checkout-centered-mobile-20261006.jpg`. Lookup, confirmation and other frontend behavior were not changed.

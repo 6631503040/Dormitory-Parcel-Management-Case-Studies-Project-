@@ -50,6 +50,16 @@ export function validateBatch(batch, existing) {
   }
   return '';
 }
+export function checkoutLookup(parcels, code) {
+  const normalized = key(code);
+  if (!normalized) return { error: 'กรุณาสแกนหรือกรอกเลขพัสดุ' };
+  if (normalized.length > 256 || /[\u0000-\u001f\u007f]/.test(normalized)) return { error: 'รหัสพัสดุไม่ถูกต้อง กรุณาสแกนหรือกรอกใหม่' };
+  const matches = parcels.filter((p) => key(p.code) === normalized);
+  if (!matches.length) return { error: 'ไม่พบเลขพัสดุนี้ กรุณาตรวจรหัสแล้วลองใหม่' };
+  if (matches.length > 1) return { error: 'พบรหัสพัสดุซ้ำ กรุณาตรวจรายการใน Archive ก่อนนำออก' };
+  if (matches[0].status !== 'in') return { error: 'พัสดุนี้นำออกแล้ว ไม่สามารถนำออกซ้ำได้' };
+  return { parcel: matches[0] };
+}
 export function scanResult(parcels, room, code, selectedIds) {
   const exact = parcels.find((p) => key(p.code) === key(code));
   if (!exact) return { error: 'ไม่พบเลขพัสดุนี้ กรุณาตรวจรหัสแล้วสแกนใหม่' };

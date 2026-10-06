@@ -22,11 +22,9 @@ export default function ParcelHubApp() {
   const [banner, setBanner] = useState(null);
   const [storageError, setStorageError] = useState(boot.error);
   const [draft, setDraft] = useState(emptyDraft);
-  const [checkoutQuery, setCheckoutQuery] = useState("");
   const current = useRef(boot.parcels);
   const raw = useRef(boot.raw);
-  const timer = useRef(null);
-  useEffect(() => () => clearTimeout(timer.current), []);
+  const notificationId = useRef(0);
   useEffect(() => {
     const changed = (event) => {
       if (event.key === "parcelhub-parcels" || event.key === null) setStorageError("ข้อมูลเปลี่ยนจากอีกหน้าต่าง กรุณาตรวจข้อมูลล่าสุดก่อนบันทึก ร่างที่กรอกยังคงอยู่");
@@ -57,11 +55,10 @@ export default function ParcelHubApp() {
     if (hasDraft(draft) && !window.confirm("มีร่างพัสดุที่ยังไม่บันทึก ออกจากระบบและทิ้งร่างนี้หรือไม่?")) return;
     try { localStorage.removeItem(AUTH_STORAGE_KEY); }
     catch { setStorageError("ล้างสถานะเข้าสู่ระบบในเครื่องไม่ได้ กรุณาตรวจพื้นที่จัดเก็บแล้วลองใหม่"); return; }
-    setDraft(emptyDraft()); setModal(null); setBanner(null); clearTimeout(timer.current); setAuthed(false);
+    setDraft(emptyDraft()); setModal(null); setBanner(null); setAuthed(false);
   };
   const showBanner = (message, tone = "success") => {
-    clearTimeout(timer.current); setBanner({ message, tone });
-    timer.current = setTimeout(() => setBanner(null), 6000);
+    setBanner({ message, tone, id: ++notificationId.current });
   };
   const handleCheckOutConfirm = (items, room) => {
     const ids = items.map((p) => p.id);
@@ -101,12 +98,6 @@ export default function ParcelHubApp() {
 
   return (
     <div className="min-h-screen" style={{ background: C.bg, ...bodyFont }}>
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeIn 0.2s ease-out; }
-        @media (prefers-reduced-motion: reduce) { .animate-fade { animation: none; } }
-      `}</style>
-
       <TopNav
         page={page}
         setPage={setPage}
@@ -121,7 +112,7 @@ export default function ParcelHubApp() {
           <>
             <DashboardPage
               parcels={parcels}
-              onOpenCheckOut={(query = "") => { setCheckoutQuery(query); setModal("checkout"); }}
+              onOpenCheckOut={() => setModal("checkout")}
               onOpenCheckIn={() => setModal("checkin")}
             />
           </>
@@ -137,7 +128,6 @@ export default function ParcelHubApp() {
         <CheckOutModal
           parcels={parcels}
           onClose={() => setModal(null)}
-          initialQuery={checkoutQuery}
           onConfirm={handleCheckOutConfirm}
         />
       )}
@@ -145,7 +135,7 @@ export default function ParcelHubApp() {
         <CheckInModal parcels={parcels} draft={draft} onDraftChange={setDraft} onClose={() => setModal(null)} onSave={handleCheckInSave} />
       )}
 
-      <Banner message={banner?.message} tone={banner?.tone} onClose={() => setBanner(null)} />
+      <Banner message={banner?.message} tone={banner?.tone} notificationId={banner?.id} onClose={() => setBanner(null)} />
     </div>
   );
 }
