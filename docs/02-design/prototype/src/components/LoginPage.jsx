@@ -1,60 +1,43 @@
-import React, { useState } from "react";
-import { Package, User, Lock, LogIn } from "lucide-react";
-import { C, bodyFont, displayFont } from "./shared";
+import React, { useRef, useState } from "react";
+import { Package, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
-  const submit = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [invalid, setInvalid] = useState({});
+  const usernameInput = useRef(null);
+  const passwordInput = useRef(null);
+  const submit = (event) => {
+    event.preventDefault();
     if (!username.trim() || !password.trim()) {
+      setInvalid({ username: !username.trim(), password: !password.trim() });
       setError("กรุณากรอกชื่อผู้ใช้และรหัสผ่าน");
+      (!username.trim() ? usernameInput : passwordInput).current?.focus();
       return;
     }
+    setInvalid({});
     setError("");
-    onLogin(username.trim());
+    const result = onLogin(username.trim());
+    if (!result?.ok) setError(result?.error || "เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่");
   };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") submit();
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden" style={{ background: C.bg }}>
-      <div className="absolute top-10 left-8 w-24 h-10 rounded-full rotate-[-18deg]" style={{ background: "#FBBC04", opacity: 0.8 }} />
-      <div className="absolute bottom-16 right-8 w-28 h-10 rounded-full rotate-[22deg]" style={{ background: "#34A853", opacity: 0.8 }} />
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 shadow-lg" style={{ background: C.primary }}>
-            <Package size={26} color="#fff" strokeWidth={2.5} />
-          </div>
-          <h1 className="text-2xl font-bold" style={{ ...displayFont, color: C.text }}>ParcelHub</h1>
-          <p className="text-sm mt-1" style={{ ...bodyFont, color: C.textMuted }}>ระบบจัดการพัสดุประจำอาคาร</p>
+    <main className="login-page">
+      <section className="login-panel" aria-labelledby="login-heading">
+        <div className="desk-brand"><Package size={25} aria-hidden="true" /><span>ParcelHub</span></div>
+        <div className="login-content">
+          <h1 id="login-heading">เข้าสู่ระบบ</h1>
+          <p className="login-description">ระบบจัดการพัสดุประจำอาคาร</p>
+          <form onSubmit={submit} className="login-form">
+            <div className="form-field"><label htmlFor="username">ชื่อผู้ใช้</label><input ref={usernameInput} id="username" autoComplete="username" autoCapitalize="none" spellCheck={false} value={username} onChange={(e) => { setUsername(e.target.value); setInvalid((fields) => ({ ...fields, username: false })); setError(""); }} placeholder="กรอกชื่อผู้ใช้" aria-invalid={!!invalid.username} aria-describedby={error ? "login-error" : undefined} /></div>
+            <div className="form-field"><label htmlFor="password">รหัสผ่าน</label><div className="login-password"><input ref={passwordInput} id="password" type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(e) => { setPassword(e.target.value); setInvalid((fields) => ({ ...fields, password: false })); setError(""); }} placeholder="กรอกรหัสผ่าน" aria-invalid={!!invalid.password} aria-describedby={error ? "login-error" : undefined} /><button type="button" className="icon-button login-password-toggle" aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"} onClick={() => setShowPassword((value) => !value)}>{showPassword ? <EyeOff size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}</button></div></div>
+            <div className="login-feedback">{error && <p id="login-error" className="field-error" role="alert">{error}</p>}</div>
+            <button type="submit" className="desk-button desk-button-primary">เข้าสู่ระบบ<ArrowRight size={18} aria-hidden="true" /></button>
+          </form>
         </div>
-
-        <div className="rounded-3xl border p-6 space-y-4 shadow-sm" style={{ background: C.card, borderColor: C.border }}>
-          <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ ...bodyFont, color: C.textMuted }}>ชื่อผู้ใช้</label>
-            <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border" style={{ borderColor: C.border }}>
-              <User size={16} style={{ color: C.textMuted }} />
-              <input value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={handleKeyDown} placeholder="admin" className="w-full outline-none text-sm bg-transparent" style={bodyFont} />
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ ...bodyFont, color: C.textMuted }}>รหัสผ่าน</label>
-            <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border" style={{ borderColor: C.border }}>
-              <Lock size={16} style={{ color: C.textMuted }} />
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={handleKeyDown} placeholder="••••••••" className="w-full outline-none text-sm bg-transparent" style={bodyFont} />
-            </div>
-          </div>
-          {error && <p className="text-xs" style={{ ...bodyFont, color: "#D64545" }}>{error}</p>}
-          <button type="button" onClick={submit} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ ...bodyFont, background: C.primary }}>
-            <LogIn size={16} />
-            เข้าสู่ระบบ
-          </button>
-        </div>
-      </div>
-    </div>
+      </section>
+      <div className="login-visual" aria-hidden="true"><img src={`${import.meta.env.BASE_URL}images/dormitory-login-campus.webp`} width="1122" height="1402" alt="" fetchpriority="high" /></div>
+    </main>
   );
 }
