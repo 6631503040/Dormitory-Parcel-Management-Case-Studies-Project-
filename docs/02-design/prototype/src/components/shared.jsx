@@ -162,7 +162,7 @@ export function LoadMoreFooter({ shown, total, onLoadMore, loading }) {
   );
 }
 
-const TABLE_HEADERS = ["ห้อง / ผู้พัก", "เลขพัสดุ", "วันที่รับเข้า", "สถานะ", "วันที่นำจ่าย"];
+const TABLE_HEADERS = ["ห้อง / ผู้พัก", "เลขพัสดุ", "วันที่รับเข้า", "สถานะ", "วันที่นำออก"];
 
 // A plain table: it renders exactly the Parcels it is given. Callers own pagination (the API
 // paginates every list, so there is never an unbounded array to slice client-side).

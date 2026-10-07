@@ -1,7 +1,0 @@
-{
-  "prompt": "Use case: stylized-concept. Asset type: decorative full-height right panel for ParcelHub dormitory parcel-management sign-in website. Primary request: a refined architectural illustration of a welcoming contemporary Thai dormitory building. Subject: one believable five-storey cream and soft white dormitory, repeating balconies with slim blue-gray railings, modest sheltered entrance, a small green courtyard with tropical planting and paved entry path. Style: premium architectural 3D editorial illustration with natural materials and subtle texture, precise straight architectural lines, restrained detail and realistic proportions, no toy-like exaggeration. Composition: portrait 4:5 image, three-quarter street view showing entire building centered with comfortable margin for responsive cropping, building occupies roughly two-thirds of image, courtyard foreground, pale clear blue sky in upper portion. Lighting: soft morning daylight, calm welcoming mood, gentle natural shadows. Palette: pale sky blue, warm ivory facade, muted blue-gray and natural foliage green. Constraints: image only, no UI mockup, no words or lettering, no signage, no logos, no watermark, no floating digital cards, no neon, no gradients as graphic overlays, no people.",
-  "generator": "built-in image_gen",
-  "source": "/home/danaiphong/.codex/generated_images/01a10a64-7fd8-74a0-b926-68680c31a33b/exec-48bd6365-5750-4d5e-bd57-500274660d36.png",
-  "output": "docs/02-design/prototype/public/images/dormitory-login.webp",
-  "date": "2026-10-06"
-}

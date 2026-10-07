@@ -114,13 +114,13 @@ describe("CheckOutModal", () => {
     expect(screen.getByRole("button", { name: /นำออกทั้งหมด/ })).toBeDisabled();
   });
 
-  it("Check Out All asks for confirmation naming the room and count, then submits with that expected count", async () => {
+  it("Check Out All ticks every row, then submits through the normal selection flow", async () => {
     mockSearch([makeParcel({ trackingCode: "TH100", room: roomB1101 }), makeParcel({ trackingCode: "TH101", room: roomB1101 })], 2);
-    let sentBody;
-    const pickedUp = [makeParcel({ status: "picked_up" }), makeParcel({ status: "picked_up" })];
+    let sentCodes;
+    const pickedUp = [makeParcel({ trackingCode: "TH100", room: roomB1101, status: "picked_up" }), makeParcel({ trackingCode: "TH101", room: roomB1101, status: "picked_up" })];
     server.use(
-      http.post("/api/v1/rooms/1/check-out-all", async ({ request }) => {
-        sentBody = await request.json();
+      http.post("/api/v1/parcels/check-out", async ({ request }) => {
+        sentCodes = (await request.json()).trackingCodes;
         return HttpResponse.json({ checkedOutCount: 2, parcels: pickedUp });
       })
     );
@@ -131,29 +131,12 @@ describe("CheckOutModal", () => {
     await screen.findByText(/TH100/);
     await user.click(screen.getByRole("button", { name: /นำออกทั้งหมด \(2\)/ }));
 
-    expect(screen.getByText(/นำพัสดุออกทั้งหมด 2 ชิ้นของห้อง 1101/)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /ยืนยันนำออก 2 ชิ้น/ }));
+    const row = screen.getByText(/TH100/).closest("label");
+    expect(row.querySelector("input[type=checkbox]")).toBeChecked();
+    await user.click(screen.getByRole("button", { name: /นำออกที่เลือก \(2\)/ }));
 
     await waitFor(() => expect(onConfirm).toHaveBeenCalledWith(pickedUp));
-    expect(sentBody).toEqual({ expectedCount: 2 });
-  });
-
-  it("on a stale pending count, shows the error and returns to the normal (non-confirming) view", async () => {
-    mockSearch([makeParcel({ trackingCode: "TH100", room: roomB1101 })], 1);
-    server.use(
-      http.post("/api/v1/rooms/1/check-out-all", () =>
-        HttpResponse.json({ code: "PENDING_COUNT_CHANGED", params: { expected: 1, actual: 2 } }, { status: 409 })
-      )
-    );
-    const user = userEvent.setup();
-    render(<CheckOutModal onClose={vi.fn()} onConfirm={vi.fn()} />);
-    await user.type(screen.getByLabelText(/สแกนเลขพัสดุ/), "101");
-    await screen.findByText(/TH100/);
-    await user.click(screen.getByRole("button", { name: /นำออกทั้งหมด \(1\)/ }));
-    await user.click(screen.getByRole("button", { name: /ยืนยันนำออก 1 ชิ้น/ }));
-
-    expect(await screen.findByText(/ตอนนี้มี 2 รายการ/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /นำออกทั้งหมด/ })).toBeInTheDocument(); // back to the normal view
+    expect(sentCodes).toEqual(expect.arrayContaining(["TH100", "TH101"]));
   });
 
   it("drops parcels that were already picked up by someone else and reports which ones", async () => {

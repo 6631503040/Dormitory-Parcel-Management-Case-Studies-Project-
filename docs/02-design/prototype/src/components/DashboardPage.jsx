@@ -1,31 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Search, PackagePlus, PackageCheck, Inbox, Clock } from "lucide-react";
-import { C, bodyFont, displayFont, ParcelTable, LoadMoreFooter, toDateInputValue } from "./shared";
+import { Search, PackagePlus, PackageCheck } from "lucide-react";
+import { C, bodyFont, ParcelTable, LoadMoreFooter, toDateInputValue } from "./shared";
 import { InlineError } from "./Modals";
 import UnmatchedQueue from "./UnmatchedQueue";
 import { api, ApiError } from "../api/client";
 import { errorMessage } from "../api/errorMessages";
 
-function StatCard({ icon: Icon, label, value, fg, bg, loading }) {
-  return (
-    <div className="rounded-2xl border p-5 flex items-center gap-4" style={{ background: C.card, borderColor: C.border }}>
-      <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: bg }}>
-        <Icon size={22} style={{ color: fg }} />
-      </div>
-      <div>
-        <p className="text-sm font-medium" style={{ ...bodyFont, color: C.textMuted }}>{label}</p>
-        <p className="text-3xl font-bold" style={{ ...displayFont, color: C.text }}>{loading ? "–" : value.toLocaleString()}</p>
-      </div>
-    </div>
-  );
-}
-
 const SEARCH_PAGE_SIZE = 20;
 
 export default function DashboardPage({ onOpenCheckOut, onOpenCheckIn, onOpenHistory, refreshKey, onDataChanged }) {
-  const [date, setDate] = useState(() => toDateInputValue());
-  const today = toDateInputValue();
-
   const [dashboard, setDashboard] = useState(null);
   const [dashboardError, setDashboardError] = useState(null);
 
@@ -42,13 +25,13 @@ export default function DashboardPage({ onOpenCheckOut, onOpenCheckIn, onOpenHis
     const controller = new AbortController();
     setDashboardError(null);
     api
-      .dashboard(date, controller.signal)
+      .dashboard(toDateInputValue(), controller.signal)
       .then(setDashboard)
       .catch((err) => {
         if (err instanceof ApiError) setDashboardError(errorMessage(err));
       });
     return () => controller.abort();
-  }, [date, refreshKey]);
+  }, [refreshKey]);
 
   const runSearch = (q, nextPage) => {
     clearTimeout(debounceRef.current);
@@ -100,21 +83,7 @@ export default function DashboardPage({ onOpenCheckOut, onOpenCheckIn, onOpenHis
 
   return (
     <div>
-      <div className="mb-4">
-        <label htmlFor="dashboard-date" className="block text-xs font-medium mb-1.5" style={{ ...bodyFont, color: C.textMuted }}>สรุปประจำวันที่</label>
-        <input id="dashboard-date" type="date" value={date} max={today} onChange={(e) => setDate(e.target.value)} className="px-3.5 py-2.5 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-blue-300" style={{ ...bodyFont, borderColor: C.border, color: C.text, background: C.card }} />
-      </div>
-
       <InlineError message={dashboardError} />
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2">
-        <StatCard icon={Inbox} label="รับเข้า" value={dashboard?.checkedIn ?? 0} loading={!dashboard} fg={C.primaryDark} bg={C.primaryLight} />
-        <StatCard icon={PackageCheck} label="นำออกแล้ว" value={dashboard?.pickedUp ?? 0} loading={!dashboard} fg={C.success} bg={C.successLight} />
-        <StatCard icon={Clock} label="พัสดุค้าง" value={dashboard?.pending ?? 0} loading={!dashboard} fg={C.warning} bg={C.warningLight} />
-      </div>
-      <p className="text-xs mb-6" style={{ ...bodyFont, color: C.textMuted }}>
-        รอรับ = พัสดุที่ยังไม่ถูกนำออก ณ สิ้นวันที่เลือก{dashboard ? ` (รวมพัสดุมีปัญหา ${dashboard.unmatchedPending.toLocaleString()} รายการ)` : ""}
-      </p>
 
       <section className="parcel-register dashboard-register" aria-label="ค้นหาและจัดการพัสดุ">
         <p className="text-base font-semibold" style={{ ...bodyFont, color: C.text, padding: "20px 24px 0" }}>{showingSearch ? "ผลการค้นหา" : "รับเข้าล่าสุด"}</p>

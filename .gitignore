@@ -6,3 +6,11 @@ docker/.env
 backend/server
 backend/seed
 backend/*.exe
+# Local Impeccable skills and generated review artifacts
+/.impeccable/
+**/skills/impeccable/
+**/skills/audit/
+/.claude/agents/impeccable-*.md
+/docs/02-design/*audit*.md
+/docs/02-design/frontend-ux-ui-shape-*.md
+/docs/02-design/*surface-brief.md

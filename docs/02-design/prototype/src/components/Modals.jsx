@@ -78,7 +78,6 @@ function CheckOutModal({ onClose, onConfirm }) {
   const [matchesTotal, setMatchesTotal] = useState(0);
   const [searching, setSearching] = useState(false);
   const [notFound, setNotFound] = useState(false);
-  const [confirmAll, setConfirmAll] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const scanRef = useRef(null);
@@ -127,7 +126,6 @@ function CheckOutModal({ onClose, onConfirm }) {
   const handleScanChange = (e) => {
     const next = e.target.value;
     setScan(next);
-    setConfirmAll(false);
     setError(null);
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => runSearch(next), 200);
@@ -189,21 +187,6 @@ function CheckOutModal({ onClose, onConfirm }) {
     }
   };
 
-  const submitAll = async () => {
-    setSubmitting(true);
-    setError(null);
-    try {
-      const res = await api.checkOutAll(singleRoomId, matches.length);
-      setConfirmAll(false);
-      finish(res.parcels);
-    } catch (err) {
-      setSubmitting(false);
-      setConfirmAll(false);
-      setError(errorMessage(err));
-      runSearch(scan);
-    }
-  };
-
   const footer = (
     <fieldset disabled={submitting} className="checkout-footer-fields">
       <div className="checkout-footer-heading">
@@ -212,21 +195,15 @@ function CheckOutModal({ onClose, onConfirm }) {
         </p>
       </div>
       <div className="checkout-confirmation-slot">
-        {confirmAll && (
-          <div className="checkout-confirmation">
-            <p>นำพัสดุออกทั้งหมด {matches.length} ชิ้นของห้อง {matches[0]?.room?.buildingCode}{matches[0]?.room?.roomNumber} ใช่หรือไม่?</p>
-            <button type="button" className="text-button" onClick={() => setConfirmAll(false)}>กลับไปตรวจสอบ</button>
-          </div>
-        )}
         <InlineError message={error} />
       </div>
       <div className="desk-actions">
-        <button type="button" className="desk-button desk-button-in" disabled={!canCheckOutAll || submitting} onClick={() => setConfirmAll(true)}>
+        <button type="button" className="desk-button desk-button-in" disabled={!canCheckOutAll || submitting} onClick={() => setSelected(new Map(matches.map((p) => [p.trackingCode, p])))}>
           นำออกทั้งหมด{matches.length > 0 ? ` (${matches.length})` : ""}
         </button>
-        <button type="button" className="desk-button desk-button-primary checkout-submit" disabled={submitting || (confirmAll ? false : selectedParcels.length === 0)}
-          onClick={() => (confirmAll ? submitAll() : submitSelected())}>
-          {submitting ? "กำลังนำออก…" : confirmAll ? `ยืนยันนำออก ${matches.length} ชิ้น` : `นำออกที่เลือก${selectedParcels.length > 0 ? ` (${selectedParcels.length})` : ""}`}
+        <button type="button" className="desk-button desk-button-primary checkout-submit" disabled={submitting || selectedParcels.length === 0}
+          onClick={submitSelected}>
+          {submitting ? "กำลังนำออก…" : `นำออกที่เลือก${selectedParcels.length > 0 ? ` (${selectedParcels.length})` : ""}`}
         </button>
       </div>
     </fieldset>
@@ -239,7 +216,7 @@ function CheckOutModal({ onClose, onConfirm }) {
         value={scan}
         inputRef={scanRef}
         autoFocus
-        disabled={submitting || confirmAll}
+        disabled={submitting}
         error={notFound ? "ไม่พบพัสดุที่รอนำออกตรงกับคำค้นหา" : ""}
         feedback="สแกนต่อเนื่องได้หลายชิ้น หรือพิมพ์เลขห้องเพื่อดูพัสดุที่ค้างของห้องนั้นทั้งหมด"
         reserveMessage
@@ -259,7 +236,7 @@ function CheckOutModal({ onClose, onConfirm }) {
           const checked = selected.has(p.trackingCode);
           return (
             <label key={p.trackingCode} className="checkout-selection-row" data-selected={checked}>
-              <input type="checkbox" checked={checked} disabled={confirmAll || submitting} onChange={() => toggleSelect(p)} />
+              <input type="checkbox" checked={checked} disabled={submitting} onChange={() => toggleSelect(p)} />
               <span>
                 <strong>{roomLabel(p)}</strong>
                 <span className="checkout-row-qty">{p.trackingCode} · รับเข้า {formatThaiDateTime(p.checkedInAt)}</span>
@@ -269,7 +246,7 @@ function CheckOutModal({ onClose, onConfirm }) {
         })}
       </div>
       {hiddenCount > 0 && <p className="search-feedback" role="status">แสดง {MATCH_PAGE_SIZE} รายการแรก — พิมพ์เพิ่มเพื่อกรอง</p>}
-      {matches.length > 0 && !canCheckOutAll && !confirmAll && (
+      {matches.length > 0 && !canCheckOutAll && (
         <p className="search-feedback" role="status">&quot;นำออกทั้งหมด&quot; ใช้ได้เมื่อผลลัพธ์อยู่ห้องเดียวกันและแสดงครบทุกรายการเท่านั้น — ใช้ &quot;นำออกที่เลือก&quot; แทน</p>
       )}
     </ModalShell>

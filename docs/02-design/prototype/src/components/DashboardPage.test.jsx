@@ -24,7 +24,7 @@ function mockEnv({ dashboard = makeDashboard(), search } = {}) {
 }
 
 describe("DashboardPage", () => {
-  it("loads today's counts and recent check-ins on mount", async () => {
+  it("loads recent check-ins on mount", async () => {
     mockEnv({
       dashboard: makeDashboard({
         checkedIn: 4,
@@ -36,30 +36,7 @@ describe("DashboardPage", () => {
     });
     render(<DashboardPage onOpenCheckOut={vi.fn()} onOpenCheckIn={vi.fn()} onOpenHistory={vi.fn()} refreshKey={0} />);
 
-    expect(await screen.findByText("4")).toBeInTheDocument();
-    expect(screen.getByText("1")).toBeInTheDocument();
-    expect(screen.getByText("3")).toBeInTheDocument();
-    expect(screen.getByText(/รวมพัสดุมีปัญหา 1 รายการ/)).toBeInTheDocument();
-    expect(screen.getByText("TH100")).toBeInTheDocument();
-  });
-
-  it("refetches the day's counts when the date changes", async () => {
-    server.use(
-      http.get("/api/v1/dashboard", ({ request }) => {
-        const date = new URL(request.url).searchParams.get("date");
-        return HttpResponse.json(makeDashboard({ checkedIn: date === "2026-09-20" ? 99 : 4 }));
-      })
-    );
-    server.use(http.get("/api/v1/parcels", () => noUnmatched()));
-    render(<DashboardPage onOpenCheckOut={vi.fn()} onOpenCheckIn={vi.fn()} onOpenHistory={vi.fn()} refreshKey={0} />);
-    await screen.findByText("4");
-
-    const user = userEvent.setup();
-    const dateInput = screen.getByLabelText("สรุปประจำวันที่");
-    await user.clear(dateInput);
-    await user.type(dateInput, "2026-09-20");
-
-    expect(await screen.findByText("99")).toBeInTheDocument();
+    expect(await screen.findByText("TH100")).toBeInTheDocument();
   });
 
   it("searches across all parcels and shows results instead of recent check-ins", async () => {
