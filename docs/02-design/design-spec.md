@@ -29,7 +29,7 @@ in code, UI, tests, or documentation.
 | Parcel awaiting collection | Pending | `status = 'pending'` | Never "in storage", "waiting", "unclaimed", "open" |
 | Parcel collected by resident | Picked Up | `status = 'picked_up'` | Displayed "Picked Up"; never "completed", "done", "delivered", "closed" |
 | Parcel past retention window | Archived | `status = 'archived'` | Soft state; records are never hard-deleted |
-| One of the 10 dormitory buildings | Building | `building` | Codes `B1`–`B10`; never "block", "dorm", "hall". Reference data only — a room's building; not assigned to a parcel |
+| One of the 10 dormitory buildings | Building | `building` | Codes `1`–`10` (plain digits, no letter prefix); never "block", "dorm", "hall". Reference data only — a room's building; not assigned to a parcel. A room's full resident-facing number is building+floor+room concatenated with no separator, e.g. building 3 / floor 1 / room 01 → "3101" |
 | Value encoded in the courier barcode | Tracking Code | `tracking_code` | Never "tracking number", "barcode", "AWB", "ref", "parcel ID" |
 | Official list of who lives where | Resident Directory | `residents` | Never "student list", "tenant roster", "master list" |
 | Person a parcel is for | Resident | `resident` | Never "student", "tenant", "customer", "user", "recipient" in code |
@@ -194,12 +194,13 @@ Store: **PostgreSQL**. Backend: **Go + Gin** (see §7 note re: proposal text).
 
 | Entity | Table Name | Primary Key | Notes |
 |--------|-----------|-------------|-------|
-| Dormitory building | `buildings` | `id` | Seeded with B1–B10; reference data (a room's building) |
+| Dormitory building | `buildings` | `id` | Seeded with codes 1–10 (plain digits); reference data (a room's building) |
 | Room | `rooms` | `id` | Belongs to a building; `(building_id, room_number)` unique |
 | Resident (directory) | `residents` | `id` | Reference data; the official name↔room source of truth |
 | Staff account | `staff` | `id` | Has a role for RBAC |
 | Parcel | `parcels` | `id` | `tracking_code` is the unique natural/business key |
 | Parcel history event | `parcel_events` | `id` | Append-only audit trail (chain of custody) |
+| Access log | `access_logs` | `id` | Append-only log of every sign-in attempt (Computer Crime Act §26, `rule.md`); retained ≥ 90 days |
 
 ### Field Naming Convention
 
@@ -215,7 +216,9 @@ Store: **PostgreSQL**. Backend: **Go + Gin** (see §7 note re: proposal text).
 |-----------|--------|
 | `staff_role` | `operator`, `admin` |
 | `parcel_status` | `pending`, `picked_up`, `archived` |
-| `parcel_event_type` | `checked_in`, `checked_out`, `checked_out_bulk`, `note_added` |
+| `parcel_event_type` | `checked_in`, `checked_out`, `checked_out_bulk`, `note_added`, `room_assigned` |
+| `unmatched_reason` | `no_match`, `no_resident`, `ambiguous`, `other` |
+| `access_outcome` | `success`, `failed` |
 
 ### Core Models
 
@@ -223,7 +226,7 @@ Store: **PostgreSQL**. Backend: **Go + Gin** (see §7 note re: proposal text).
 | Field | Type | Required | Default | Notes |
 |-------|------|----------|---------|-------|
 | id | bigint | Y | identity | PK |
-| code | text | Y | — | `B1`..`B10`; unique |
+| code | text | Y | — | `1`..`10` (plain digits, no "B"); unique |
 | name | text | Y | — | Human label, e.g. "Building 1" |
 | created_at | timestamptz | Y | now() | |
 
@@ -266,7 +269,8 @@ Store: **PostgreSQL**. Backend: **Go + Gin** (see §7 note re: proposal text).
 |-------|------|----------|---------|-------|
 | id | bigint | Y | identity | PK |
 | tracking_code | text | Y | — | Courier barcode value; UNIQUE |
-| room_id | bigint | Y | — | FK → rooms.id; chosen from directory, never free-text |
+| room_id | bigint | N | null | FK → rooms.id; chosen from directory, never free-text. NULL only while the Parcel is unmatched (`unmatched_reason` set, status `pending`) |
+| unmatched_reason | unmatched_reason | N | null | Why no room could be chosen at Check-In; cleared when Staff assign a room. CHECK: `room_id IS NOT NULL OR unmatched_reason IS NOT NULL` |
 | resident_id | bigint | N | null | FK → residents.id; set when a specific recipient is known |
 | status | parcel_status | Y | `pending` | |
 | note | text | N | null | Free-text note (e.g. "no room number on box") |
@@ -283,6 +287,8 @@ Indexes (Performance Risk — Med/High):
 - `INDEX (status, checked_in_at)` — Dashboard daily counts
 - `INDEX (tracking_code text_pattern_ops)` — prefix search
 - GIN trigram on `residents.full_name` and `residents.nickname` — name search
+- `INDEX (checked_in_at)` and partial `INDEX (checked_out_at) WHERE checked_out_at IS NOT NULL` — Dashboard "received / picked up on day X" counts
+- Partial `INDEX (checked_in_at) WHERE room_id IS NULL AND status = 'pending'` — unmatched queue
 - All list endpoints are paginated; no unbounded result sets.
 
 #### parcel_events
@@ -419,3 +425,5 @@ No hardcoded colors, strings, spacing values, or field names exist to migrate ye
 |------|---------|--------|--------|
 | 2026-09-04 | — | Initial spec created | Lock design decisions before implementation begins |
 | 2026-09-04 | §1, §3, §4, §5, §6 | Removed Storage Location entirely: `storage_locations` table, `parcels.storage_location_id`, `parcels.is_oversized`, the Common Area / `COMMON` building code, the Oversized toggle & badge, the `location_changed` event type, and the Building select on Check-In. Check-In is now scan + directory-validated room only. `buildings` stays as reference data (a room's building). | Advisor/team decision — physical storage-location tracking is out of scope; parcels are set aside for pickup without a system-tracked location. See `docs/05-log/20260904-remove-storage-location.md` |
+| 2026-09-21 | §4 | Added: `parcels.unmatched_reason` + enum `unmatched_reason`; `parcels.room_id` now nullable (only for Pending unmatched Parcels, enforced by CHECK constraints); event type `room_assigned`; table `access_logs` + enum `access_outcome`; four extra indexes (Dashboard counts, unmatched queue). Migrations `db/migrations/0002`, `0003`. | Unmatched queue comes from `product_backlog.md` US-06 (a Parcel with no usable room must be parked, not guessed — room is still never free text). `access_logs` is required by Computer Crime Act §26 (`rule.md`); the spec had no table for it. Indexes serve the Dashboard queries. Advisor/team to confirm. |
+| 2026-09-22 | §1, §4 | Building codes changed from `B1`–`B10` to plain digits `1`–`10` (no letter prefix). Every display/search/match point that joins building+room now concatenates with **no separator** (`buildingCode + roomNumber`, e.g. "3101" for building 3 / floor 1 / room 01) instead of `"B3 101"`. No column type or schema change — only the seeded `buildings.code` values and every place that formats or matches them (backend SQL `LIKE`/`ILIKE` joins, LINE room-claim parsing, frontend room labels). | Explicit instruction: resident-facing room numbers must read as one plain 4-digit number (building/floor/room), never letter-prefixed. Advisor/team to confirm. |

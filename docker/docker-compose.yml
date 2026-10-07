@@ -1,0 +1,48 @@
+# Local development stack: PostgreSQL + the Go API. The React client is added when it is wired to the API.
+#
+#   cd docker
+#   cp .env.example .env        # then edit the secrets
+#   docker compose up -d --build
+#   docker compose run --rm backend /app/seed -parcels 1000     # synthetic demo data
+#
+# HTTPS is assumed to be terminated in front of the app in production (set COOKIE_SECURE=true there).
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-dpms}
+      POSTGRES_USER: ${POSTGRES_USER:-dpms}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in docker/.env}
+    volumes:
+      - dpms-db:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432" # loopback only: reachable from the host for tests, not the network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dpms} -d ${POSTGRES_DB:-dpms}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/backend.Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      PORT: "8080"
+      DATABASE_URL: postgres://${POSTGRES_USER:-dpms}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-dpms}?sslmode=disable
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET (32+ characters) in docker/.env}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      MIGRATIONS_DIR: /app/migrations
+      # Optional: LINE Messaging API (Epic E3). Leave unset to run without the LINE feature.
+      LINE_CHANNEL_SECRET: ${LINE_CHANNEL_SECRET:-}
+      LINE_CHANNEL_ACCESS_TOKEN: ${LINE_CHANNEL_ACCESS_TOKEN:-}
+    ports:
+      - "${API_PORT:-8080}:8080"
+
+volumes:
+  dpms-db:

@@ -3,137 +3,125 @@ import LoginPage from "./LoginPage";
 import DashboardPage from "./DashboardPage";
 import ArchivePage from "./ArchivePage";
 import TopNav from "./TopNav";
-import { Banner, PageHeader, C, bodyFont, INITIAL_PARCELS, roomLabel, useFonts } from "./shared";
+import ParcelHistoryModal from "./ParcelHistoryModal";
+import { Banner, C, bodyFont, useFonts } from "./shared";
 import { CheckOutModal, CheckInModal } from "./Modals";
-import { emptyDraft, hasDraft, residentsFor, loadParcelState, persistParcels, validateBatch, validateCheckOut } from "../lib/parcelRules";
-
-const AUTH_STORAGE_KEY = "parcelhub-authenticated";
+import LineOtpModal from "./LineOtpModal";
+import { api, setUnauthenticatedHandler } from "../api/client";
+import { errorMessage } from "../api/errorMessages";
 
 export default function ParcelHubApp() {
   useFonts();
-  const [boot] = useState(() => {
-    try { return loadParcelState(localStorage, INITIAL_PARCELS); }
-    catch { return { parcels: [], raw: undefined, error: "พื้นที่จัดเก็บในเครื่องถูกปิดกั้น กรุณาตรวจการตั้งค่าเบราว์เซอร์แล้วโหลดใหม่" }; }
-  });
-  const [authed, setAuthed] = useState(() => { try { return localStorage.getItem(AUTH_STORAGE_KEY) === "true"; } catch { return false; } });
+  const [staff, setStaff] = useState(null);
+  const [booting, setBooting] = useState(true);
   const [page, setPage] = useState("dashboard");
-  const [parcels, setParcels] = useState(boot.parcels);
   const [modal, setModal] = useState(null);
+  const [historyCode, setHistoryCode] = useState(null);
   const [banner, setBanner] = useState(null);
-  const [storageError, setStorageError] = useState(boot.error);
-  const [draft, setDraft] = useState(emptyDraft);
-  const current = useRef(boot.parcels);
-  const raw = useRef(boot.raw);
-  const notificationId = useRef(0);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const bannerTimer = useRef(null);
+  const bannerId = useRef(0);
+
+  // A 401 from anywhere (session expired, disabled account) drops straight back to the login
+  // screen instead of every call site checking for it. The handler is only wired up *after* the
+  // initial /auth/me check settles — that first call is expected to 401 for anyone who was never
+  // logged in, and that is not a "your session expired" event worth a banner.
   useEffect(() => {
-    const changed = (event) => {
-      if (event.key === "parcelhub-parcels" || event.key === null) setStorageError("ข้อมูลเปลี่ยนจากอีกหน้าต่าง กรุณาตรวจข้อมูลล่าสุดก่อนบันทึก ร่างที่กรอกยังคงอยู่");
+    let cancelled = false;
+    api
+      .me()
+      .then((res) => {
+        if (!cancelled) setStaff(res.staff);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (cancelled) return;
+        setBooting(false);
+        setUnauthenticatedHandler(() => {
+          setStaff(null);
+          showBanner(errorMessage({ code: "UNAUTHENTICATED" }), "error");
+        });
+      });
+    return () => {
+      cancelled = true;
+      setUnauthenticatedHandler(null);
     };
-    window.addEventListener("storage", changed);
-    return () => window.removeEventListener("storage", changed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  useEffect(() => {
-    if (!authed || !hasDraft(draft)) return;
-    const warn = (event) => { event.preventDefault(); event.returnValue = ""; };
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [draft, authed]);
-  const commit = (next) => {
-    let result;
-    try { result = persistParcels(localStorage, next, raw.current); }
-    catch { result = { ok: false, error: "พื้นที่จัดเก็บในเครื่องถูกปิดกั้น รายการยังไม่ได้บันทึกและร่างยังอยู่" }; }
-    if (!result.ok) { setStorageError(result.error); return result; }
-    current.current = next; raw.current = result.raw;
-    setParcels(next); setStorageError("");
-    return { ok: true };
-  };
-  const handleLogin = () => {
-    try { localStorage.setItem(AUTH_STORAGE_KEY, "true"); setAuthed(true); return { ok: true }; }
-    catch { return { ok: false, error: "เก็บสถานะเข้าสู่ระบบไม่ได้ กรุณาอนุญาตพื้นที่จัดเก็บของเบราว์เซอร์แล้วลองใหม่" }; }
-  };
-  const handleLogout = () => {
-    if (hasDraft(draft) && !window.confirm("มีร่างพัสดุที่ยังไม่บันทึก ออกจากระบบและทิ้งร่างนี้หรือไม่?")) return;
-    try { localStorage.removeItem(AUTH_STORAGE_KEY); }
-    catch { setStorageError("ล้างสถานะเข้าสู่ระบบในเครื่องไม่ได้ กรุณาตรวจพื้นที่จัดเก็บแล้วลองใหม่"); return; }
-    setDraft(emptyDraft()); setModal(null); setBanner(null); setAuthed(false);
-  };
+
+  useEffect(() => () => clearTimeout(bannerTimer.current), []);
+
   const showBanner = (message, tone = "success") => {
-    setBanner({ message, tone, id: ++notificationId.current });
+    clearTimeout(bannerTimer.current);
+    setBanner({ message, tone, id: ++bannerId.current });
+    bannerTimer.current = setTimeout(() => setBanner(null), 3200);
   };
-  const handleCheckOutConfirm = (items, room) => {
-    const ids = items.map((p) => p.id);
-    const error = validateCheckOut(current.current, ids, room);
-    if (error) return { ok: false, error };
-    const exitedAt = new Date().toISOString();
-    const result = commit(current.current.map((p) => ids.includes(p.id) ? { ...p, status: "out", exitedAt } : p));
-    if (!result.ok) return result;
-    setModal(null); showBanner(`นำออก ${items.length} รายการของห้อง ${room} แล้ว`);
-    return result;
+
+  const refresh = () => setRefreshKey((k) => k + 1);
+
+  const handleLogout = async () => {
+    try {
+      await api.logout();
+    } catch {
+      // logging out client-side regardless keeps the UI consistent even if the request failed
+    }
+    setStaff(null);
+    setModal(null);
+    setHistoryCode(null);
   };
-  const handleCheckInSave = (batch) => {
-    const error = validateBatch(batch, current.current);
-    if (error) return { ok: false, error };
-    const receivedAt = new Date().toISOString();
-    const used = new Set(current.current.map((p) => p.id));
-    let counter = 0;
-    const newParcels = batch.map((item) => {
-      let id; do { id = String(++counter); } while (used.has(id)); used.add(id);
-      return { id, code: item.code.trim(), room: item.room.trim(), name: residentsFor(item.room.trim()).join(" / "), line: "-", qty: 1, damaged: !!item.damaged, damageReason: item.damaged ? item.damageReason.trim() : "", receivedAt, status: "in" };
-    });
-    const result = commit([...newParcels, ...current.current]);
-    if (!result.ok) return result;
-    setDraft(emptyDraft()); setModal(null); showBanner(`บันทึกพัสดุเข้า ${newParcels.length} รายการแล้ว`);
-    return result;
+
+  const handleCheckOutConfirm = (parcels) => {
+    setModal(null);
+    refresh();
+    showBanner(parcels.length === 1 ? `นำพัสดุออกแล้ว 1 ชิ้น` : `นำพัสดุออกแล้ว ${parcels.length} ชิ้น`);
   };
-  const handleConfirmParcelInfo = (id, { room, line }) => {
-    const found = current.current.find((p) => p.id === id);
-    if (!found || found.room !== room) return { ok: false, error: "ข้อมูลห้องเปลี่ยนแล้ว กรุณาตรวจรายการอีกครั้ง" };
-    const result = commit(current.current.map((p) => p.id === id ? { ...p, line, identityConfirmed: true } : p));
-    if (result.ok) showBanner("ยืนยันข้อมูลแล้ว หมายเหตุสภาพพัสดุยังคงอยู่");
-    return result;
+
+  const closeCheckIn = () => {
+    setModal(null);
+    refresh();
   };
-  if (!authed) {
-    return <LoginPage onLogin={handleLogin} />;
+
+  if (booting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: C.bg, ...bodyFont }}>
+        <p style={{ color: C.textMuted }}>กำลังโหลด…</p>
+      </div>
+    );
+  }
+
+  // The Banner renders on both the login and the signed-in view — a session-expired message
+  // (which lands right as `staff` flips to null) must still reach the screen it drops back to.
+  if (!staff) {
+    return (
+      <>
+        <LoginPage onLogin={setStaff} />
+        <Banner message={banner?.message} tone={banner?.tone} notificationId={banner?.id} onClose={() => setBanner(null)} />
+      </>
+    );
   }
 
   return (
     <div className="min-h-screen" style={{ background: C.bg, ...bodyFont }}>
-      <TopNav
-        page={page}
-        setPage={setPage}
-        onLogout={handleLogout}
-        parcels={parcels}
-        onConfirmParcel={handleConfirmParcelInfo}
-      />
+      <TopNav page={page} setPage={setPage} onLogout={handleLogout} onOpenLineOtp={() => setModal("lineOtp")} staff={staff} />
 
       <main className="desk-main" id="main-content">
-        {storageError && <div className="storage-error" role="alert"><strong>กรุณาตรวจข้อมูลก่อนทำรายการ</strong><p>{storageError}</p></div>}
         {page === "dashboard" ? (
-          <>
-            <DashboardPage
-              parcels={parcels}
-              onOpenCheckOut={() => setModal("checkout")}
-              onOpenCheckIn={() => setModal("checkin")}
-            />
-          </>
+          <DashboardPage
+            refreshKey={refreshKey}
+            onDataChanged={refresh}
+            onOpenCheckOut={() => setModal("checkout")}
+            onOpenCheckIn={() => setModal("checkin")}
+            onOpenHistory={(p) => setHistoryCode(p.trackingCode)}
+          />
         ) : (
-          <>
-            <PageHeader title="Archive" description="ค้นหาประวัติการรับเข้าและนำจ่ายพัสดุ" />
-            <ArchivePage parcels={parcels} />
-          </>
+          <ArchivePage key={refreshKey} onOpenHistory={(p) => setHistoryCode(p.trackingCode)} />
         )}
       </main>
 
-      {modal === "checkout" && (
-        <CheckOutModal
-          parcels={parcels}
-          onClose={() => setModal(null)}
-          onConfirm={handleCheckOutConfirm}
-        />
-      )}
-      {modal === "checkin" && (
-        <CheckInModal parcels={parcels} draft={draft} onDraftChange={setDraft} onClose={() => setModal(null)} onSave={handleCheckInSave} />
-      )}
+      {modal === "checkout" && <CheckOutModal onClose={() => setModal(null)} onConfirm={handleCheckOutConfirm} />}
+      {modal === "checkin" && <CheckInModal onClose={closeCheckIn} />}
+      {modal === "lineOtp" && <LineOtpModal onClose={() => setModal(null)} />}
+      {historyCode && <ParcelHistoryModal trackingCode={historyCode} onClose={() => setHistoryCode(null)} />}
 
       <Banner message={banner?.message} tone={banner?.tone} notificationId={banner?.id} onClose={() => setBanner(null)} />
     </div>

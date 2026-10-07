@@ -1,8 +1,6 @@
-import { pageNumbers } from "../lib/pagination";
-import React, { useEffect, useId, useRef, useState } from "react";
-import { ROOM_DIRECTORY, residentsFor, formatBangkokDate, parseParcelDate } from "../lib/parcelRules";
-export { ROOM_DIRECTORY } from "../lib/parcelRules";
-import { Package, Check, Info, X, Clock, AlertTriangle, Search, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useEffect, useId, useRef } from "react";
+import { Package, Check, HelpCircle, Info, X, Search } from "lucide-react";
+import { unmatchedReasonLabel } from "../constants/unmatchedReasons";
 
 export const C = {
   bg: "var(--desk-bg)",
@@ -25,59 +23,64 @@ export const C = {
 export const bodyFont = { fontFamily: "var(--desk-font)" };
 export const displayFont = bodyFont;
 
-export const INITIAL_PARCELS = [
-  { id: "1", code: "TH3344556677", room: "090", name: "สมชาย ใจดี", line: "@somchai_j", qty: 1, damaged: true, damageReason: "ตัวอย่าง: กรุณาตรวจสอบว่า LINE ID ตรงกับห้อง 090", receivedAt: "2026-08-15T08:30:00", status: "in" },
-  { id: "2", code: "TH8827301923", room: "101/2", name: "ณัฐพล สุขใจ", line: "@nattapon_s", qty: 1, receivedAt: "2026-08-18T09:14:00", status: "in" },
-  { id: "3", code: "TH1029384756", room: "203/1", name: "พิมพ์ชนก แสงทอง", line: "pimchanok.st", qty: 2, receivedAt: "2026-08-21T10:02:00", status: "in" },
-  { id: "4", code: "PK12345678910TH", room: "305", name: "กันตพงศ์ วงศ์ไพร", line: "@kantapong99", qty: 1, receivedAt: "2026-08-22T16:02:00", status: "in" },
-  { id: "5", code: "TH5566778899", room: "108/1", name: "อารียา คงสวัสดิ์", line: "areeya_ks", qty: 3, receivedAt: "2026-08-19T13:40:00", status: "out", exitedAt: "2026-08-20T08:10:00" },
-  { id: "6", code: "TH2233445566", room: "212", name: "ธีรภัทร มั่นคง", line: "@teerapat.m", qty: 1, receivedAt: "2026-08-18T11:25:00", status: "out", exitedAt: "2026-08-18T18:47:00" },
-  { id: "7", code: "TH9988001122", room: "150/3", name: "ชญานิษฐ์ เพชรรัตน์", line: "chayanit.p", qty: 1, receivedAt: "2026-08-17T09:05:00", status: "out", exitedAt: "2026-08-17T17:30:00" },
-];
-
 export const THAI_MONTHS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
-export const formatThaiDateTime = formatBangkokDate;
+const pad = (n) => String(n).padStart(2, "0");
 
-export function daysWaiting(iso) {
-  return (Date.now() - parseParcelDate(iso).getTime()) / (1000 * 60 * 60 * 24);
+export function formatThaiDateTime(iso) {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return `${d.getDate()} ${THAI_MONTHS[d.getMonth()]} ${d.getFullYear() + 543} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function waitLabel(days) {
-  if (days < 1) return `${Math.max(1, Math.round(days * 24))} ชม.`;
-  return `${Math.floor(days)} วัน`;
+// yyyy-mm-dd in local time, the format <input type="date"> and the API's `date` param both use.
+export function toDateInputValue(d = new Date()) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-export const WAIT_WARN_DAYS = 2;
-export const WAIT_CRITICAL_DAYS = 4;
-
-export function waitSeverity(days) {
-  if (days >= WAIT_CRITICAL_DAYS) return "critical";
-  if (days >= WAIT_WARN_DAYS) return "warn";
-  return "ok";
+// A Parcel from the API has `room: null` exactly when it is parked in the unmatched queue
+// (backend/README.md: room_id is nullable only while status is pending and unmatched_reason is set).
+export function isUnmatched(parcel) {
+  return !parcel.room;
 }
 
-export function roomLabel(p) {
-  const residents = residentsFor(p.room);
-  if (residents && residents.length) return `${p.room} · ${residents.join(" / ")}`;
-  if (p.name && p.name !== "-") return `${p.room} · ${p.name}`;
-  return p.room;
+// A room's resident-facing number is building+floor+room concatenated with no separator, e.g.
+// building 3, floor 1, room 01 -> "3101" — never "B3 101".
+export function roomLabel(parcel) {
+  if (!parcel.room) return "ไม่ระบุห้อง";
+  const names = (parcel.residents || []).map((r) => r.fullName);
+  const place = `${parcel.room.buildingCode}${parcel.room.roomNumber}`;
+  return names.length ? `${place} · ${names.join(" / ")}` : place;
 }
 
-export function StatusChip({ status }) {
-  if (status === "in") {
+export function StatusChip({ parcel }) {
+  if (parcel.status === "picked_up") {
     return (
-      <span className="parcel-status parcel-status-pending">
-        <span className="pending-dot" aria-hidden="true" />
-        รอรับ
+      <span className="parcel-status parcel-status-out">
+        <Check size={14} aria-hidden="true" />
+        นำออกแล้ว
       </span>
     );
   }
-
+  if (parcel.status === "archived") {
+    return (
+      <span className="parcel-status parcel-status-archived">
+        เก็บประวัติ
+      </span>
+    );
+  }
+  if (isUnmatched(parcel)) {
+    return (
+      <span className="parcel-status parcel-status-unmatched">
+        <HelpCircle size={14} aria-hidden="true" />
+        มีปัญหา
+      </span>
+    );
+  }
   return (
-    <span className="parcel-status parcel-status-out">
-      <Check size={14} aria-hidden="true" />
-      นำออกแล้ว
+    <span className="parcel-status parcel-status-pending">
+      <span className="pending-dot" aria-hidden="true" />
+      รอรับ
     </span>
   );
 }
@@ -107,17 +110,19 @@ export function Banner({ message, tone = "success", onClose, notificationId, dur
     resume();
     return clearTimer;
   }, [message, notificationId, duration]);
+  if (!message) return null;
   const Icon = tone === "success" ? Check : Info;
   return (
-    <div className="desk-banner" data-visible={!!message} data-tone={tone}
+    <div className="desk-banner" data-visible="true" data-tone={tone}
       onMouseEnter={() => { hovered.current = true; pause(); }}
       onMouseLeave={() => { hovered.current = false; resume(); }}
       onFocusCapture={() => { focused.current = true; pause(); }}
       onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) { focused.current = false; resume(); } }}>
-      <div role="status" aria-live="polite" aria-atomic="true" className={message ? "desk-banner-status" : "sr-only"}>
-        {message && <><span className="desk-banner-icon" aria-hidden="true"><Icon size={18} strokeWidth={2.5} /></span><p className="desk-banner-message">{message}</p></>}
+      <div role="status" aria-live="polite" aria-atomic="true" className="desk-banner-status">
+        <span className="desk-banner-icon" aria-hidden="true"><Icon size={18} strokeWidth={2.5} /></span>
+        <p className="desk-banner-message">{message}</p>
       </div>
-      {message && <button type="button" onClick={onClose} className="icon-button desk-banner-close" aria-label="ปิดข้อความแจ้งผล"><X size={16} aria-hidden="true" /></button>}
+      <button type="button" onClick={onClose} className="icon-button desk-banner-close" aria-label="ปิดข้อความแจ้งผล"><X size={16} aria-hidden="true" /></button>
     </div>
   );
 }
@@ -144,21 +149,27 @@ export function SearchBar({ value, onChange, placeholder, label = "ค้นห�
   );
 }
 
-export function ParcelTable({ parcels, emptyLabel, showLine = true, label = "รายการพัสดุ", pageSize = 25, numberedPages = false, variant = "default", resetKey = parcels }) {
-  const [expandedDamageId, setExpandedDamageId] = useState(null);
-  const damagePrefix = useId();
-  const [page, setPage] = useState(0);
-  const isDashboard = variant === "dashboard";
-  const historyColumns = !isDashboard;
-  const pageCount = Math.max(1, Math.ceil(parcels.length / pageSize));
-  const currentPage = Math.min(page, pageCount - 1);
-  const pageParcels = parcels.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
-  useEffect(() => { setPage(0); setExpandedDamageId(null); }, [resetKey, pageSize]);
-  useEffect(() => { setPage((value) => Math.min(value, pageCount - 1)); }, [pageCount]);
+export function LoadMoreFooter({ shown, total, onLoadMore, loading }) {
+  return (
+    <div className="flex items-center justify-between gap-3 pt-3 px-1">
+      <p className="text-xs" style={{ ...bodyFont, color: C.textMuted }}>แสดง {shown.toLocaleString()} จาก {total.toLocaleString()} รายการ</p>
+      {shown < total && (
+        <button onClick={onLoadMore} disabled={loading} className="text-sm font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-50 disabled:opacity-50" style={{ ...bodyFont, color: C.primaryDark }}>
+          {loading ? "กำลังโหลด…" : "แสดงเพิ่ม"}
+        </button>
+      )}
+    </div>
+  );
+}
 
+const TABLE_HEADERS = ["ห้อง / ผู้พัก", "เลขพัสดุ", "วันที่รับเข้า", "สถานะ", "วันที่นำออก"];
+
+// A plain table: it renders exactly the Parcels it is given. Callers own pagination (the API
+// paginates every list, so there is never an unbounded array to slice client-side).
+export function ParcelTable({ parcels, emptyLabel, onSelect, label = "รายการพัสดุ" }) {
   if (parcels.length === 0) {
     return (
-      <div className="table-empty" role="status">
+      <div className="table-empty">
         <Package size={24} aria-hidden="true" />
         <p>{emptyLabel}</p>
       </div>
@@ -166,137 +177,38 @@ export function ParcelTable({ parcels, emptyLabel, showLine = true, label = "ร
   }
 
   return (
-    <div className={isDashboard ? "parcel-results dashboard-results" : "parcel-results"}>
-      {numberedPages && <div className="table-pagination archive-pagination">
-        <span role="status">{currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, parcels.length)} จาก {parcels.length} รายการ</span>
-        {pageCount > 1 && <nav aria-label={`แบ่งหน้า${label}`} className="page-number-controls">
-          <button className="page-number-button" disabled={currentPage === 0} onClick={() => { setPage(currentPage - 1); setExpandedDamageId(null); }} aria-label="หน้าก่อนหน้า"><ChevronLeft size={16} aria-hidden="true" /></button>
-          {pageNumbers(currentPage, pageCount).map((number) => typeof number === 'number' ? <button key={number} className="page-number-button" aria-label={`หน้า ${number + 1}`} aria-current={number === currentPage ? 'page' : undefined} onClick={() => { setPage(number); setExpandedDamageId(null); }}><span className="page-number-label">{number + 1}</span></button> : <span className="page-number-ellipsis" key={number} aria-hidden="true">…</span>)}
-          <button className="page-number-button" disabled={currentPage === pageCount - 1} onClick={() => { setPage(currentPage + 1); setExpandedDamageId(null); }} aria-label="หน้าถัดไป"><ChevronRight size={16} aria-hidden="true" /></button>
-        </nav>}
-      </div>}
-      <div className={`parcel-table-frame${isDashboard && pageCount > 1 ? " parcel-table-reserved" : ""}`} style={isDashboard ? { "--parcel-page-size": pageSize } : undefined}>
-        <div className={`table-scroll${isDashboard ? " dashboard-desktop-table" : ""}`} role="region" aria-label={label} tabIndex={0}>
-          <table className="parcel-table">
-            <caption className="sr-only">{label}</caption>
-            <thead>
-              <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-                {[(showLine ? "ห้อง / ชื่อ / Line" : "ห้อง / ชื่อ"), "เลขพัสดุ", "จำนวน", "วันที่รับเข้า", "สถานะ", ...(historyColumns ? ["วันที่นำจ่าย"] : [])].map((h) => <th key={h} scope="col">{h}</th>)}
+    <div className="parcel-results">
+      <div className="table-scroll" role="region" aria-label={label} tabIndex={0}>
+        <table className="parcel-table">
+          <caption className="sr-only">{label}</caption>
+          <thead>
+            <tr>
+              {TABLE_HEADERS.map((h) => <th key={h} scope="col">{h}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {parcels.map((p) => (
+              <tr
+                key={p.trackingCode}
+                onClick={onSelect ? () => onSelect(p) : undefined}
+                onKeyDown={onSelect ? (e) => { if (e.key === "Enter") onSelect(p); } : undefined}
+                tabIndex={onSelect ? 0 : undefined}
+                title={onSelect ? "ดูประวัติพัสดุ" : undefined}
+                style={onSelect ? { cursor: "pointer" } : undefined}
+              >
+                <td>
+                  <p className="resident-label" style={{ color: isUnmatched(p) ? C.warning : C.text }}>{roomLabel(p)}</p>
+                  {isUnmatched(p) && p.unmatchedReason && <p className="text-xs mt-0.5" style={{ color: C.textMuted }}>{unmatchedReasonLabel(p.unmatchedReason)}</p>}
+                </td>
+                <td className="tracking-cell">{p.trackingCode}</td>
+                <td className="date-cell">{formatThaiDateTime(p.checkedInAt)}</td>
+                <td><StatusChip parcel={p} /></td>
+                <td className="date-cell">{p.checkedOutAt ? formatThaiDateTime(p.checkedOutAt) : "–"}</td>
               </tr>
-            </thead>
-            <tbody>
-              {pageParcels.map((p) => (
-                <React.Fragment key={p.id}>
-                  <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-                    <td>
-                      <p className="resident-label">{roomLabel(p)}</p>
-                      {showLine && p.line && p.line !== "-" && <p className="text-xs mt-0.5" style={{ color: C.textMuted }}>{p.line}</p>}
-                    </td>
-                    <td className="tracking-cell"><div className="tracking-content">
-                      <p>{p.code}</p>
-                      {p.damaged && <button type="button" onClick={() => setExpandedDamageId((id) => (id === p.id ? null : p.id))} aria-expanded={expandedDamageId === p.id} aria-controls={expandedDamageId === p.id ? `${damagePrefix}-${p.id}` : undefined} aria-label={`ดูเหตุผลพัสดุชำรุด ${p.code}`} className="damage-button">ชำรุด<ChevronDown size={14} aria-hidden="true" /></button>}
-                    </div></td>
-                    <td className="quantity-cell">{p.qty}</td>
-                    <td className="date-cell">{formatThaiDateTime(p.receivedAt)}</td>
-                    <td><StatusChip status={p.status} /></td>
-                    {historyColumns && <td className="date-cell">{p.exitedAt ? formatThaiDateTime(p.exitedAt) : "–"}</td>}
-                  </tr>
-                  {p.damaged && expandedDamageId === p.id && (
-                    <tr className="damage-detail-row">
-                      <td colSpan={historyColumns ? 6 : 5} className="damage-reason-cell">
-                        <div className="damage-reason" id={`${damagePrefix}-${p.id}`}>
-                          <AlertTriangle size={18} aria-hidden="true" />
-                          <div><p className="damage-reason-heading">หมายเหตุชำรุด</p><p className="damage-reason-text">{p.damageReason || "ไม่ได้ระบุเหตุผล"}</p></div>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {isDashboard && <ul className="parcel-mobile-list" aria-label={label}>
-          {pageParcels.map((p) => (
-            <li key={p.id}>
-              <div className="parcel-mobile-identity"><p>{roomLabel(p)}</p><StatusChip status={p.status} /></div>
-              <p className="parcel-mobile-code">{p.code}</p>
-              <details className="parcel-mobile-details">
-                <summary aria-label={`${p.damaged ? "พัสดุชำรุด · " : ""}รายละเอียดพัสดุ ${p.code} จำนวน ${p.qty} ชิ้น`}>
-                  <span>จำนวน {p.qty} ชิ้น</span>
-                  <span className={p.damaged ? "parcel-mobile-damaged" : ""}>{p.damaged ? "ชำรุด" : "รายละเอียด"}<ChevronDown size={16} aria-hidden="true" /></span>
-                </summary>
-                <dl>
-                  <div><dt>รับเข้า</dt><dd>{formatThaiDateTime(p.receivedAt)}</dd></div>
-                  {p.exitedAt && <div><dt>นำจ่าย</dt><dd>{formatThaiDateTime(p.exitedAt)}</dd></div>}
-                </dl>
-                {p.damaged && <div className="parcel-mobile-note"><p className="damage-reason-heading">หมายเหตุชำรุด</p><p className="damage-reason-text">{p.damageReason || "ไม่ได้ระบุเหตุผล"}</p></div>}
-              </details>
-            </li>
-          ))}
-        </ul>}
+            ))}
+          </tbody>
+        </table>
       </div>
-      {!numberedPages && pageCount > 1 && <div className="table-pagination" aria-label="แบ่งหน้ารายการพัสดุ"><button className="text-button" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>ก่อนหน้า</button><span role="status">หน้า {currentPage + 1} / {pageCount} · ทั้งหมด {parcels.length} รายการ</span><button className="text-button" disabled={currentPage === pageCount - 1} onClick={() => setPage(currentPage + 1)}>ถัดไป</button></div>}
-    </div>
-  );
-}
-
-export function BottleneckPanel({ parcels }) {
-  const pending = parcels.filter((p) => p.status === "in");
-  const ranked = [...pending].sort((a, b) => new Date(a.receivedAt) - new Date(b.receivedAt)).slice(0, 5);
-  const criticalCount = pending.filter((p) => waitSeverity(daysWaiting(p.receivedAt)) === "critical").length;
-
-  const sevStyle = {
-    ok: { bg: C.navyChip, fg: C.navy },
-    warn: { bg: C.primaryLight, fg: C.primaryDark },
-    critical: { bg: C.warningLight, fg: C.warning },
-  };
-
-  return (
-    <div className="rounded-2xl border p-5 mb-6" style={{ background: C.card, borderColor: C.border }}>
-      <div className="flex items-center justify-between gap-3 flex-wrap mb-1">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: C.warningLight }}>
-            <AlertTriangle size={17} style={{ color: C.warning }} />
-          </div>
-          <div>
-            <p className="text-sm font-semibold" style={{ ...bodyFont, color: C.text }}>พัสดุตกค้างนานที่สุดและพัสดุมีปัญหา</p>
-            <p className="text-xs" style={{ ...bodyFont, color: C.textMuted }}>เรียงลำดับพัสดุที่รอรับนานที่สุดก่อน</p>
-          </div>
-        </div>
-        {criticalCount > 0 && (
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: C.warningLight, color: C.warning, ...bodyFont }}>
-            {criticalCount} รายการเกิน {WAIT_CRITICAL_DAYS} วัน
-          </span>
-        )}
-      </div>
-
-      {ranked.length === 0 ? (
-        <p className="text-sm py-6 text-center" style={{ ...bodyFont, color: C.textMuted }}>ไม่มีพัสดุตกค้างในขณะนี้</p>
-      ) : (
-        <div className="mt-3">
-          {ranked.map((p, i) => {
-            const days = daysWaiting(p.receivedAt);
-            const sev = waitSeverity(days);
-            const style = sevStyle[sev];
-            return (
-              <div key={p.id} className="flex items-center justify-between gap-3 py-3" style={{ borderBottom: i < ranked.length - 1 ? `1px solid ${C.border}` : "none" }}>
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-xs font-bold w-5 text-center flex-shrink-0" style={{ ...bodyFont, color: C.textMuted }}>{i + 1}</span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate" style={{ ...bodyFont, color: C.text }}>{roomLabel(p)}</p>
-                    <p className="text-xs truncate" style={{ ...bodyFont, color: C.textMuted }}>{p.code}</p>
-                  </div>
-                </div>
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0" style={{ background: style.bg, color: style.fg, ...bodyFont }}>
-                  <Clock size={11} />
-                  {waitLabel(days)}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 }
