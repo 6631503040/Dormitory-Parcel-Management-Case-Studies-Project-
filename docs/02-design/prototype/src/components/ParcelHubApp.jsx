@@ -20,6 +20,7 @@ export default function ParcelHubApp() {
   const [banner, setBanner] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const bannerTimer = useRef(null);
+  const bannerId = useRef(0);
 
   // A 401 from anywhere (session expired, disabled account) drops straight back to the login
   // screen instead of every call site checking for it. The handler is only wired up *after* the
@@ -52,7 +53,7 @@ export default function ParcelHubApp() {
 
   const showBanner = (message, tone = "success") => {
     clearTimeout(bannerTimer.current);
-    setBanner({ message, tone });
+    setBanner({ message, tone, id: ++bannerId.current });
     bannerTimer.current = setTimeout(() => setBanner(null), 3200);
   };
 
@@ -94,22 +95,16 @@ export default function ParcelHubApp() {
     return (
       <>
         <LoginPage onLogin={setStaff} />
-        <Banner message={banner?.message} tone={banner?.tone} onClose={() => setBanner(null)} />
+        <Banner message={banner?.message} tone={banner?.tone} notificationId={banner?.id} onClose={() => setBanner(null)} />
       </>
     );
   }
 
   return (
     <div className="min-h-screen" style={{ background: C.bg, ...bodyFont }}>
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeIn 0.2s ease-out; }
-        @media (prefers-reduced-motion: reduce) { .animate-fade { animation: none; } }
-      `}</style>
-
       <TopNav page={page} setPage={setPage} onLogout={handleLogout} onOpenLineOtp={() => setModal("lineOtp")} staff={staff} />
 
-      <main className="max-w-6xl mx-auto px-5 md:px-8 py-6 md:py-8">
+      <main className="desk-main" id="main-content">
         {page === "dashboard" ? (
           <DashboardPage
             refreshKey={refreshKey}
@@ -128,7 +123,7 @@ export default function ParcelHubApp() {
       {modal === "lineOtp" && <LineOtpModal onClose={() => setModal(null)} />}
       {historyCode && <ParcelHistoryModal trackingCode={historyCode} onClose={() => setHistoryCode(null)} />}
 
-      <Banner message={banner?.message} tone={banner?.tone} onClose={() => setBanner(null)} />
+      <Banner message={banner?.message} tone={banner?.tone} notificationId={banner?.id} onClose={() => setBanner(null)} />
     </div>
   );
 }

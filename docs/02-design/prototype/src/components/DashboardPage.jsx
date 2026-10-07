@@ -116,33 +116,29 @@ export default function DashboardPage({ onOpenCheckOut, onOpenCheckIn, onOpenHis
         รอรับ = พัสดุที่ยังไม่ถูกนำออก ณ สิ้นวันที่เลือก{dashboard ? ` (รวมพัสดุมีปัญหา ${dashboard.unmatchedPending.toLocaleString()} รายการ)` : ""}
       </p>
 
-      <div className="rounded-2xl border p-5 md:p-6 mb-6" style={{ background: C.card, borderColor: C.border }}>
-        <p className="text-xl font-bold mb-4" style={{ ...displayFont, color: C.text }}>{showingSearch ? "ผลการค้นหา" : "รับเข้าล่าสุด"}</p>
-        <div className="flex flex-col md:flex-row gap-4 items-stretch mb-1">
-          <div className="flex-1 flex items-center gap-3 px-5 py-4 rounded-2xl border-2 focus-within:ring-2 focus-within:ring-blue-300" style={{ borderColor: showingSearch ? C.primary : C.border, background: showingSearch ? C.primaryLight : C.card }}>
-            <Search size={26} strokeWidth={2.5} style={{ color: C.primaryDark }} />
-            <input value={query} onChange={(e) => handleQueryChange(e.target.value)} aria-label="ค้นหาพัสดุ" placeholder="ค้นหาด้วยเลขห้อง เลขพัสดุ หรือชื่อผู้พัก" className="w-full outline-none bg-transparent text-2xl font-bold" style={{ ...bodyFont, color: C.text }} />
+      <section className="parcel-register dashboard-register" aria-label="ค้นหาและจัดการพัสดุ">
+        <p className="text-base font-semibold" style={{ ...bodyFont, color: C.text, padding: "20px 24px 0" }}>{showingSearch ? "ผลการค้นหา" : "รับเข้าล่าสุด"}</p>
+        <div className="register-toolbar">
+          <div className="register-search">
+            <label htmlFor="dashboard-search">ค้นหาพัสดุ</label>
+            <div className="search-control">
+              <Search size={19} aria-hidden="true" />
+              <input id="dashboard-search" value={query} onChange={(e) => handleQueryChange(e.target.value)} placeholder="ค้นหาด้วยเลขห้อง เลขพัสดุ หรือชื่อผู้พัก" />
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button onClick={onOpenCheckIn} className="flex items-center gap-2.5 px-7 py-4 rounded-2xl text-lg font-bold" style={{ ...bodyFont, background: C.successLight, color: C.success }}>
-              <PackagePlus size={24} />
-              เข้า
-            </button>
-            <button onClick={onOpenCheckOut} className="flex items-center gap-2.5 px-7 py-4 rounded-2xl text-lg font-bold text-white" style={{ ...bodyFont, background: C.primary }}>
-              <PackageCheck size={24} />
-              ออก
-            </button>
+          <div className="desk-actions">
+            <button onClick={onOpenCheckIn} className="desk-button desk-button-in"><PackagePlus size={18} aria-hidden="true" />เข้า</button>
+            <button onClick={onOpenCheckOut} className="desk-button desk-button-primary"><PackageCheck size={18} aria-hidden="true" />ออก</button>
           </div>
         </div>
-        <p className="text-xs mb-1" style={{ ...bodyFont, color: C.textMuted }}>ค้นหาได้ด้วยเลขห้อง ชื่อผู้พัก หรือเลขพัสดุ · คลิกแถวเพื่อดูประวัติพัสดุ</p>
         <InlineError message={searchError} />
-        <div className="mt-4">
-          {searchLoading && page === 1 ? (
-            <p className="text-sm py-10 text-center" style={{ ...bodyFont, color: C.textMuted }}>กำลังค้นหา…</p>
-          ) : (
-            <>
-              <ParcelTable parcels={listed} onSelect={onOpenHistory} emptyLabel={showingSearch ? "ไม่พบพัสดุที่ตรงกับคำค้นหา" : "ยังไม่มีพัสดุที่รับเข้าวันนี้"} />
-              {showingSearch && listed.length > 0 && (
+        {searchLoading && page === 1 ? (
+          <p className="search-feedback" role="status" style={{ padding: "0 24px 20px" }}>กำลังค้นหา…</p>
+        ) : (
+          <>
+            <ParcelTable parcels={listed} onSelect={onOpenHistory} label={showingSearch ? "ผลการค้นหาพัสดุ" : "รับเข้าล่าสุด"} emptyLabel={showingSearch ? "ไม่พบพัสดุที่ตรงกับคำค้นหา" : "ยังไม่มีพัสดุที่รับเข้าวันนี้"} />
+            {showingSearch && listed.length > 0 && (
+              <div style={{ padding: "0 24px 20px" }}>
                 <LoadMoreFooter
                   shown={listed.length}
                   total={resultsTotal}
@@ -153,13 +149,15 @@ export default function DashboardPage({ onOpenCheckOut, onOpenCheckIn, onOpenHis
                     runSearch(query, next);
                   }}
                 />
-              )}
-            </>
-          )}
-        </div>
-      </div>
+              </div>
+            )}
+          </>
+        )}
+      </section>
 
-      <UnmatchedQueue refreshKey={refreshKey} onOpenHistory={onOpenHistory} onChange={onDataChanged} />
+      <div className="mt-6">
+        <UnmatchedQueue refreshKey={refreshKey} onOpenHistory={onOpenHistory} onChange={onDataChanged} />
+      </div>
     </div>
   );
 }

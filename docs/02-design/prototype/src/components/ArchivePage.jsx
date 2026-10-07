@@ -27,7 +27,7 @@ export default function ArchivePage({ onOpenHistory }) {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all(TABS.map((t) => api.listParcels({ ...t.params, pageSize: 1 })))
+    Promise.all(TABS.map((t) => api.listParcels({ ...t.params, q: query.trim() || undefined, pageSize: 1 })))
       .then((results) => {
         if (cancelled) return;
         const next = {};
@@ -73,34 +73,34 @@ export default function ArchivePage({ onOpenHistory }) {
   }, [query, statusFilter, page]);
 
   return (
-    <div className="rounded-2xl border p-5" style={{ background: C.card, borderColor: C.border }}>
-      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <p className="text-base font-semibold" style={{ ...bodyFont, color: C.text }}>ประวัติพัสดุทั้งหมด</p>
-        <span className="text-xs font-medium px-2.5 py-1 rounded-full" style={{ background: C.bg, color: C.textMuted, ...bodyFont }}>{total.toLocaleString()} รายการ</span>
-      </div>
-      <div className="flex items-center gap-2 flex-wrap mb-4">
-        {TABS.map((t) => {
-          const active = statusFilter === t.id;
-          const activeStyle = t.warn ? { background: C.warning, color: "#fff", ...bodyFont } : { background: C.primary, color: "#fff", ...bodyFont };
-          return (
-            <button key={t.id} aria-pressed={active} onClick={() => setStatusFilter(t.id)} className="px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors" style={active ? activeStyle : { background: C.bg, color: C.textMuted, ...bodyFont }}>
+    <section className="parcel-register" aria-label="ประวัติพัสดุทั้งหมด">
+      <div className="archive-toolbar">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <p className="text-base font-semibold" style={{ ...bodyFont, color: C.text }}>ประวัติพัสดุทั้งหมด</p>
+          <span className="text-xs font-medium px-2.5 py-1 rounded-full" style={{ background: C.bg, color: C.textMuted, ...bodyFont }}>{total.toLocaleString()} รายการ</span>
+        </div>
+        <div className="archive-filters" role="group" aria-label="กรองตามสถานะพัสดุ">
+          {TABS.map((t) => (
+            <button key={t.id} aria-pressed={statusFilter === t.id} onClick={() => setStatusFilter(t.id)} className="filter-button">
               {t.label} ({tabCount(t.id)})
             </button>
-          );
-        })}
+          ))}
+        </div>
+        <SearchBar value={query} onChange={setQuery} placeholder="ค้นหาด้วยชื่อผู้พัก เลขพัสดุ หรือเลขห้อง" />
+        <InlineError message={error} />
       </div>
-      <SearchBar value={query} onChange={setQuery} placeholder="ค้นหาด้วยชื่อผู้พัก เลขพัสดุ หรือเลขห้อง" />
-      <InlineError message={error} />
-      <div className="mt-4">
-        {loading ? (
-          <p className="text-sm py-10 text-center" style={{ ...bodyFont, color: C.textMuted }}>กำลังโหลด…</p>
-        ) : (
-          <>
-            <ParcelTable parcels={items} onSelect={onOpenHistory} emptyLabel="ไม่พบรายการที่ตรงกับคำค้นหา" />
-            {items.length > 0 && <LoadMoreFooter shown={items.length} total={total} loading={loadingMore} onLoadMore={() => setPage((p) => p + 1)} />}
-          </>
-        )}
-      </div>
-    </div>
+      {loading ? (
+        <p className="search-feedback" role="status" style={{ padding: "0 24px 20px" }}>กำลังโหลด…</p>
+      ) : (
+        <>
+          <ParcelTable parcels={items} onSelect={onOpenHistory} label="ประวัติพัสดุ" emptyLabel="ไม่พบรายการที่ตรงกับคำค้นหา" />
+          {items.length > 0 && (
+            <div style={{ padding: "0 24px 20px" }}>
+              <LoadMoreFooter shown={items.length} total={total} loading={loadingMore} onLoadMore={() => setPage((p) => p + 1)} />
+            </div>
+          )}
+        </>
+      )}
+    </section>
   );
 }

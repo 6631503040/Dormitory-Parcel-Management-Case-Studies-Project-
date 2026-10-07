@@ -1,49 +1,70 @@
 import React, { useEffect, useId, useRef, useState } from "react";
-import { X, ScanLine, PackagePlus, PackageCheck, AlertTriangle } from "lucide-react";
-import { C, bodyFont, displayFont, roomLabel, formatThaiDateTime } from "./shared";
+import { X, ScanLine, PackagePlus, PackageCheck } from "lucide-react";
+import { C, roomLabel, formatThaiDateTime } from "./shared";
 import RoomCombobox from "./RoomCombobox";
 import { api, ApiError } from "../api/client";
 import { errorMessage } from "../api/errorMessages";
 
-function ModalShell({ title, icon: Icon, onClose, children }) {
+function ModalShell({ title, icon: Icon, onClose, children, className = "", footer }) {
   const titleId = useId();
-
+  const dialogRef = useRef(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   useEffect(() => {
+    const opener = document.activeElement;
+    dialogRef.current?.querySelector("input")?.focus();
     const onKey = (e) => {
       // A child (e.g. the room dropdown) that already handled Escape calls preventDefault.
-      if (e.key === "Escape" && !e.defaultPrevented) onClose();
+      if (e.key === "Escape" && !e.defaultPrevented) closeRef.current();
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      opener?.focus();
+    };
+  }, []);
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div role="dialog" aria-modal="true" aria-labelledby={titleId} className="relative w-full max-w-lg rounded-2xl shadow-2xl" style={{ background: C.card }}>
-        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: C.border }}>
+    <div className="dialog-overlay">
+      <div className="dialog-backdrop" onClick={() => closeRef.current()} aria-hidden="true" />
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} className={`desk-dialog ${className}`}>
+        <div className="dialog-header">
           <div className="flex items-center gap-2.5">
-            <Icon size={18} style={{ color: C.primary }} />
-            <h3 id={titleId} className="font-semibold" style={{ ...displayFont, color: C.text }}>{title}</h3>
+            <Icon size={18} aria-hidden="true" />
+            <h2 id={titleId}>{title}</h2>
           </div>
-          <button onClick={onClose} aria-label="ปิด" className="p-1 rounded-lg hover:bg-gray-100">
+          <button onClick={onClose} className="icon-button" aria-label="ปิด">
             <X size={18} style={{ color: C.textMuted }} />
           </button>
         </div>
-        <div className="p-5 max-h-[80vh] overflow-y-auto">{children}</div>
+        <div className="dialog-content">{children}</div>
+        {footer && <div className="dialog-footer">{footer}</div>}
       </div>
+    </div>
+  );
+}
+
+function LabeledInput({ label, value, onChange, onKeyDown, placeholder, type = "text", autoFocus, error, inputRef, list, disabled = false, onPrepareScan, reserveMessage = false, feedback = "" }) {
+  const id = useId();
+  return (
+    <div className="form-field">
+      <label htmlFor={id}>{label}</label>
+      <div className={onPrepareScan ? "scan-input-row" : undefined}>
+        <input id={id} ref={inputRef} disabled={disabled} type={type} value={value} onChange={onChange} onKeyDown={onKeyDown} placeholder={placeholder} autoFocus={autoFocus} list={list} aria-invalid={!!error} aria-describedby={[error && `${id}-error`, onPrepareScan && `${id}-scan-help`].filter(Boolean).join(" ") || undefined} />
+        {onPrepareScan && <button type="button" disabled={disabled} onClick={onPrepareScan} aria-label="เตรียมสแกน" title="เตรียมสแกน" className="desk-button scan-prepare-button"><ScanLine size={20} aria-hidden="true" /></button>}
+      </div>
+      {onPrepareScan && <span id={`${id}-scan-help`} className="sr-only">กด Enter เพื่อยืนยันรหัส</span>}
+      {reserveMessage ? (
+        <div className="field-message">
+          {error ? <p id={`${id}-error`} className="field-error" role="alert">{error}</p> : <p className="search-feedback" role="status">{feedback}</p>}
+        </div>
+      ) : (error && <p id={`${id}-error`} className="field-error" role="alert">{error}</p>)}
     </div>
   );
 }
 
 function InlineError({ message }) {
   if (!message) return null;
-  return (
-    <p className="text-xs mb-3 flex items-start gap-1.5" style={{ ...bodyFont, color: C.warning }}>
-      <AlertTriangle size={13} className="flex-shrink-0 mt-0.5" />
-      <span>{message}</span>
-    </p>
-  );
+  return <p className="field-error" role="alert">{message}</p>;
 }
 
 // --- Check-Out ------------------------------------------------------------------------------
@@ -60,6 +81,7 @@ function CheckOutModal({ onClose, onConfirm }) {
   const [confirmAll, setConfirmAll] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const scanRef = useRef(null);
   const debounceRef = useRef(null);
   const abortRef = useRef(null);
 
@@ -182,75 +204,73 @@ function CheckOutModal({ onClose, onConfirm }) {
     }
   };
 
-  return (
-    <ModalShell title="นำพัสดุออก" icon={PackageCheck} onClose={onClose}>
-      <label htmlFor="checkout-search" className="block text-xs font-medium mb-2" style={{ ...bodyFont, color: C.textMuted }}>สแกนเลขพัสดุ หรือพิมพ์เลขห้อง / ชื่อผู้พัก</label>
-      <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border mb-1 focus-within:ring-2 focus-within:ring-blue-300" style={{ borderColor: notFound ? C.warning : C.border }}>
-        <ScanLine size={16} style={{ color: C.textMuted }} />
-        <input id="checkout-search" autoFocus value={scan} onChange={handleScanChange} onKeyDown={handleScanKeyDown} placeholder="เช่น 101 หรือ TH8827301923" className="w-full outline-none text-sm bg-transparent" style={bodyFont} />
+  const footer = (
+    <fieldset disabled={submitting} className="checkout-footer-fields">
+      <div className="checkout-footer-heading">
+        <p role="status">
+          {scan.trim() ? `พัสดุที่รอนำออกของ "${scan.trim()}" (${matches.length}${hasFullRoomList ? "" : `+ จาก ${matchesTotal}`})` : `สแกนแล้ว (${selectedParcels.length})`}
+        </p>
       </div>
-      {notFound ? (
-        <p className="text-xs mb-3" style={{ ...bodyFont, color: C.warning }}>ไม่พบพัสดุที่รอนำออกตรงกับคำค้นหา</p>
-      ) : (
-        <p className="text-xs mb-3" style={{ ...bodyFont, color: C.textMuted }}>สแกนต่อเนื่องได้หลายชิ้น หรือพิมพ์เลขห้องเพื่อดูพัสดุที่ค้างของห้องนั้นทั้งหมด</p>
-      )}
+      <div className="checkout-confirmation-slot">
+        {confirmAll && (
+          <div className="checkout-confirmation">
+            <p>นำพัสดุออกทั้งหมด {matches.length} ชิ้นของห้อง {matches[0]?.room?.buildingCode}{matches[0]?.room?.roomNumber} ใช่หรือไม่?</p>
+            <button type="button" className="text-button" onClick={() => setConfirmAll(false)}>กลับไปตรวจสอบ</button>
+          </div>
+        )}
+        <InlineError message={error} />
+      </div>
+      <div className="desk-actions">
+        <button type="button" className="desk-button desk-button-in" disabled={!canCheckOutAll || submitting} onClick={() => setConfirmAll(true)}>
+          นำออกทั้งหมด{matches.length > 0 ? ` (${matches.length})` : ""}
+        </button>
+        <button type="button" className="desk-button desk-button-primary checkout-submit" disabled={submitting || (confirmAll ? false : selectedParcels.length === 0)}
+          onClick={() => (confirmAll ? submitAll() : submitSelected())}>
+          {submitting ? "กำลังนำออก…" : confirmAll ? `ยืนยันนำออก ${matches.length} ชิ้น` : `นำออกที่เลือก${selectedParcels.length > 0 ? ` (${selectedParcels.length})` : ""}`}
+        </button>
+      </div>
+    </fieldset>
+  );
 
-      <InlineError message={error} />
+  return (
+    <ModalShell title="นำพัสดุออก" icon={PackageCheck} onClose={() => { if (!submitting) onClose(); }} className="checkout-dialog" footer={footer}>
+      <LabeledInput
+        label="สแกนเลขพัสดุ หรือพิมพ์เลขห้อง / ชื่อผู้พัก"
+        value={scan}
+        inputRef={scanRef}
+        autoFocus
+        disabled={submitting || confirmAll}
+        error={notFound ? "ไม่พบพัสดุที่รอนำออกตรงกับคำค้นหา" : ""}
+        feedback="สแกนต่อเนื่องได้หลายชิ้น หรือพิมพ์เลขห้องเพื่อดูพัสดุที่ค้างของห้องนั้นทั้งหมด"
+        reserveMessage
+        onChange={handleScanChange}
+        onKeyDown={handleScanKeyDown}
+        placeholder="เช่น 101 หรือ TH8827301923"
+      />
 
-      <p className="text-xs font-medium mb-2" style={{ ...bodyFont, color: C.textMuted }}>
-        {scan.trim() ? `พัสดุที่รอนำออกของ "${scan.trim()}" (${matches.length}${hasFullRoomList ? "" : `+ จาก ${matchesTotal}`})` : `สแกนแล้ว (${selectedParcels.length})`}
-      </p>
-
-      <div className="max-h-56 overflow-y-auto -mx-1 px-1 space-y-1.5 mb-4">
-        {searching && <p className="text-sm py-6 text-center" style={{ ...bodyFont, color: C.textMuted }}>กำลังค้นหา…</p>}
+      <div className="checkout-parcel-list" style={{ maxHeight: 260, overflowY: "auto" }}>
+        {searching && <p className="search-feedback" role="status">กำลังค้นหา…</p>}
         {!searching && visible.length === 0 && (
-          <p className="text-sm py-6 text-center" style={{ ...bodyFont, color: C.textMuted }}>
+          <p className="search-feedback" role="status">
             {scan.trim() ? "ไม่พบพัสดุที่ตรงกับคำค้นหา" : "พิมพ์เลขห้อง ชื่อผู้พัก หรือสแกนเลขพัสดุ เพื่อแสดงรายการที่รอรับ"}
           </p>
         )}
         {!searching && visible.map((p) => {
           const checked = selected.has(p.trackingCode);
           return (
-            <label key={p.trackingCode} className="flex items-center gap-3 px-3.5 py-3 rounded-xl border cursor-pointer transition-colors" style={{ borderColor: checked ? C.primary : C.border, background: checked ? C.primaryLight : "transparent" }}>
-              <input type="checkbox" checked={checked} onChange={() => toggleSelect(p)} className="w-5 h-5 accent-blue-600 flex-shrink-0" />
-              <div className="min-w-0">
-                <p className="text-sm font-semibold truncate" style={{ ...bodyFont, color: C.text }}>{roomLabel(p)}</p>
-                <p className="text-xs mt-0.5 truncate" style={{ ...bodyFont, color: C.textMuted }}>{p.trackingCode} · รับเข้า {formatThaiDateTime(p.checkedInAt)}</p>
-              </div>
+            <label key={p.trackingCode} className="checkout-selection-row" data-selected={checked}>
+              <input type="checkbox" checked={checked} disabled={confirmAll || submitting} onChange={() => toggleSelect(p)} />
+              <span>
+                <strong>{roomLabel(p)}</strong>
+                <span className="checkout-row-qty">{p.trackingCode} · รับเข้า {formatThaiDateTime(p.checkedInAt)}</span>
+              </span>
             </label>
           );
         })}
-        {hiddenCount > 0 && (
-          <p className="text-xs py-2 text-center" style={{ ...bodyFont, color: C.textMuted }}>แสดง {MATCH_PAGE_SIZE} รายการแรก — พิมพ์เพิ่มเพื่อกรอง</p>
-        )}
       </div>
-
-      {confirmAll ? (
-        <div className="rounded-xl p-3.5" style={{ background: C.primaryLight }}>
-          <p className="text-sm font-semibold mb-3" style={{ ...bodyFont, color: C.text }}>นำพัสดุออกทั้งหมด {matches.length} ชิ้นของห้อง {matches[0]?.room?.buildingCode}{matches[0]?.room?.roomNumber} ใช่หรือไม่?</p>
-          <div className="flex gap-2.5">
-            <button disabled={submitting} onClick={() => setConfirmAll(false)} className="flex-1 py-2.5 rounded-xl text-sm font-medium border bg-white disabled:opacity-50" style={{ ...bodyFont, borderColor: C.border, color: C.text }}>ยกเลิก</button>
-            <button autoFocus disabled={submitting} onClick={submitAll} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50" style={{ ...bodyFont, background: C.primary }}>
-              {submitting ? "กำลังนำออก…" : `ยืนยันนำออก ${matches.length} ชิ้น`}
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-1.5">
-          <div className="flex gap-2.5">
-            <button disabled={!canCheckOutAll || submitting} onClick={() => setConfirmAll(true)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40" style={{ ...bodyFont, background: C.primary }}>
-              นำออกทั้งหมด{matches.length > 0 ? ` (${matches.length})` : ""}
-            </button>
-            <button disabled={selectedParcels.length === 0 || submitting} onClick={submitSelected} className="flex-1 py-2.5 rounded-xl text-sm font-semibold border-2 disabled:opacity-40" style={{ ...bodyFont, borderColor: C.primary, color: C.primaryDark }}>
-              {submitting ? "กำลังนำออก…" : `นำออกที่เลือก${selectedParcels.length > 0 ? ` (${selectedParcels.length})` : ""}`}
-            </button>
-          </div>
-          {matches.length > 0 && !canCheckOutAll && (
-            <p className="text-xs" style={{ ...bodyFont, color: C.textMuted }}>
-              "นำออกทั้งหมด" ใช้ได้เมื่อผลลัพธ์อยู่ห้องเดียวกันและแสดงครบทุกรายการเท่านั้น — ใช้ "นำออกที่เลือก" แทน
-            </p>
-          )}
-        </div>
+      {hiddenCount > 0 && <p className="search-feedback" role="status">แสดง {MATCH_PAGE_SIZE} รายการแรก — พิมพ์เพิ่มเพื่อกรอง</p>}
+      {matches.length > 0 && !canCheckOutAll && !confirmAll && (
+        <p className="search-feedback" role="status">&quot;นำออกทั้งหมด&quot; ใช้ได้เมื่อผลลัพธ์อยู่ห้องเดียวกันและแสดงครบทุกรายการเท่านั้น — ใช้ &quot;นำออกที่เลือก&quot; แทน</p>
       )}
     </ModalShell>
   );
@@ -325,22 +345,22 @@ function CheckInModal({ onClose }) {
     setError(null);
   };
 
+  const footer = (
+    <button type="button" disabled={!canSubmit} onClick={submit} className="desk-button desk-button-primary dialog-submit">
+      {submitting ? "กำลังบันทึก…" : "บันทึก"}
+    </button>
+  );
+
   return (
-    <ModalShell title="บันทึกพัสดุเข้า" icon={PackagePlus} onClose={onClose}>
-      <label htmlFor="checkin-code" className="block text-sm font-semibold mb-2" style={{ ...bodyFont, color: C.textMuted }}>เลขพัสดุ (สแกนแล้วกด Enter)</label>
-      <input
-        id="checkin-code"
-        ref={codeRef}
-        autoFocus
+    <ModalShell title="บันทึกพัสดุเข้า" icon={PackagePlus} onClose={() => { if (!submitting) onClose(); }} footer={footer}>
+      <LabeledInput
+        label="เลขพัสดุ (สแกนแล้วกด Enter)"
         value={code}
-        onChange={(e) => {
-          setCode(e.target.value);
-          setError(null);
-        }}
+        inputRef={codeRef}
+        autoFocus
+        onChange={(e) => { setCode(e.target.value); setError(null); }}
         onKeyDown={handleCodeKeyDown}
         placeholder="เช่น TH8827301923"
-        className="w-full px-4 py-3.5 rounded-xl border-2 text-lg outline-none focus:ring-2 focus:ring-blue-300 mb-4"
-        style={{ ...bodyFont, borderColor: C.border, color: C.text }}
       />
 
       <InlineError message={error} />
@@ -349,36 +369,33 @@ function CheckInModal({ onClose }) {
         <RoomCombobox ref={roomRef} label="เลขห้อง (เลือกจากรายชื่อผู้พัก)" value={room} onChange={setRoom} />
       )}
 
-      <label className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 mb-3 cursor-pointer" style={{ borderColor: unmatched ? C.warning : C.border, background: unmatched ? C.warningLight : "transparent" }}>
-        <input type="checkbox" checked={unmatched} onChange={toggleUnmatched} disabled={submitting} className="w-5 h-5 accent-red-600 flex-shrink-0" />
-        <span className="text-sm font-semibold" style={{ ...bodyFont, color: unmatched ? C.warning : C.text }}>พัสดุมีปัญหา (เช่น ไม่มีเลขห้อง ลายมืออ่านไม่ออก ชื่อเล่นไม่ตรงกับทะเบียน)</span>
+      <label className="intake-condition">
+        <input type="checkbox" checked={unmatched} onChange={toggleUnmatched} disabled={submitting} />
+        <span>พัสดุมีปัญหา (เช่น ไม่มีเลขห้อง ลายมืออ่านไม่ออก ชื่อเล่นไม่ตรงกับทะเบียน)</span>
       </label>
 
       {unmatched && (
-        <textarea value={note} onChange={(e) => setNote(e.target.value)} aria-label="หมายเหตุ (ไม่บังคับ)" placeholder="หมายเหตุ (ไม่บังคับ) เช่น ชื่อบนกล่อง 'แนน'" rows={2} className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none resize-none focus:ring-2 focus:ring-red-300 mb-4" style={{ ...bodyFont, borderColor: C.border, color: C.text }} />
+        <div className="form-field">
+          <label htmlFor="checkin-note">หมายเหตุ (ไม่บังคับ)</label>
+          <textarea id="checkin-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="หมายเหตุ (ไม่บังคับ) เช่น ชื่อบนกล่อง 'แนน'" rows={2} className="desk-textarea" disabled={submitting} />
+        </div>
       )}
 
-      <button disabled={!canSubmit} onClick={submit} className="w-full py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-40 mb-2" style={{ ...bodyFont, background: unmatched ? C.warning : C.primary }}>
-        {submitting ? "กำลังบันทึก…" : "บันทึก"}
-      </button>
-
       {checkedIn.length > 0 && (
-        <div className="mt-2">
-          <p className="text-sm font-semibold mb-2" style={{ ...bodyFont, color: C.textMuted }}>บันทึกแล้วรอบนี้ ({checkedIn.length})</p>
-          <div className="max-h-40 overflow-y-auto -mx-1 px-1 space-y-1.5">
+        <div className="selected-summary">
+          <p>บันทึกแล้วรอบนี้ ({checkedIn.length})</p>
+          <ul>
             {checkedIn.map((p) => (
-              <div key={p.trackingCode} className="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl" style={{ background: p.room ? C.successLight : C.warningLight }}>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold truncate" style={{ ...bodyFont, color: p.room ? C.success : C.warning }}>{roomLabel(p)}</p>
-                  <p className="text-xs truncate" style={{ ...bodyFont, color: C.textMuted }}>{p.trackingCode}</p>
-                </div>
-              </div>
+              <li key={p.trackingCode}>
+                <span className={p.room ? undefined : "condition-note"}>{roomLabel(p)}</span>
+                <span className="checkout-row-qty">{p.trackingCode}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
     </ModalShell>
   );
 }
 
-export { ModalShell, CheckOutModal, CheckInModal, InlineError };
+export { ModalShell, CheckOutModal, CheckInModal, InlineError, LabeledInput };

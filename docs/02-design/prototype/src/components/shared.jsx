@@ -1,27 +1,27 @@
-import React from "react";
-import { Package, Check, HelpCircle, X, Search } from "lucide-react";
+import React, { useEffect, useId, useRef } from "react";
+import { Package, Check, HelpCircle, Info, X, Search } from "lucide-react";
 import { unmatchedReasonLabel } from "../constants/unmatchedReasons";
 
 export const C = {
-  bg: "#FFFDF8",
-  card: "#FFFFFF",
-  sidebar: "#FFFFFF",
-  border: "#DDE3EC",
-  text: "#202124",
-  textMuted: "#697586",
-  primary: "#4285F4",
-  primaryDark: "#1A56B8",
-  primaryLight: "#E8F0FE",
-  success: "#188038",
-  successLight: "#E6F4EA",
-  navyChip: "#E8F0FE",
-  navy: "#1967D2",
-  warning: "#D93025",
-  warningLight: "#FCE8E6",
+  bg: "var(--desk-bg)",
+  card: "var(--desk-surface)",
+  sidebar: "var(--desk-surface)",
+  border: "var(--desk-border)",
+  text: "var(--desk-text)",
+  textMuted: "var(--desk-muted)",
+  primary: "var(--desk-primary)",
+  primaryDark: "var(--desk-primary)",
+  primaryLight: "var(--desk-primary-light)",
+  success: "var(--desk-success)",
+  successLight: "var(--desk-success-light)",
+  navyChip: "var(--desk-primary-light)",
+  navy: "var(--desk-primary)",
+  warning: "var(--desk-warning)",
+  warningLight: "var(--desk-warning-light)",
 };
 
-export const displayFont = { fontFamily: "'Space Grotesk', sans-serif" };
-export const bodyFont = { fontFamily: "'DM Sans', sans-serif" };
+export const bodyFont = { fontFamily: "var(--desk-font)" };
+export const displayFont = bodyFont;
 
 export const THAI_MONTHS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
@@ -56,72 +56,102 @@ export function roomLabel(parcel) {
 export function StatusChip({ parcel }) {
   if (parcel.status === "picked_up") {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: C.successLight, color: C.success }}>
-        <Check size={12} strokeWidth={3} />
+      <span className="parcel-status parcel-status-out">
+        <Check size={14} aria-hidden="true" />
         นำออกแล้ว
       </span>
     );
   }
   if (parcel.status === "archived") {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: C.bg, color: C.textMuted }}>
+      <span className="parcel-status parcel-status-archived">
         เก็บประวัติ
       </span>
     );
   }
   if (isUnmatched(parcel)) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: C.warningLight, color: C.warning }}>
-        <HelpCircle size={12} strokeWidth={3} />
+      <span className="parcel-status parcel-status-unmatched">
+        <HelpCircle size={14} aria-hidden="true" />
         มีปัญหา
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: C.navyChip, color: C.navy }}>
-      <span className="w-1.5 h-1.5 rounded-full" style={{ background: C.navy }} />
+    <span className="parcel-status parcel-status-pending">
+      <span className="pending-dot" aria-hidden="true" />
       รอรับ
     </span>
   );
 }
 
-export function Banner({ message, tone = "success", onClose }) {
+export function Banner({ message, tone = "success", onClose, notificationId, duration = 6000 }) {
+  const timer = useRef(null);
+  const remaining = useRef(duration);
+  const started = useRef(0);
+  const hovered = useRef(false);
+  const focused = useRef(false);
+  const close = useRef(onClose);
+  close.current = onClose;
+  const clearTimer = () => { clearTimeout(timer.current); timer.current = null; };
+  const resume = () => {
+    if (!message || hovered.current || focused.current || timer.current !== null) return;
+    started.current = performance.now();
+    timer.current = setTimeout(() => { timer.current = null; close.current(); }, remaining.current);
+  };
+  const pause = () => {
+    if (timer.current === null) return;
+    remaining.current = Math.max(0, remaining.current - (performance.now() - started.current));
+    clearTimer();
+  };
+  useEffect(() => {
+    clearTimer(); remaining.current = duration;
+    if (!message) { hovered.current = false; focused.current = false; return; }
+    resume();
+    return clearTimer;
+  }, [message, notificationId, duration]);
   if (!message) return null;
-  const bg = tone === "success" ? C.successLight : tone === "error" ? C.warningLight : C.primaryLight;
-  const fg = tone === "success" ? C.success : tone === "error" ? C.warning : C.primaryDark;
-
+  const Icon = tone === "success" ? Check : Info;
   return (
-    <div role="status" aria-live="polite" className="fixed top-5 right-5 z-[70] flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-medium animate-fade max-w-md" style={{ background: bg, color: fg, ...bodyFont }}>
-      <Check size={16} strokeWidth={3} className="flex-shrink-0" />
-      <span>{message}</span>
-      <button onClick={onClose} aria-label="ปิดข้อความ" className="ml-2 opacity-60 hover:opacity-100 flex-shrink-0">
-        <X size={14} />
-      </button>
+    <div className="desk-banner" data-visible="true" data-tone={tone}
+      onMouseEnter={() => { hovered.current = true; pause(); }}
+      onMouseLeave={() => { hovered.current = false; resume(); }}
+      onFocusCapture={() => { focused.current = true; pause(); }}
+      onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) { focused.current = false; resume(); } }}>
+      <div role="status" aria-live="polite" aria-atomic="true" className="desk-banner-status">
+        <span className="desk-banner-icon" aria-hidden="true"><Icon size={18} strokeWidth={2.5} /></span>
+        <p className="desk-banner-message">{message}</p>
+      </div>
+      <button type="button" onClick={onClose} className="icon-button desk-banner-close" aria-label="ปิดข้อความแจ้งผล"><X size={16} aria-hidden="true" /></button>
     </div>
   );
 }
 
-export function PageHeader({ eyebrow, title }) {
+export function PageHeader({ title, description }) {
   return (
-    <div className="mb-6">
-      <p className="text-xs font-semibold tracking-wide uppercase mb-1" style={{ ...bodyFont, color: C.primary }}>{eyebrow}</p>
-      <h1 className="text-2xl font-bold" style={{ ...displayFont, color: C.text }}>{title}</h1>
+    <div className="page-heading">
+      <h1>{title}</h1>
+      {description && <p>{description}</p>}
     </div>
   );
 }
 
-export function SearchBar({ value, onChange, placeholder }) {
+export function SearchBar({ value, onChange, placeholder, label = "ค้นหาพัสดุ" }) {
+  const id = useId();
   return (
-    <div className="flex items-center gap-3 px-5 py-4 rounded-2xl border-2 w-full focus-within:ring-2 focus-within:ring-blue-300" style={{ borderColor: C.border, background: C.card }}>
-      <Search size={24} strokeWidth={2.5} style={{ color: C.textMuted }} />
-      <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} aria-label={placeholder} className="w-full outline-none text-lg bg-transparent" style={{ ...bodyFont, color: C.text }} />
+    <div className="register-search">
+      <label htmlFor={id}>{label}</label>
+      <div className="search-control">
+        <Search size={19} aria-hidden="true" />
+        <input id={id} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
+      </div>
     </div>
   );
 }
 
 export function LoadMoreFooter({ shown, total, onLoadMore, loading }) {
   return (
-    <div className="flex items-center justify-between gap-3 pt-3">
+    <div className="flex items-center justify-between gap-3 pt-3 px-1">
       <p className="text-xs" style={{ ...bodyFont, color: C.textMuted }}>แสดง {shown.toLocaleString()} จาก {total.toLocaleString()} รายการ</p>
       {shown < total && (
         <button onClick={onLoadMore} disabled={loading} className="text-sm font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-50 disabled:opacity-50" style={{ ...bodyFont, color: C.primaryDark }}>
@@ -136,51 +166,49 @@ const TABLE_HEADERS = ["ห้อง / ผู้พัก", "เลขพัส�
 
 // A plain table: it renders exactly the Parcels it is given. Callers own pagination (the API
 // paginates every list, so there is never an unbounded array to slice client-side).
-export function ParcelTable({ parcels, emptyLabel, onSelect }) {
+export function ParcelTable({ parcels, emptyLabel, onSelect, label = "รายการพัสดุ" }) {
   if (parcels.length === 0) {
     return (
-      <div className="py-16 flex flex-col items-center justify-center text-center">
-        <div className="w-12 h-12 rounded-full flex items-center justify-center mb-3" style={{ background: C.bg }}>
-          <Package size={20} style={{ color: C.textMuted }} />
-        </div>
-        <p className="text-sm" style={{ ...bodyFont, color: C.textMuted }}>{emptyLabel}</p>
+      <div className="table-empty">
+        <Package size={24} aria-hidden="true" />
+        <p>{emptyLabel}</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-base" style={bodyFont}>
-        <thead>
-          <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-            {TABLE_HEADERS.map((h) => (
-              <th key={h} className="text-left py-3 px-3 font-medium first:pl-1" style={{ color: C.textMuted, fontSize: 12.5 }}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {parcels.map((p) => (
-            <tr
-              key={p.trackingCode}
-              onClick={onSelect ? () => onSelect(p) : undefined}
-              onKeyDown={onSelect ? (e) => { if (e.key === "Enter") onSelect(p); } : undefined}
-              tabIndex={onSelect ? 0 : undefined}
-              title={onSelect ? "ดูประวัติพัสดุ" : undefined}
-              className={onSelect ? "cursor-pointer hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-400" : ""}
-              style={{ borderBottom: `1px solid ${C.border}` }}
-            >
-              <td className="py-3.5 px-3 pl-1">
-                <p className="font-semibold" style={{ color: isUnmatched(p) ? C.warning : C.text }}>{roomLabel(p)}</p>
-                {isUnmatched(p) && p.unmatchedReason && <p className="text-xs mt-0.5" style={{ color: C.textMuted }}>{unmatchedReasonLabel(p.unmatchedReason)}</p>}
-              </td>
-              <td className="py-3.5 px-3" style={{ color: C.text }}>{p.trackingCode}</td>
-              <td className="py-3.5 px-3" style={{ color: C.textMuted }}>{formatThaiDateTime(p.checkedInAt)}</td>
-              <td className="py-3.5 px-3"><StatusChip parcel={p} /></td>
-              <td className="py-3.5 px-3" style={{ color: C.textMuted }}>{p.checkedOutAt ? formatThaiDateTime(p.checkedOutAt) : "-"}</td>
+    <div className="parcel-results">
+      <div className="table-scroll" role="region" aria-label={label} tabIndex={0}>
+        <table className="parcel-table">
+          <caption className="sr-only">{label}</caption>
+          <thead>
+            <tr>
+              {TABLE_HEADERS.map((h) => <th key={h} scope="col">{h}</th>)}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {parcels.map((p) => (
+              <tr
+                key={p.trackingCode}
+                onClick={onSelect ? () => onSelect(p) : undefined}
+                onKeyDown={onSelect ? (e) => { if (e.key === "Enter") onSelect(p); } : undefined}
+                tabIndex={onSelect ? 0 : undefined}
+                title={onSelect ? "ดูประวัติพัสดุ" : undefined}
+                style={onSelect ? { cursor: "pointer" } : undefined}
+              >
+                <td>
+                  <p className="resident-label" style={{ color: isUnmatched(p) ? C.warning : C.text }}>{roomLabel(p)}</p>
+                  {isUnmatched(p) && p.unmatchedReason && <p className="text-xs mt-0.5" style={{ color: C.textMuted }}>{unmatchedReasonLabel(p.unmatchedReason)}</p>}
+                </td>
+                <td className="tracking-cell">{p.trackingCode}</td>
+                <td className="date-cell">{formatThaiDateTime(p.checkedInAt)}</td>
+                <td><StatusChip parcel={p} /></td>
+                <td className="date-cell">{p.checkedOutAt ? formatThaiDateTime(p.checkedOutAt) : "–"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -192,7 +220,7 @@ export function useFonts() {
     const link = document.createElement("link");
     link.id = FONT_LINK_ID;
     link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap";
+    link.href = "https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap";
     document.head.appendChild(link);
   }, []);
 }
