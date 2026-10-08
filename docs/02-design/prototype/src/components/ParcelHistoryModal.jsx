@@ -58,6 +58,7 @@ export default function ParcelHistoryModal({ trackingCode, onClose }) {
             </div>
           </div>
 
+          {detail.room && detail.note && <p className="condition-note mb-4">{detail.note}</p>}
           {detail.events.length === 0 ? (
             <p className="text-sm py-6 text-center" style={{ ...bodyFont, color: C.textMuted }}>ไม่มีประวัติ</p>
           ) : (

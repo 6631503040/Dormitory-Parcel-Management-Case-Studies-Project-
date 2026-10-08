@@ -24,91 +24,45 @@ function mockEnv({ dashboard = makeDashboard(), search } = {}) {
 }
 
 describe("DashboardPage", () => {
-  it("loads recent check-ins on mount", async () => {
-    mockEnv({
-      dashboard: makeDashboard({
-        checkedIn: 4,
-        pickedUp: 1,
-        pending: 3,
-        unmatchedPending: 1,
-        recentCheckIns: [makeParcel({ trackingCode: "TH100" })],
-      }),
-    });
-    render(<DashboardPage onOpenCheckOut={vi.fn()} onOpenCheckIn={vi.fn()} onOpenHistory={vi.fn()} refreshKey={0} />);
-
-    expect(await screen.findByText("TH100")).toBeInTheDocument();
-  });
-
-  it("searches across all parcels and shows results instead of recent check-ins", async () => {
-    let seenQuery;
-    mockEnv({
-      dashboard: makeDashboard({ recentCheckIns: [makeParcel({ trackingCode: "RECENT1" })] }),
-      search: (url) => {
-        seenQuery = url.searchParams.get("q");
-        return HttpResponse.json({ items: [makeParcel({ trackingCode: "FOUND1" })], page: 1, pageSize: 20, total: 1 });
-      },
-    });
+  it("shows pending parcels with eight-item server pages and replaces the page", async () => {
+    const requests = [];
+    mockEnv({ search: (url) => {
+      requests.push(url.searchParams);
+      const page = Number(url.searchParams.get("page"));
+      const start = (page - 1) * 8;
+      return HttpResponse.json({ items: Array.from({ length: page === 1 ? 8 : 2 }, (_, i) => makeParcel({ trackingCode: `P${start + i}` })), total: 10 });
+    }});
     const user = userEvent.setup();
-    render(<DashboardPage onOpenCheckOut={vi.fn()} onOpenCheckIn={vi.fn()} onOpenHistory={vi.fn()} refreshKey={0} />);
-    await screen.findByText("RECENT1");
-
-    await user.type(screen.getByLabelText("ค้นหาพัสดุ"), "101");
-
-    expect(await screen.findByText("FOUND1")).toBeInTheDocument();
-    expect(screen.queryByText("RECENT1")).not.toBeInTheDocument();
-    expect(seenQuery).toBe("101");
-
-    await user.clear(screen.getByLabelText("ค้นหาพัสดุ"));
-    expect(await screen.findByText("RECENT1")).toBeInTheDocument();
+    render(<DashboardPage onOpenHistory={vi.fn()} refreshKey={0} />);
+    await screen.findAllByText("P0");
+    expect(screen.getByText("1–8 จาก 10 รายการ")).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "สถานะ" })).toBeInTheDocument();
+    expect(requests[0].get("status")).toBe("pending");
+    expect(requests[0].get("unmatched")).toBe("false");
+    expect(requests[0].get("pageSize")).toBe("8");
+    await user.click(screen.getByRole("button", { name: "หน้า 2" }));
+    await screen.findAllByText("P9");
+    expect(screen.queryByText("P0")).not.toBeInTheDocument();
+    expect(screen.getByText("9–10 จาก 10 รายการ")).toBeInTheDocument();
+    await user.type(screen.getByLabelText("ค้นหาพัสดุรอรับ"), "101");
+    await waitFor(() => expect(requests.at(-1).get("q")).toBe("101"));
+    expect(requests.at(-1).get("page")).toBe("1");
   });
-
-  it("loads more search results a page at a time", async () => {
-    mockEnv({
-      search: (url) => {
-        const page = Number(url.searchParams.get("page"));
-        if (page === 1) {
-          return HttpResponse.json({ items: Array.from({ length: 20 }, (_, i) => makeParcel({ trackingCode: `P${i}` })), page: 1, pageSize: 20, total: 25 });
-        }
-        return HttpResponse.json({ items: Array.from({ length: 5 }, (_, i) => makeParcel({ trackingCode: `P${20 + i}` })), page: 2, pageSize: 20, total: 25 });
-      },
-    });
+  it("opens existing parcel history and check-in/out actions", async () => {
+    mockEnv({ search: () => HttpResponse.json({ items: [makeParcel({ trackingCode: "TH100" })], total: 1 }) });
+    const history = vi.fn(), checkIn = vi.fn(), checkOut = vi.fn();
     const user = userEvent.setup();
-    render(<DashboardPage onOpenCheckOut={vi.fn()} onOpenCheckIn={vi.fn()} onOpenHistory={vi.fn()} refreshKey={0} />);
-    await user.type(screen.getByLabelText("ค้นหาพัสดุ"), "P");
-
-    await screen.findByText("P0");
-    expect(screen.getByText("แสดง 20 จาก 25 รายการ")).toBeInTheDocument();
-    expect(screen.queryByText("P24")).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "แสดงเพิ่ม" }));
-    expect(await screen.findByText("P24")).toBeInTheDocument();
+    render(<DashboardPage onOpenHistory={history} onOpenCheckIn={checkIn} onOpenCheckOut={checkOut} refreshKey={0} />);
+    await user.click((await screen.findAllByText("TH100"))[0]);
+    expect(history).toHaveBeenCalledWith(expect.objectContaining({ trackingCode: "TH100" }));
+    await user.click(screen.getByRole("button", { name: "รับพัสดุเข้า" }));
+    await user.click(screen.getByRole("button", { name: "นำพัสดุออก" }));
+    expect(checkIn).toHaveBeenCalledTimes(1);
+    expect(checkOut).toHaveBeenCalledTimes(1);
   });
-
-  it("opens history when a row is clicked, whether it's a recent check-in or a search result", async () => {
-    mockEnv({ dashboard: makeDashboard({ recentCheckIns: [makeParcel({ trackingCode: "TH100" })] }) });
-    const onOpenHistory = vi.fn();
-    const user = userEvent.setup();
-    render(<DashboardPage onOpenCheckOut={vi.fn()} onOpenCheckIn={vi.fn()} onOpenHistory={onOpenHistory} refreshKey={0} />);
-    await user.click(await screen.findByText("TH100"));
-    expect(onOpenHistory).toHaveBeenCalledWith(expect.objectContaining({ trackingCode: "TH100" }));
-  });
-
-  it("shows an inline error if the dashboard summary fails to load", async () => {
-    server.use(http.get("/api/v1/dashboard", () => HttpResponse.json({ code: "INTERNAL_ERROR" }, { status: 500 })));
-    server.use(http.get("/api/v1/parcels", () => noUnmatched()));
-    render(<DashboardPage onOpenCheckOut={vi.fn()} onOpenCheckIn={vi.fn()} onOpenHistory={vi.fn()} refreshKey={0} />);
-    expect(await screen.findByText("เกิดข้อผิดพลาดบางอย่าง กรุณาลองใหม่อีกครั้ง")).toBeInTheDocument();
-  });
-
-  it("opens Check-In and Check-Out from their buttons", async () => {
-    mockEnv();
-    const onOpenCheckIn = vi.fn();
-    const onOpenCheckOut = vi.fn();
-    const user = userEvent.setup();
-    render(<DashboardPage onOpenCheckOut={onOpenCheckOut} onOpenCheckIn={onOpenCheckIn} onOpenHistory={vi.fn()} refreshKey={0} />);
-    await user.click(screen.getByRole("button", { name: /เข้า/ }));
-    await user.click(screen.getByRole("button", { name: /ออก/ }));
-    expect(onOpenCheckIn).toHaveBeenCalledTimes(1);
-    expect(onOpenCheckOut).toHaveBeenCalledTimes(1);
+  it("surfaces API failures", async () => {
+    mockEnv({ search: () => HttpResponse.json({ code: "INTERNAL_ERROR" }, { status: 500 }) });
+    render(<DashboardPage refreshKey={0} />);
+    expect(await screen.findByRole("alert")).toHaveTextContent("เกิดข้อผิดพลาด");
   });
 });

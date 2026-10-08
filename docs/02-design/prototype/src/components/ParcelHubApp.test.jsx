@@ -33,7 +33,7 @@ describe("ParcelHubApp", () => {
     mockQuietBackend();
     server.use(http.get("/api/v1/auth/me", () => HttpResponse.json({ staff: makeStaff({ fullName: "Somsri Rattanakul" }) })));
     render(<ParcelHubApp />);
-    expect(await screen.findByText("รับเข้าล่าสุด")).toBeInTheDocument();
+    expect(await screen.findByText("Dashboard")).toBeInTheDocument();
     expect(screen.getByText("Somsri Rattanakul")).toBeInTheDocument();
   });
 
@@ -51,7 +51,7 @@ describe("ParcelHubApp", () => {
     await user.type(screen.getByLabelText("รหัสผ่าน"), "parcel1234");
     await user.click(screen.getByRole("button", { name: "เข้าสู่ระบบ" }));
 
-    expect(await screen.findByText("รับเข้าล่าสุด")).toBeInTheDocument();
+    expect(await screen.findByText("Dashboard")).toBeInTheDocument();
     expect(screen.getByText("Prasert Boonmee")).toBeInTheDocument();
   });
 
@@ -63,7 +63,7 @@ describe("ParcelHubApp", () => {
     );
     const user = userEvent.setup();
     render(<ParcelHubApp />);
-    await screen.findByText("รับเข้าล่าสุด");
+    await screen.findByText("Dashboard");
 
     await user.click(screen.getByRole("button", { name: /ออกจากระบบ/ }));
 
@@ -75,13 +75,13 @@ describe("ParcelHubApp", () => {
     server.use(http.get("/api/v1/auth/me", () => HttpResponse.json({ staff: makeStaff() })));
     const user = userEvent.setup();
     render(<ParcelHubApp />);
-    await screen.findByText("รับเข้าล่าสุด");
+    await screen.findByText("Dashboard");
 
     await user.click(screen.getByRole("button", { name: "ประวัติ" }));
     expect(await screen.findByText("ประวัติพัสดุทั้งหมด")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "หน้าหลัก" }));
-    expect(await screen.findByText("รับเข้าล่าสุด")).toBeInTheDocument();
+    expect(await screen.findByText("Dashboard")).toBeInTheDocument();
   });
 
   it("opens and closes the Check-In modal, refreshing the dashboard behind it", async () => {
@@ -96,7 +96,7 @@ describe("ParcelHubApp", () => {
     );
     const user = userEvent.setup();
     render(<ParcelHubApp />);
-    await screen.findByText("รับเข้าล่าสุด");
+    await screen.findByText("Dashboard");
     await waitFor(() => expect(dashboardCalls).toBe(1));
 
     await user.click(screen.getByRole("button", { name: /เข้า/ }));
@@ -123,22 +123,23 @@ describe("ParcelHubApp", () => {
         }
         return HttpResponse.json({ items: [], page: 1, pageSize: 20, total: 0 });
       }),
+      http.get("/api/v1/parcels/TH1", () => HttpResponse.json({ trackingCode: "TH1", status: "pending", room: { id: 1, roomNumber: "101", buildingCode: "1" }, residents: [], checkedInAt: "2026-09-20T01:00:00Z" })),
       http.post("/api/v1/parcels/check-out", () =>
         HttpResponse.json({ checkedOutCount: 1, parcels: [{ trackingCode: "TH1", status: "picked_up" }] })
       )
     );
     const user = userEvent.setup();
     render(<ParcelHubApp />);
-    await screen.findByText("รับเข้าล่าสุด");
+    await screen.findByText("Dashboard");
 
-    await user.click(screen.getByRole("button", { name: "ออก" }));
-    await user.type(screen.getByLabelText(/สแกนเลขพัสดุ/), "TH1");
-    // an exact tracking-code match auto-selects and clears the field, ready for the next scan
-    await waitFor(() => expect(screen.getByLabelText(/สแกนเลขพัสดุ/)).toHaveValue(""));
-    await user.click(screen.getByRole("button", { name: /นำออกที่เลือก \(1\)/ }));
+    await user.click(screen.getByRole("button", { name: "นำพัสดุออก" }));
+    await user.type(screen.getByLabelText(/สแกนหรือกรอกเลขพัสดุ/), "TH1");
+    await user.keyboard("{Enter}");
+    await screen.findByRole("region", { name: "ข้อมูลพัสดุที่ค้นพบ" });
+    await user.click(screen.getByRole("button", { name: "ยืนยันนำพัสดุออก", exact: true }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(await screen.findByRole("status")).toHaveTextContent("นำพัสดุออกแล้ว 1 ชิ้น");
+    expect(await screen.findByText("นำพัสดุออกแล้ว 1 ชิ้น")).toBeInTheDocument();
   });
 
   it("drops back to the login page and shows a banner when the session expires mid-use", async () => {
@@ -154,7 +155,7 @@ describe("ParcelHubApp", () => {
     );
     const user = userEvent.setup();
     render(<ParcelHubApp />);
-    await screen.findByText("รับเข้าล่าสุด");
+    await screen.findByText("Dashboard");
 
     // Opening and closing Check-In bumps refreshKey, triggering the dashboard's second fetch,
     // which this time comes back 401 (e.g. the session expired or was revoked meanwhile).
@@ -164,4 +165,37 @@ describe("ParcelHubApp", () => {
     expect(await screen.findByRole("button", { name: "เข้าสู่ระบบ" })).toBeInTheDocument();
     expect(await screen.findByRole("status")).toHaveTextContent("เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่");
   });
+  it("clears old checkout context when the session expires and staff sign in again", async () => {
+    mockQuietBackend();
+    server.use(
+      http.get("/api/v1/auth/me", () => HttpResponse.json({ staff: makeStaff() })),
+      http.get("/api/v1/parcels/EXPIRED", () => HttpResponse.json({ code: "UNAUTHENTICATED" }, { status: 401 })),
+      http.post("/api/v1/auth/login", () => HttpResponse.json({ staff: makeStaff({ fullName: "Next Staff" }) }))
+    );
+    const user = userEvent.setup();
+    render(<ParcelHubApp />);
+    await screen.findByText("Dashboard");
+    await user.click(screen.getByRole("button", { name: "นำพัสดุออก", exact: true }));
+    await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "EXPIRED{Enter}");
+    await screen.findByRole("button", { name: "เข้าสู่ระบบ", exact: true });
+    await user.type(screen.getByLabelText("ชื่อผู้ใช้"), "next");
+    await user.type(screen.getByLabelText("รหัสผ่าน"), "testpassword");
+    await user.click(screen.getByRole("button", { name: "เข้าสู่ระบบ", exact: true }));
+    await screen.findByText("Next Staff");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+  it("does not pretend logout succeeded when the API rejects logout", async () => {
+    mockQuietBackend();
+    server.use(
+      http.get("/api/v1/auth/me", () => HttpResponse.json({ staff: makeStaff() })),
+      http.post("/api/v1/auth/logout", () => HttpResponse.json({ code: "INTERNAL_ERROR" }, { status: 500 }))
+    );
+    const user = userEvent.setup();
+    render(<ParcelHubApp />);
+    await screen.findByText("Dashboard");
+    await user.click(screen.getByRole("button", { name: "ออกจากระบบ" }));
+    expect(await screen.findByText("เกิดข้อผิดพลาดบางอย่าง กรุณาลองใหม่อีกครั้ง")).toBeInTheDocument();
+    expect(screen.getByText("Dashboard")).toBeInTheDocument();
+  });
+
 });

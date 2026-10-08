@@ -19,7 +19,6 @@ export default function ParcelHubApp() {
   const [historyCode, setHistoryCode] = useState(null);
   const [banner, setBanner] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const bannerTimer = useRef(null);
   const bannerId = useRef(0);
 
   // A 401 from anywhere (session expired, disabled account) drops straight back to the login
@@ -39,6 +38,9 @@ export default function ParcelHubApp() {
         setBooting(false);
         setUnauthenticatedHandler(() => {
           setStaff(null);
+          setModal(null);
+          setHistoryCode(null);
+          setPage("dashboard");
           showBanner(errorMessage({ code: "UNAUTHENTICATED" }), "error");
         });
       });
@@ -49,12 +51,9 @@ export default function ParcelHubApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => () => clearTimeout(bannerTimer.current), []);
 
   const showBanner = (message, tone = "success") => {
-    clearTimeout(bannerTimer.current);
     setBanner({ message, tone, id: ++bannerId.current });
-    bannerTimer.current = setTimeout(() => setBanner(null), 3200);
   };
 
   const refresh = () => setRefreshKey((k) => k + 1);
@@ -62,12 +61,14 @@ export default function ParcelHubApp() {
   const handleLogout = async () => {
     try {
       await api.logout();
-    } catch {
-      // logging out client-side regardless keeps the UI consistent even if the request failed
+    } catch (err) {
+      showBanner(errorMessage(err), "error");
+      return;
     }
     setStaff(null);
     setModal(null);
     setHistoryCode(null);
+    setPage("dashboard");
   };
 
   const handleCheckOutConfirm = (parcels) => {

@@ -26,19 +26,24 @@ const r1 = makeParcel({ trackingCode: "R1", room: null, unmatchedReason: "no_mat
 const r2 = makeParcel({ trackingCode: "R2", room: null, unmatchedReason: "no_match", checkedInAt: "2026-09-20T02:00:00Z" });
 const r3 = makeParcel({ trackingCode: "R3", room: null, unmatchedReason: "ambiguous", checkedInAt: "2026-09-20T03:00:00Z" });
 
+async function openQueue(element) {
+  render(element);
+  await userEvent.setup().click(screen.getByText("พัสดุไม่ทราบห้อง"));
+}
+
 describe("UnmatchedQueue", () => {
   it("shows nothing extra when the queue is empty", async () => {
     mockUnmatchedData([]);
-    render(<UnmatchedQueue onOpenHistory={vi.fn()} />);
+    await openQueue(<UnmatchedQueue onOpenHistory={vi.fn()} />);
     expect(await screen.findByText("ไม่มีพัสดุที่มีปัญหา")).toBeInTheDocument();
     expect(screen.queryByText(/มีปัญหา \d+ รายการ/)).not.toBeInTheDocument();
   });
 
   it("shows the total count badge and the full list, with each item's reason shown inline", async () => {
     mockUnmatchedData([r1, r2, r3]);
-    render(<UnmatchedQueue onOpenHistory={vi.fn()} />);
+    await openQueue(<UnmatchedQueue onOpenHistory={vi.fn()} />);
 
-    expect(await screen.findByText("มีปัญหา 3 รายการ")).toBeInTheDocument();
+    expect(await screen.findByText("3 รายการ")).toBeInTheDocument();
     expect(screen.getByText("R1")).toBeInTheDocument();
     expect(screen.getByText("R3")).toBeInTheDocument();
     expect(screen.getAllByText(/ไม่พบห้องที่ตรงกัน/).length).toBe(2); // r1, r2 — shown per row, no filter tabs
@@ -57,7 +62,7 @@ describe("UnmatchedQueue", () => {
     );
     const onChange = vi.fn();
     const user = userEvent.setup();
-    render(<UnmatchedQueue onOpenHistory={vi.fn()} onChange={onChange} />);
+    await openQueue(<UnmatchedQueue onOpenHistory={vi.fn()} onChange={onChange} />);
 
     await screen.findByText("R1");
     await user.click(screen.getByRole("button", { name: "ระบุห้อง" }));
@@ -74,7 +79,7 @@ describe("UnmatchedQueue", () => {
     server.use(http.get("/api/v1/rooms/search", () => HttpResponse.json({ items: [makeRoomHit({ id: 1, roomNumber: "101", buildingCode: "1" })] })));
     server.use(http.patch("/api/v1/parcels/R1/room", () => HttpResponse.json({ code: "ROOM_NOT_IN_DIRECTORY", params: { roomId: 1 } }, { status: 422 })));
     const user = userEvent.setup();
-    render(<UnmatchedQueue onOpenHistory={vi.fn()} />);
+    await openQueue(<UnmatchedQueue onOpenHistory={vi.fn()} />);
 
     await screen.findByText("R1");
     await user.click(screen.getByRole("button", { name: "ระบุห้อง" }));
@@ -89,34 +94,35 @@ describe("UnmatchedQueue", () => {
   it("cancelling the resolve form closes it without calling the API", async () => {
     mockUnmatchedData([r1]);
     const user = userEvent.setup();
-    render(<UnmatchedQueue onOpenHistory={vi.fn()} />);
+    await openQueue(<UnmatchedQueue onOpenHistory={vi.fn()} />);
     await screen.findByText("R1");
     await user.click(screen.getByRole("button", { name: "ระบุห้อง" }));
     await user.click(screen.getByRole("button", { name: "ยกเลิก" }));
     expect(screen.queryByRole("button", { name: "ยืนยันระบุห้อง" })).not.toBeInTheDocument();
   });
 
-  it("paginates with load more, five at a time", async () => {
-    const many = Array.from({ length: 6 }, (_, i) =>
+  it("paginates without accumulating rows, eight at a time", async () => {
+    const many = Array.from({ length: 10 }, (_, i) =>
       makeParcel({ trackingCode: `M${i}`, room: null, unmatchedReason: "other", checkedInAt: `2026-09-2${i}T01:00:00Z` })
     );
     mockUnmatchedData(many);
     const user = userEvent.setup();
-    render(<UnmatchedQueue onOpenHistory={vi.fn()} />);
+    await openQueue(<UnmatchedQueue onOpenHistory={vi.fn()} />);
 
     await screen.findByText("M0");
-    expect(screen.getByText("M4")).toBeInTheDocument();
-    expect(screen.queryByText("M5")).not.toBeInTheDocument();
+    expect(screen.getByText("M7")).toBeInTheDocument();
+    expect(screen.queryByText("M8")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /แสดงเพิ่ม/ }));
-    expect(await screen.findByText("M5")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "หน้า 2" }));
+    expect(await screen.findByText("M8")).toBeInTheDocument();
+    expect(screen.queryByText("M0")).not.toBeInTheDocument();
   });
 
   it("opens a Parcel's history when its tracking code is clicked", async () => {
     mockUnmatchedData([r1]);
     const onOpenHistory = vi.fn();
     const user = userEvent.setup();
-    render(<UnmatchedQueue onOpenHistory={onOpenHistory} />);
+    await openQueue(<UnmatchedQueue onOpenHistory={onOpenHistory} />);
     await user.click(await screen.findByText("R1"));
     expect(onOpenHistory).toHaveBeenCalledWith(expect.objectContaining({ trackingCode: "R1" }));
   });

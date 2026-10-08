@@ -65,6 +65,19 @@ describe("CheckInModal", () => {
     await waitFor(() => expect(screen.getByLabelText(/เลขพัสดุ/)).toHaveFocus());
   });
 
+  it("records a damaged matched parcel through the existing note field", async () => {
+    mockRoomSearch(); let body;
+    server.use(http.post("/api/v1/parcels", async ({request}) => { body = await request.json(); return HttpResponse.json(makeParcel({trackingCode: "TH100", note: body.note}), {status: 201}); }));
+    const user = userEvent.setup();
+    render(<CheckInModal onClose={vi.fn()} />);
+    await user.type(screen.getByLabelText(/เลขพัสดุ/), "TH100"); await pickRoom(user);
+    await user.click(screen.getByRole("checkbox", {name: "พัสดุชำรุด"}));
+    await user.type(screen.getByLabelText("เหตุผลที่ชำรุด"), "กล่องเปียก");
+    await user.click(screen.getByRole("button", {name: "บันทึก"}));
+    await screen.findByText("บันทึกแล้วรอบนี้ (1)");
+    expect(body).toEqual({trackingCode: "TH100", roomId: 1, note: "ชำรุด: กล่องเปียก"});
+  });
+
   it("keeps 'บันทึก' disabled until both a tracking code and a room are set", async () => {
     mockRoomSearch();
     const user = userEvent.setup();

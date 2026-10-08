@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useRef } from "react";
-import { Package, Check, HelpCircle, Info, X, Search } from "lucide-react";
+import { Package, Check, HelpCircle, Info, X, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { unmatchedReasonLabel } from "../constants/unmatchedReasons";
 
 export const C = {
@@ -162,55 +162,42 @@ export function LoadMoreFooter({ shown, total, onLoadMore, loading }) {
   );
 }
 
-const TABLE_HEADERS = ["ห้อง / ผู้พัก", "เลขพัสดุ", "วันที่รับเข้า", "สถานะ", "วันที่นำออก"];
+export function PagePagination({ page, total, pageSize = 8, onChange, loading, label }) {
+  const count = Math.max(1, Math.ceil(total / pageSize));
+  const numbers = Array.from(new Set([1, page - 1, page, page + 1, count])).filter((n) => n > 0 && n <= count).sort((a, b) => a - b);
+  return <div className="table-pagination archive-pagination">
+    <span role="status">{total ? `${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, total)} จาก ${total} รายการ` : "0 รายการ"}</span>
+    {count > 1 && <nav aria-label={`แบ่งหน้า${label}`} className="page-number-controls">
+      <button type="button" className="page-number-button" disabled={loading || page === 1} onClick={() => onChange(page - 1)} aria-label="หน้าก่อนหน้า"><ChevronLeft size={16} aria-hidden="true" /></button>
+      {numbers.map((n, i) => <React.Fragment key={n}>{i > 0 && n - numbers[i - 1] > 1 && <span className="page-number-ellipsis" aria-hidden="true">…</span>}<button type="button" className="page-number-button" disabled={loading} aria-label={`หน้า ${n}`} aria-current={n === page ? "page" : undefined} onClick={() => onChange(n)}><span className="page-number-label">{n}</span></button></React.Fragment>)}
+      <button type="button" className="page-number-button" disabled={loading || page === count} onClick={() => onChange(page + 1)} aria-label="หน้าถัดไป"><ChevronRight size={16} aria-hidden="true" /></button>
+    </nav>}
+  </div>;
+}
 
-// A plain table: it renders exactly the Parcels it is given. Callers own pagination (the API
-// paginates every list, so there is never an unbounded array to slice client-side).
-export function ParcelTable({ parcels, emptyLabel, onSelect, label = "รายการพัสดุ" }) {
-  if (parcels.length === 0) {
-    return (
-      <div className="table-empty">
-        <Package size={24} aria-hidden="true" />
-        <p>{emptyLabel}</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="parcel-results">
-      <div className="table-scroll" role="region" aria-label={label} tabIndex={0}>
-        <table className="parcel-table">
-          <caption className="sr-only">{label}</caption>
-          <thead>
-            <tr>
-              {TABLE_HEADERS.map((h) => <th key={h} scope="col">{h}</th>)}
-            </tr>
-          </thead>
-          <tbody>
-            {parcels.map((p) => (
-              <tr
-                key={p.trackingCode}
-                onClick={onSelect ? () => onSelect(p) : undefined}
-                onKeyDown={onSelect ? (e) => { if (e.key === "Enter") onSelect(p); } : undefined}
-                tabIndex={onSelect ? 0 : undefined}
-                title={onSelect ? "ดูประวัติพัสดุ" : undefined}
-                style={onSelect ? { cursor: "pointer" } : undefined}
-              >
-                <td>
-                  <p className="resident-label" style={{ color: isUnmatched(p) ? C.warning : C.text }}>{roomLabel(p)}</p>
-                  {isUnmatched(p) && p.unmatchedReason && <p className="text-xs mt-0.5" style={{ color: C.textMuted }}>{unmatchedReasonLabel(p.unmatchedReason)}</p>}
-                </td>
-                <td className="tracking-cell">{p.trackingCode}</td>
-                <td className="date-cell">{formatThaiDateTime(p.checkedInAt)}</td>
-                <td><StatusChip parcel={p} /></td>
-                <td className="date-cell">{p.checkedOutAt ? formatThaiDateTime(p.checkedOutAt) : "–"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+// API fields are preserved; dashboard shows pending records and Archive retains handover dates.
+export function ParcelTable({ parcels, emptyLabel, onSelect, label = "รายการพัสดุ", variant }) {
+  const dashboard = variant === "dashboard";
+  if (!parcels.length) return <div className="table-empty" role="status"><Package size={24} aria-hidden="true" /><p>{emptyLabel}</p></div>;
+  const headers = ["ห้อง / ผู้พัก", "เลขพัสดุ", "วันที่รับเข้า", "สถานะ", ...(!dashboard ? ["วันที่นำออก"] : [])];
+  return <div className={dashboard ? "parcel-results dashboard-results" : "parcel-results"}>
+    <div className={`table-scroll${dashboard ? " dashboard-desktop-table" : ""}`} role="region" aria-label={label} tabIndex={0}>
+      <table className="parcel-table"><caption className="sr-only">{label}</caption>
+        <thead><tr>{headers.map((h) => <th scope="col" key={h}>{h}</th>)}</tr></thead>
+        <tbody>{parcels.map((p) => <tr key={p.trackingCode}>
+          <td><p className="resident-label">{roomLabel(p)}</p>{isUnmatched(p) && p.unmatchedReason && <p className="search-feedback">{unmatchedReasonLabel(p.unmatchedReason)}</p>}</td>
+          <td className="tracking-cell"><div className="tracking-content">{onSelect ? <button type="button" className="parcel-history-button" onClick={() => onSelect(p)} aria-label={`ดูประวัติพัสดุ ${p.trackingCode}`}>{p.trackingCode}</button> : p.trackingCode}{p.note?.startsWith("ชำรุด:") && <details className="parcel-damage-note"><summary>ชำรุด</summary><p>{p.note.slice("ชำรุด:".length).trim() || "ไม่ได้ระบุเหตุผล"}</p></details>}</div></td>
+          <td className="date-cell">{formatThaiDateTime(p.checkedInAt)}</td><td><StatusChip parcel={p} /></td>
+          {!dashboard && <td className="date-cell">{p.checkedOutAt ? formatThaiDateTime(p.checkedOutAt) : "–"}</td>}
+        </tr>)}</tbody>
+      </table>
     </div>
-  );
+    {dashboard && <ul className="parcel-mobile-list" aria-label={label}>{parcels.map((p) => <li key={p.trackingCode}>
+      <div className="parcel-mobile-identity"><p>{roomLabel(p)}</p><StatusChip parcel={p} /></div>
+      <button type="button" className="parcel-history-button parcel-mobile-code" onClick={() => onSelect?.(p)}>{p.trackingCode}</button>
+      <p className="date-cell">รับเข้า {formatThaiDateTime(p.checkedInAt)}</p>{p.note?.startsWith("ชำรุด:") && <details className="parcel-damage-note"><summary>ชำรุด</summary><p>{p.note.slice("ชำรุด:".length).trim() || "ไม่ได้ระบุเหตุผล"}</p></details>}
+    </li>)}</ul>}
+  </div>;
 }
 
 export const FONT_LINK_ID = "parcelhub-fonts";

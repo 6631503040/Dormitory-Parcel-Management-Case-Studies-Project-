@@ -371,3 +371,28 @@ input::placeholder, textarea::placeholder { color: var(--desk-muted); opacity: 1
 .checkout-other-parcels { margin-top: 16px; border-top: 1px solid var(--desk-border); }
 .checkout-other-parcels summary { cursor: pointer; min-height: 44px; padding: 12px 0; font-size: 13px; color: var(--desk-primary); }
 .checkout-row-qty { display: block; color: var(--desk-muted); font-size: 12px; }
+
+/* API integration retains the compact frontend register and button sizes. */
+.parcel-table tbody tr { border-bottom: 1px solid var(--desk-border); }
+.parcel-history-button { min-height: 44px; text-align: left; font: inherit; }
+.parcel-history-button:hover { color: var(--desk-primary); text-decoration: underline; text-underline-offset: 4px; }
+.parcel-page-content { min-height: 160px; }
+.parcel-register > .field-error { padding: 0 24px 12px; }
+.parcel-register .archive-toolbar { padding-top: 20px; }
+.desk-banner[data-tone="error"] .desk-banner-icon { color: var(--desk-warning); background: var(--desk-warning-light); }
+.desk-dialog > .dialog-footer { padding: 16px 24px 20px; border-top: 1px solid var(--desk-border); }
+
+.daily-summary { color: var(--desk-muted); font-size: 13px; margin-bottom: 16px; }
+
+.desk-dialog { margin: auto; }
+.desk-dialog:not([open]) { display: none; }
+.desk-dialog::backdrop { background: rgb(32 33 36 / .42); }
+.checkout-dialog[open] { display: flex; }
+@media (min-width: 641px) { .parcel-page-content[data-reserve="true"] { min-height: 461px; } }
+
+.parcel-damage-note { font-size: 12px; color: var(--desk-warning); white-space: normal; }
+.parcel-damage-note summary { min-height: 44px; display: flex; align-items: center; text-decoration: underline; text-underline-offset: 4px; }
+.parcel-damage-note p { max-width: 28ch; overflow-wrap: anywhere; padding-bottom: 8px; }
+
+.unmatched-content { padding: 0 16px 16px; }
+.desk-dialog[open] { position: fixed; inset: 0; }

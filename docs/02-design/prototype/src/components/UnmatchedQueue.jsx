@@ -1,57 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { HelpCircle } from "lucide-react";
-import { C, bodyFont, formatThaiDateTime } from "./shared";
+import { C, bodyFont, formatThaiDateTime, PagePagination } from "./shared";
 import RoomCombobox from "./RoomCombobox";
 import { InlineError } from "./Modals";
 import { api, ApiError } from "../api/client";
 import { errorMessage } from "../api/errorMessages";
+import useParcelPage, { PARCEL_PAGE_SIZE } from "./useParcelPage";
 import { unmatchedReasonLabel } from "../constants/unmatchedReasons";
-
-const PAGE_SIZE = 5;
 
 // Parcels that arrived with no usable room wait here, tagged with why, oldest first (matches
 // product_backlog.md US-06). Staff resolve one by choosing a room from the directory — the same
 // rule as Check-In: a room is never typed as free text.
 export default function UnmatchedQueue({ refreshKey, onOpenHistory, onChange }) {
-  const [items, setItems] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState(null);
   const [version, setVersion] = useState(0);
+  const { items, total, page, setPage, loading, error } = useParcelPage({ query: "", status: "pending", unmatched: true, refreshKey: `${refreshKey}:${version}` });
 
   const [resolvingCode, setResolvingCode] = useState(null);
   const [resolveRoom, setResolveRoom] = useState(null);
   const [resolveError, setResolveError] = useState(null);
   const [resolving, setResolving] = useState(false);
-
-  useEffect(() => {
-    setPage(1);
-    setItems([]);
-  }, [refreshKey, version]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    (page === 1 ? setLoading : setLoadingMore)(true);
-    setError(null);
-    api
-      .listParcels({ unmatched: true, status: "pending", page, pageSize: PAGE_SIZE }, controller.signal)
-      .then((res) => {
-        setItems((prev) => (page === 1 ? res.items : [...prev, ...res.items]));
-        setTotal(res.total);
-        setLoading(false);
-        setLoadingMore(false);
-      })
-      .catch((err) => {
-        if (err instanceof ApiError) {
-          setError(errorMessage(err));
-          setLoading(false);
-          setLoadingMore(false);
-        }
-      });
-    return () => controller.abort();
-  }, [page, refreshKey, version]);
 
   const startResolving = (code) => {
     setResolvingCode(code);
@@ -77,23 +44,9 @@ export default function UnmatchedQueue({ refreshKey, onOpenHistory, onChange }) 
   };
 
   return (
-    <div className="rounded-2xl border p-5" style={{ background: C.card, borderColor: C.border }}>
-      <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: C.warningLight }}>
-            <HelpCircle size={17} style={{ color: C.warning }} />
-          </div>
-          <div>
-            <p className="text-sm font-semibold" style={{ ...bodyFont, color: C.text }}>พัสดุมีปัญหา</p>
-            <p className="text-xs" style={{ ...bodyFont, color: C.textMuted }}>รอเจ้าหน้าที่ตรวจสอบ เรียงจากเก่าสุด</p>
-          </div>
-        </div>
-        {total > 0 && (
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: C.warningLight, color: C.warning, ...bodyFont }}>
-            มีปัญหา {total} รายการ
-          </span>
-        )}
-      </div>
+    <details className="damage-section">
+      <summary><HelpCircle size={18} aria-hidden="true" /><span className="section-title">พัสดุไม่ทราบห้อง</span><span className="section-count">{total} รายการ</span><span className="section-action">ดูรายการ</span></summary>
+      <div className="unmatched-content">
 
       <InlineError message={error} />
 
@@ -138,13 +91,10 @@ export default function UnmatchedQueue({ refreshKey, onOpenHistory, onChange }) 
               )}
             </div>
           ))}
-          {items.length < total && (
-            <button disabled={loadingMore} onClick={() => setPage((p) => p + 1)} className="mt-2 text-sm font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-50 disabled:opacity-50" style={{ ...bodyFont, color: C.primaryDark }}>
-              {loadingMore ? "กำลังโหลด…" : `แสดงเพิ่ม (${total - items.length} รายการ)`}
-            </button>
-          )}
+          <PagePagination page={page} total={total} pageSize={PARCEL_PAGE_SIZE} onChange={setPage} loading={loading} label="พัสดุไม่ทราบห้อง" />
         </div>
       )}
-    </div>
+      </div>
+    </details>
   );
 }

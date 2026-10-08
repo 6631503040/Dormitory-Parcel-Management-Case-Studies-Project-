@@ -44,7 +44,7 @@ describe("ArchivePage", () => {
     expect(screen.getByRole("button", { name: "นำออกแล้ว (1)" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "มีปัญหา (1)" })).toBeInTheDocument();
     expect(screen.getByText("TH100")).toBeInTheDocument();
-    expect(screen.getByText("TH101")).toBeInTheDocument();
+    expect(await screen.findByText("TH101")).toBeInTheDocument();
   });
 
   it("filters to only picked-up parcels on the 'นำออกแล้ว' tab", async () => {
@@ -56,7 +56,7 @@ describe("ArchivePage", () => {
     await user.click(screen.getByRole("button", { name: "นำออกแล้ว (1)" }));
 
     await waitFor(() => expect(screen.queryByText("TH100")).not.toBeInTheDocument());
-    expect(screen.getByText("TH101")).toBeInTheDocument();
+    expect(await screen.findByText("TH101")).toBeInTheDocument();
   });
 
   it("filters to the unmatched queue on the 'มีปัญหา' tab — distinct from ordinary pending", async () => {
@@ -68,7 +68,7 @@ describe("ArchivePage", () => {
     await user.click(screen.getByRole("button", { name: "มีปัญหา (1)" }));
 
     await waitFor(() => expect(screen.queryByText("TH100")).not.toBeInTheDocument());
-    expect(screen.getByText("TH102")).toBeInTheDocument();
+    expect(await screen.findByText("TH102")).toBeInTheDocument();
   });
 
   it("searches by tracking code / room / resident name", async () => {
@@ -80,7 +80,7 @@ describe("ArchivePage", () => {
     await user.type(screen.getByPlaceholderText(/ค้นหาด้วยชื่อผู้พัก/), "TH101");
 
     await waitFor(() => expect(screen.queryByText("TH100")).not.toBeInTheDocument());
-    expect(screen.getByText("TH101")).toBeInTheDocument();
+    expect(await screen.findByText("TH101")).toBeInTheDocument();
   });
 
   it("shows the empty-state message when nothing matches", async () => {
@@ -89,18 +89,20 @@ describe("ArchivePage", () => {
     expect(await screen.findByText("ไม่พบรายการที่ตรงกับคำค้นหา")).toBeInTheDocument();
   });
 
-  it("loads more results a page at a time", async () => {
+  it("replaces eight-item pages without accumulating rows", async () => {
     const many = Array.from({ length: 25 }, (_, i) => makeParcel({ trackingCode: `TH${100 + i}`, room, status: "pending" }));
     mockArchiveData(many);
     const user = userEvent.setup();
     render(<ArchivePage onOpenHistory={vi.fn()} />);
 
     await screen.findByText("TH100");
-    expect(screen.getByText("แสดง 20 จาก 25 รายการ")).toBeInTheDocument();
+    expect(screen.getByText("1–8 จาก 25 รายการ")).toBeInTheDocument();
     expect(screen.queryByText("TH124")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "แสดงเพิ่ม" }));
-    expect(await screen.findByText("TH124")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "หน้า 2" }));
+    expect(await screen.findByText("TH108")).toBeInTheDocument();
+    expect(screen.queryByText("TH100")).not.toBeInTheDocument();
+    expect(screen.getByText("9–16 จาก 25 รายการ")).toBeInTheDocument();
   });
 
   it("opens a parcel's history when a row is clicked", async () => {

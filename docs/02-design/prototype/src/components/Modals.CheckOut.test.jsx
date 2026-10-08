@@ -5,159 +5,111 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { server } from "../test/server";
 import { CheckOutModal } from "./Modals";
-import { makeParcel } from "../test/fixtures";
+import { makeParcel, makeParcelDetail } from "../test/fixtures";
 
-const roomB1101 = { id: 1, roomNumber: "101", buildingCode: "1" };
-const roomB2101 = { id: 2, roomNumber: "101", buildingCode: "2" };
-
-function mockSearch(items, total = items.length) {
-  server.use(
-    http.get("/api/v1/parcels", ({ request }) => {
-      const url = new URL(request.url);
-      expect(url.searchParams.get("status")).toBe("pending");
-      return HttpResponse.json({ items, page: 1, pageSize: 50, total });
-    })
-  );
+const room = { id: 1, roomNumber: "101", buildingCode: "1" };
+const parcel = makeParcelDetail({ trackingCode: "TH100", room });
+function setup(items = [parcel], total = items.length) {
+  const lookup = vi.fn();
+  server.use(http.get("/api/v1/parcels/:code", ({params}) => {
+    lookup(params.code); return HttpResponse.json(parcel);
+  }), http.get("/api/v1/parcels", ({request}) => {
+    const url = new URL(request.url);
+    expect(url.searchParams.get("roomId")).toBe("1");
+    expect(url.searchParams.get("status")).toBe("pending");
+    expect(url.searchParams.get("pageSize")).toBe("8");
+    return HttpResponse.json({items, total, page: Number(url.searchParams.get("page")), pageSize: 8});
+  }));
+  const onConfirm = vi.fn();
+  render(<CheckOutModal onClose={vi.fn()} onConfirm={onConfirm} />);
+  return { user: userEvent.setup(), lookup, onConfirm };
+}
+async function find(user) {
+  await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "th100{Enter}");
+  await screen.findByRole("region", {name: "ข้อมูลพัสดุที่ค้นพบ"});
 }
 
-describe("CheckOutModal", () => {
-  it("shows nothing until staff type something — never fetches the whole dormitory's pending list", async () => {
-    const user = userEvent.setup();
-    render(<CheckOutModal onClose={vi.fn()} onConfirm={vi.fn()} />);
-    expect(screen.getByText(/พิมพ์เลขห้อง ชื่อผู้พัก หรือสแกนเลขพัสดุ/)).toBeInTheDocument();
-    await user.type(screen.getByLabelText(/สแกนเลขพัสดุ/), "1");
-    await user.clear(screen.getByLabelText(/สแกนเลขพัสดุ/));
-    // typing then clearing must not have left a stray "no results" state — no handler was ever needed
+describe("scanner-first CheckOutModal", () => {
+  it("does not search while typing and shows only lookup before a scan is submitted", async () => {
+    const {user, lookup} = setup();
+    expect(screen.queryByRole("button", {name: "ยืนยันนำพัสดุออก"})).not.toBeInTheDocument();
+    await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "TH100");
+    await new Promise(resolve => setTimeout(resolve, 250));
+    expect(lookup).not.toHaveBeenCalled();
+    await user.click(screen.getByRole("button", {name: "ค้นหาพัสดุ"}));
+    await screen.findByRole("region", {name: "ข้อมูลพัสดุที่ค้นพบ"});
+    expect(lookup).toHaveBeenCalledWith("TH100");
   });
-
-  it("lists matching pending parcels and lets staff tick individual rows", async () => {
-    mockSearch([
-      makeParcel({ trackingCode: "TH100", room: roomB1101 }),
-      makeParcel({ trackingCode: "TH101", room: roomB1101 }),
-    ]);
-    const user = userEvent.setup();
-    render(<CheckOutModal onClose={vi.fn()} onConfirm={vi.fn()} />);
-    await user.type(screen.getByLabelText(/สแกนเลขพัสดุ/), "101");
-
-    const row = await screen.findByText(/TH100/);
-    await user.click(row.closest("label").querySelector("input[type=checkbox]"));
-    expect(await screen.findByRole("button", { name: /นำออกที่เลือก \(1\)/ })).toBeEnabled();
-  });
-
-  it("an exact tracking-code scan auto-selects that parcel and clears the field for the next scan", async () => {
-    mockSearch([makeParcel({ trackingCode: "TH8827301923", room: roomB1101 })]);
-    const user = userEvent.setup();
-    render(<CheckOutModal onClose={vi.fn()} onConfirm={vi.fn()} />);
-    await user.type(screen.getByLabelText(/สแกนเลขพัสดุ/), "TH8827301923");
-
-    await waitFor(() => expect(screen.getByLabelText(/สแกนเลขพัสดุ/)).toHaveValue(""));
-    expect(await screen.findByRole("button", { name: /นำออกที่เลือก \(1\)/ })).toBeInTheDocument();
-    expect(screen.getByText("สแกนแล้ว (1)")).toBeInTheDocument();
-  });
-
-  it("shows a not-found message when nothing pending matches", async () => {
-    mockSearch([]);
-    const user = userEvent.setup();
-    render(<CheckOutModal onClose={vi.fn()} onConfirm={vi.fn()} />);
-    await user.type(screen.getByLabelText(/สแกนเลขพัสดุ/), "ZZZZZ");
-    expect(await screen.findByText("ไม่พบพัสดุที่รอนำออกตรงกับคำค้นหา")).toBeInTheDocument();
-  });
-
-  it("checks out the selected parcels and hands the result to onConfirm", async () => {
-    mockSearch([makeParcel({ trackingCode: "TH100", room: roomB1101 }), makeParcel({ trackingCode: "TH101", room: roomB1101 })]);
-    let sentCodes;
-    const pickedUp = [makeParcel({ trackingCode: "TH100", room: roomB1101, status: "picked_up" })];
-    server.use(
-      http.post("/api/v1/parcels/check-out", async ({ request }) => {
-        sentCodes = (await request.json()).trackingCodes;
-        return HttpResponse.json({ checkedOutCount: 1, parcels: pickedUp });
-      })
-    );
-    const user = userEvent.setup();
-    const onConfirm = vi.fn();
-    render(<CheckOutModal onClose={vi.fn()} onConfirm={onConfirm} />);
-
-    await user.type(screen.getByLabelText(/สแกนเลขพัสดุ/), "101");
-    const row = await screen.findByText(/TH100/);
-    await user.click(row.closest("label").querySelector("input[type=checkbox]"));
-    await user.click(screen.getByRole("button", { name: /นำออกที่เลือก \(1\)/ }));
-
-    await waitFor(() => expect(onConfirm).toHaveBeenCalledWith(pickedUp));
-    expect(sentCodes).toEqual(["TH100"]);
-  });
-
-  it("enables Check Out All only when every match is the same room and none are hidden by paging", async () => {
-    mockSearch([makeParcel({ trackingCode: "TH100", room: roomB1101 }), makeParcel({ trackingCode: "TH101", room: roomB1101 })], 2);
-    const user = userEvent.setup();
-    render(<CheckOutModal onClose={vi.fn()} onConfirm={vi.fn()} />);
-    await user.type(screen.getByLabelText(/สแกนเลขพัสดุ/), "101");
-    await screen.findByText(/TH100/);
-    expect(screen.getByRole("button", { name: /นำออกทั้งหมด \(2\)/ })).toBeEnabled();
-  });
-
-  it("disables Check Out All when the results span more than one room", async () => {
-    mockSearch([makeParcel({ trackingCode: "TH100", room: roomB1101 }), makeParcel({ trackingCode: "TH900", room: roomB2101 })], 2);
-    const user = userEvent.setup();
-    render(<CheckOutModal onClose={vi.fn()} onConfirm={vi.fn()} />);
-    await user.type(screen.getByLabelText(/สแกนเลขพัสดุ/), "101");
-    await screen.findByText(/TH100/);
-    expect(screen.getByRole("button", { name: /นำออกทั้งหมด/ })).toBeDisabled();
-    expect(screen.getByText(/ใช้ได้เมื่อผลลัพธ์อยู่ห้องเดียวกัน/)).toBeInTheDocument();
-  });
-
-  it("disables Check Out All when the room has more pending parcels than the page shows", async () => {
-    mockSearch([makeParcel({ trackingCode: "TH100", room: roomB1101 })], 5); // total says 5, only 1 loaded
-    const user = userEvent.setup();
-    render(<CheckOutModal onClose={vi.fn()} onConfirm={vi.fn()} />);
-    await user.type(screen.getByLabelText(/สแกนเลขพัสดุ/), "101");
-    await screen.findByText(/TH100/);
-    expect(screen.getByRole("button", { name: /นำออกทั้งหมด/ })).toBeDisabled();
-  });
-
-  it("Check Out All ticks every row, then submits through the normal selection flow", async () => {
-    mockSearch([makeParcel({ trackingCode: "TH100", room: roomB1101 }), makeParcel({ trackingCode: "TH101", room: roomB1101 })], 2);
-    let sentCodes;
-    const pickedUp = [makeParcel({ trackingCode: "TH100", room: roomB1101, status: "picked_up" }), makeParcel({ trackingCode: "TH101", room: roomB1101, status: "picked_up" })];
-    server.use(
-      http.post("/api/v1/parcels/check-out", async ({ request }) => {
-        sentCodes = (await request.json()).trackingCodes;
-        return HttpResponse.json({ checkedOutCount: 2, parcels: pickedUp });
-      })
-    );
-    const user = userEvent.setup();
-    const onConfirm = vi.fn();
-    render(<CheckOutModal onClose={vi.fn()} onConfirm={onConfirm} />);
-    await user.type(screen.getByLabelText(/สแกนเลขพัสดุ/), "101");
-    await screen.findByText(/TH100/);
-    await user.click(screen.getByRole("button", { name: /นำออกทั้งหมด \(2\)/ }));
-
-    const row = screen.getByText(/TH100/).closest("label");
-    expect(row.querySelector("input[type=checkbox]")).toBeChecked();
-    await user.click(screen.getByRole("button", { name: /นำออกที่เลือก \(2\)/ }));
-
-    await waitFor(() => expect(onConfirm).toHaveBeenCalledWith(pickedUp));
-    expect(sentCodes).toEqual(expect.arrayContaining(["TH100", "TH101"]));
-  });
-
-  it("drops parcels that were already picked up by someone else and reports which ones", async () => {
-    mockSearch([makeParcel({ trackingCode: "TH100", room: roomB1101 }), makeParcel({ trackingCode: "TH101", room: roomB1101 })]);
-    server.use(
-      http.post("/api/v1/parcels/check-out", () =>
-        HttpResponse.json({ code: "PARCEL_NOT_PENDING", params: { trackingCodes: ["TH100"] } }, { status: 409 })
-      )
-    );
-    const user = userEvent.setup();
-    const onConfirm = vi.fn();
-    render(<CheckOutModal onClose={vi.fn()} onConfirm={onConfirm} />);
-    await user.type(screen.getByLabelText(/สแกนเลขพัสดุ/), "101");
-    const row1 = await screen.findByText(/TH100/);
-    await user.click(row1.closest("label").querySelector("input[type=checkbox]"));
-    const row2 = screen.getByText(/TH101/);
-    await user.click(row2.closest("label").querySelector("input[type=checkbox]"));
-    await user.click(screen.getByRole("button", { name: /นำออกที่เลือก \(2\)/ }));
-
-    expect(await screen.findByText(/พัสดุต่อไปนี้นำออกไปแล้ว.*TH100/)).toBeInTheDocument();
+  it("Enter only finds parcel details; checkout needs explicit confirmation", async () => {
+    const {user, onConfirm} = setup();
+    let sent;
+    server.use(http.post("/api/v1/parcels/check-out", async ({request}) => {
+      sent = await request.json(); return HttpResponse.json({parcels: [{...parcel, status: "picked_up"}]});
+    }));
+    await find(user);
     expect(onConfirm).not.toHaveBeenCalled();
-    await waitFor(() => expect(screen.getByRole("button", { name: /นำออกที่เลือก \(1\)/ })).toBeInTheDocument());
+    await user.click(screen.getByRole("button", {name: "ยืนยันนำพัสดุออก"}));
+    await waitFor(() => expect(onConfirm).toHaveBeenCalled());
+    expect(sent).toEqual({trackingCodes: ["TH100"]});
+  });
+  it("blocks confirmation after staff edit the verified code", async () => {
+    const {user} = setup(); await find(user);
+    await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "X");
+    expect(screen.getByRole("button", {name: "ยืนยันนำพัสดุออก"})).toBeDisabled();
+  });
+  it("focuses the tracking field using the icon-only scanner button", async () => {
+    const {user} = setup(); await user.click(screen.getByRole("button", {name: "เตรียมสแกน"}));
+    expect(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ")).toHaveFocus();
+  });
+  it("shows API not-found and picked-up errors without allowing checkout", async () => {
+    const {user} = setup();
+    server.use(http.get("/api/v1/parcels/:code", () => HttpResponse.json({code: "PARCEL_NOT_FOUND"}, {status: 404})));
+    await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "missing{Enter}");
+    await screen.findByRole("alert");
+    expect(screen.queryByRole("button", {name: "ยืนยันนำพัสดุออก"})).not.toBeInTheDocument();
+    server.use(http.get("/api/v1/parcels/:code", () => HttpResponse.json({...parcel, status: "picked_up"})));
+    await user.click(screen.getByRole("button", {name: "ค้นหาพัสดุ"}));
+    await screen.findByText("พัสดุนี้นำออกแล้วหรือไม่อยู่ในสถานะรอรับ");
+  });
+  it("requires directory assignment before an unmatched parcel can be checked out", async () => {
+    const {user} = setup();
+    server.use(http.get("/api/v1/parcels/:code", () => HttpResponse.json({...parcel, room: null, residents: []})));
+    await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "TH100{Enter}");
+    await screen.findByText("พัสดุนี้ยังไม่ระบุห้อง กรุณาจัดห้องก่อนนำออก");
+    expect(screen.queryByRole("button", {name: "ยืนยันนำพัสดุออก"})).not.toBeInTheDocument();
+  });
+  it("keeps a failed selection for retry and does not report completion", async () => {
+    const {user, onConfirm} = setup();
+    server.use(http.post("/api/v1/parcels/check-out", () => HttpResponse.json({code: "INTERNAL_ERROR"}, {status: 500})));
+    await find(user); await user.click(screen.getByRole("button", {name: "ยืนยันนำพัสดุออก"}));
+    await screen.findByRole("alert");
+    expect(screen.getByRole("button", {name: "ยืนยันนำพัสดุออก"})).toBeEnabled();
+    expect(onConfirm).not.toHaveBeenCalled();
+  });
+  it("selects additional parcels with native checkboxes and uses selected-code endpoint", async () => {
+    const other = makeParcel({trackingCode: "TH101", room});
+    const {user, onConfirm} = setup([parcel, other]); let sent;
+    server.use(http.post("/api/v1/parcels/check-out", async ({request}) => {
+      sent = await request.json(); return HttpResponse.json({parcels: [parcel, other]});
+    }));
+    await find(user); await user.click(screen.getByText(/พัสดุอื่นของห้องนี้/));
+    await user.click(await screen.findByText("TH101"));
+    await user.click(screen.getByRole("button", {name: "ยืนยันนำพัสดุออก (2)"}));
+    await waitFor(() => expect(onConfirm).toHaveBeenCalled());
+    expect(sent.trackingCodes).toEqual(["TH100", "TH101"]);
+  });
+  it("checks out the entire room with expectedCount even when its server list spans pages", async () => {
+    const {user, onConfirm} = setup([parcel, makeParcel({trackingCode: "TH101", room})], 20); let sent;
+    server.use(http.post("/api/v1/rooms/1/check-out-all", async ({request}) => {
+      sent = await request.json(); return HttpResponse.json({parcels: [parcel]});
+    }));
+    await find(user); await user.click(screen.getByText(/พัสดุอื่นของห้องนี้/));
+    await user.click(await screen.findByRole("checkbox", {name: "เลือกเพิ่มทั้งหมด"}));
+    await user.click(screen.getByRole("button", {name: "ยืนยันนำพัสดุออก (20)"}));
+    expect(onConfirm).not.toHaveBeenCalled();
+    expect(screen.getByText("นำออกทั้งหมด 20 รายการของห้อง 1101?")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", {name: "ยืนยันนำออกทั้งหมด (20)"}));
+    await waitFor(() => expect(onConfirm).toHaveBeenCalled());
+    expect(sent).toEqual({expectedCount: 20});
   });
 });
