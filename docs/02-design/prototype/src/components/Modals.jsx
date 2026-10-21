@@ -185,10 +185,9 @@ const UNMATCHED_REASON_DEFAULT = "other";
 function CheckInModal({ onClose }) {
   const [code, setCode] = useState("");
   const [room, setRoom] = useState(null);
-  const [unmatched, setUnmatched] = useState(false);
-  const [note, setNote] = useState("");
   const [damaged, setDamaged] = useState(false);
   const [damageReason, setDamageReason] = useState("");
+  const unmatched = damaged && !room;
   const submittingRef = useRef(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -203,8 +202,6 @@ function CheckInModal({ onClose }) {
   const resetFields = () => {
     setCode("");
     setRoom(null);
-    setUnmatched(false);
-    setNote("");
     setDamaged(false); setDamageReason("");
   };
 
@@ -214,7 +211,7 @@ function CheckInModal({ onClose }) {
     if (!canSubmit || submittingRef.current) return;
     const trimmed = code.trim();
     const input = unmatched
-      ? { trackingCode: trimmed, unmatchedReason: UNMATCHED_REASON_DEFAULT, note: note.trim() || undefined }
+      ? { trackingCode: trimmed, unmatchedReason: UNMATCHED_REASON_DEFAULT, note: damageReason.trim() || undefined }
       : { trackingCode: trimmed, roomId: room.id, ...(damaged ? { note: `ชำรุด: ${damageReason.trim() || "ไม่ได้ระบุเหตุผล"}` } : {}) };
     submittingRef.current = true;
     setSubmitting(true);
@@ -245,13 +242,6 @@ function CheckInModal({ onClose }) {
     roomRef.current?.focus();
   };
 
-  const toggleUnmatched = () => {
-    setUnmatched((u) => !u);
-    setRoom(null);
-    setNote("");
-    setError(null);
-  };
-
   const footer = (
     <button type="button" disabled={!canSubmit} onClick={submit} className="desk-button desk-button-primary dialog-submit">
       {submitting ? "กำลังบันทึก…" : "บันทึก"}
@@ -274,25 +264,15 @@ function CheckInModal({ onClose }) {
 
       <InlineError message={error} />
 
-      {!unmatched && (
-        <fieldset disabled={submitting} className="checkout-room-fields"><RoomCombobox ref={roomRef} label="เลขห้อง (เลือกจากรายชื่อผู้พัก)" value={room} onChange={setRoom} /></fieldset>
-      )}
-
-      {!unmatched && <>
-        <label className="intake-condition"><input type="checkbox" checked={damaged} disabled={submitting} onChange={(event) => setDamaged(event.target.checked)} /><span>พัสดุชำรุด</span></label>
-        {damaged && <div className="form-field"><label htmlFor="checkin-damage">เหตุผลที่ชำรุด</label><textarea maxLength={490} id="checkin-damage" className="desk-textarea" rows={2} value={damageReason} disabled={submitting} onChange={(event) => setDamageReason(event.target.value)} /></div>}
-      </>}
+      <fieldset disabled={submitting} className="checkout-room-fields"><RoomCombobox ref={roomRef} label={damaged ? "เลขห้อง (ถ้าทราบ)" : "เลขห้อง (เลือกจากรายชื่อผู้พัก)"} value={room} onChange={setRoom} /></fieldset>
       <label className="intake-condition">
-        <input type="checkbox" checked={unmatched} onChange={toggleUnmatched} disabled={submitting} />
-        <span>พัสดุมีปัญหา / ไม่ทราบห้อง</span>
+        <input type="checkbox" checked={damaged} disabled={submitting} onChange={(event) => { setDamaged(event.target.checked); setError(null); }} />
+        <span>พัสดุมีปัญหา</span>
       </label>
-
-      {unmatched && (
-        <div className="form-field">
-          <label htmlFor="checkin-note">หมายเหตุ (ไม่บังคับ)</label>
-          <textarea id="checkin-note" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} placeholder="หมายเหตุ (ไม่บังคับ) เช่น ชื่อบนกล่อง 'แนน'" rows={2} className="desk-textarea" disabled={submitting} />
-        </div>
-      )}
+      {damaged && <div className="form-field">
+        <label htmlFor="checkin-damage">รายละเอียดปัญหา (ไม่บังคับ)</label>
+        <textarea maxLength={490} id="checkin-damage" className="desk-textarea" rows={2} value={damageReason} disabled={submitting} onChange={(event) => setDamageReason(event.target.value)} placeholder="หมายเหตุ" />
+      </div>}
 
       {checkedIn.length > 0 && (
         <div className="selected-summary">

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { HelpCircle } from "lucide-react";
+import React, { useId, useState } from "react";
+import { HelpCircle, ChevronDown } from "lucide-react";
 import { C, bodyFont, formatThaiDateTime, PagePagination } from "./shared";
 import RoomCombobox from "./RoomCombobox";
 import { InlineError } from "./Modals";
@@ -12,6 +12,8 @@ import { unmatchedReasonLabel } from "../constants/unmatchedReasons";
 // product_backlog.md US-06). Staff resolve one by choosing a room from the directory — the same
 // rule as Check-In: a room is never typed as free text.
 export default function UnmatchedQueue({ refreshKey, onOpenHistory, onChange }) {
+  const [expanded, setExpanded] = useState(false);
+  const contentId = useId();
   const [version, setVersion] = useState(0);
   const { items, total, page, setPage, loading, error } = useParcelPage({ query: "", status: "pending", unmatched: true, refreshKey: `${refreshKey}:${version}` });
 
@@ -44,9 +46,12 @@ export default function UnmatchedQueue({ refreshKey, onOpenHistory, onChange }) 
   };
 
   return (
-    <details className="damage-section">
-      <summary><HelpCircle size={18} aria-hidden="true" /><span className="section-title">พัสดุไม่ทราบห้อง</span><span className="section-count">{total} รายการ</span><span className="section-action">ดูรายการ</span></summary>
-      <div className="unmatched-content">
+    <section className="damage-section issue-section">
+      <button type="button" className="issue-toggle" aria-expanded={expanded} aria-controls={contentId} onClick={() => setExpanded((value) => !value)}>
+        <span className="issue-toggle-heading"><HelpCircle size={18} aria-hidden="true" /><span>พัสดุไม่ทราบห้อง</span><span className="section-count">{total} รายการ</span></span>
+        <span className="issue-toggle-action">{expanded ? "ซ่อนรายการ" : "ดูรายการ"}<ChevronDown size={18} aria-hidden="true" /></span>
+      </button>
+      <div id={contentId} className="unmatched-content" hidden={!expanded}>
 
       <InlineError message={error} />
 
@@ -95,6 +100,6 @@ export default function UnmatchedQueue({ refreshKey, onOpenHistory, onChange }) 
         </div>
       )}
       </div>
-    </details>
+    </section>
   );
 }
