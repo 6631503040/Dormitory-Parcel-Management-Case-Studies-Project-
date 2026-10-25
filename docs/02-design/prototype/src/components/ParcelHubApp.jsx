@@ -6,7 +6,7 @@ import TopNav from "./TopNav";
 import ParcelHistoryModal from "./ParcelHistoryModal";
 import { Banner, C, bodyFont, useFonts } from "./shared";
 import { CheckOutModal, CheckInModal } from "./Modals";
-import LineOtpModal from "./LineOtpModal";
+import ResidentOtpModal from "./ResidentOtpModal";
 import { api, setUnauthenticatedHandler } from "../api/client";
 import { errorMessage } from "../api/errorMessages";
 
@@ -103,7 +103,7 @@ export default function ParcelHubApp() {
 
   return (
     <div className="min-h-screen" style={{ background: C.bg, ...bodyFont }}>
-      <TopNav page={page} setPage={setPage} onLogout={handleLogout} onOpenLineOtp={() => setModal("lineOtp")} staff={staff} />
+      <TopNav page={page} setPage={setPage} onLogout={handleLogout} onOpenResidentOtp={() => setModal("residentOtp")} staff={staff} />
 
       <main className="desk-main" id="main-content">
         {page === "dashboard" ? (
@@ -121,7 +121,7 @@ export default function ParcelHubApp() {
 
       {modal === "checkout" && <CheckOutModal onClose={() => setModal(null)} onConfirm={handleCheckOutConfirm} />}
       {modal === "checkin" && <CheckInModal onClose={closeCheckIn} />}
-      {modal === "lineOtp" && <LineOtpModal onClose={() => setModal(null)} />}
+      {modal === "residentOtp" && <ResidentOtpModal onClose={() => setModal(null)} />}
       {historyCode && <ParcelHistoryModal trackingCode={historyCode} onClose={() => setHistoryCode(null)} />}
 
       <Banner message={banner?.message} tone={banner?.tone} notificationId={banner?.id} onClose={() => setBanner(null)} />

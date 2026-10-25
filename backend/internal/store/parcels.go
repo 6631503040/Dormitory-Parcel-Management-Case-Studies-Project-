@@ -180,6 +180,11 @@ func (s *Store) CheckIn(ctx context.Context, staffID int64, in CheckInInput) (*P
 	if err := insertEvent(ctx, tx, id, staffID, "checked_in", detail); err != nil {
 		return nil, err
 	}
+	if in.RoomID != nil {
+		if err := enqueuePush(ctx, tx, *in.RoomID, id, s.PushBatchWindow); err != nil {
+			return nil, err
+		}
+	}
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
@@ -404,6 +409,10 @@ func (s *Store) AssignRoom(ctx context.Context, staffID int64, trackingCode stri
 	}
 
 	if err := insertEvent(ctx, tx, id, staffID, "room_assigned", map[string]any{"roomId": roomID}); err != nil {
+		return nil, err
+	}
+	// The Parcel only now has a room, so this is the moment its Resident can be told about it.
+	if err := enqueuePush(ctx, tx, roomID, id, s.PushBatchWindow); err != nil {
 		return nil, err
 	}
 	if err := tx.Commit(ctx); err != nil {

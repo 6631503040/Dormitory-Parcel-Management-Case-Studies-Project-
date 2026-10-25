@@ -40,6 +40,12 @@ type Deps struct {
 	LineChannelSecret      string
 	LineChannelAccessToken string
 	LineReplyEndpoint      string
+
+	// Web Push (US-23/US-24). Empty PushPublicKey disables the resident routes (PUSH_NOT_CONFIGURED);
+	// Check-In keeps working either way. PushEndpointAllowed is a test-only seam — nil means only
+	// the real browser push services are accepted (see push.DefaultEndpointAllowed).
+	PushPublicKey       string
+	PushEndpointAllowed func(endpoint string) bool
 }
 
 type handlers struct{ Deps }
@@ -67,6 +73,17 @@ func NewRouter(d Deps) *gin.Engine {
 	// Called by LINE's servers, not a browser session — verified via X-Line-Signature, not a cookie.
 	v1.POST("/line/webhook", h.lineWebhook)
 
+	// Residents (no Staff account): the PWA registers with a desk-issued OTP, then authenticates
+	// with its own device bearer token.
+	resident := v1.Group("/resident")
+	resident.GET("/push/config", h.residentPushConfig)
+	resident.POST("/otp", h.residentClaimRoom)
+	resident.POST("/otp/verify", h.residentVerifyOTP)
+	device := resident.Group("", h.requireResidentDevice())
+	device.GET("/me", h.residentStatus)
+	device.PUT("/push/subscription", h.residentUpdateSubscription)
+	device.DELETE("/push/subscription", h.residentUnsubscribe)
+
 	authed := v1.Group("", h.requireAuth())
 	authed.GET("/auth/me", h.me)
 
@@ -80,6 +97,9 @@ func NewRouter(d Deps) *gin.Engine {
 	authed.PATCH("/parcels/:trackingCode/room", h.assignRoom)
 	authed.POST("/rooms/:roomId/check-out-all", h.checkOutAll)
 	authed.GET("/rooms/:roomId/line-otp", h.lineOTPForRoom)
+	authed.GET("/rooms/:roomId/resident-otp", h.residentOTPForRoom)
+	authed.GET("/rooms/:roomId/push-subscriptions", h.roomPushSubscriptions)
+	authed.DELETE("/rooms/:roomId/push-subscriptions", h.revokeRoomPushSubscriptions)
 
 	authed.GET("/dashboard", h.dashboard)
 
