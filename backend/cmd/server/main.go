@@ -18,6 +18,8 @@ import (
 	"dpms/backend/internal/auth"
 	"dpms/backend/internal/config"
 	"dpms/backend/internal/db"
+	"dpms/backend/internal/notify"
+	"dpms/backend/internal/push"
 	"dpms/backend/internal/store"
 )
 
@@ -48,10 +50,27 @@ func main() {
 		log.Fatalf("timezone: %v", err)
 	}
 
+	st := store.New(pool)
+	st.PushBatchWindow = cfg.PushBatchWindow
+
+	// Web Push is optional: without VAPID keys the resident routes report PUSH_NOT_CONFIGURED and
+	// Check-In simply never finds a subscription to notify.
+	var pushPublicKey string
+	if cfg.VAPIDPrivateKey != "" {
+		keys, err := push.ParseKeys(cfg.VAPIDPublicKey, cfg.VAPIDPrivateKey)
+		if err != nil {
+			log.Fatalf("web push: %v", err)
+		}
+		pushPublicKey = keys.PublicB64
+		worker := &notify.Worker{Store: st, Sender: push.NewSender(keys, cfg.VAPIDSubject), Interval: cfg.PushPollInterval}
+		go worker.Run(ctx)
+		log.Printf("web push enabled (batch window %s)", cfg.PushBatchWindow)
+	}
+
 	srv := &http.Server{
 		Addr: ":" + cfg.Port,
 		Handler: api.NewRouter(api.Deps{
-			Store:          store.New(pool),
+			Store:          st,
 			Signer:         auth.NewSigner(cfg.SessionSecret, cfg.SessionTTL),
 			CookieSecure:   cfg.CookieSecure,
 			TrustedProxies: cfg.TrustedProxies,
@@ -60,6 +79,8 @@ func main() {
 
 			LineChannelSecret:      cfg.LineChannelSecret,
 			LineChannelAccessToken: cfg.LineChannelAccessToken,
+
+			PushPublicKey: pushPublicKey,
 		}),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       15 * time.Second,

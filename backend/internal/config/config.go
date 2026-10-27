@@ -26,6 +26,14 @@ type Config struct {
 	// rather than failing startup, since not every deployment (or every dev machine) wires this up.
 	LineChannelSecret      string
 	LineChannelAccessToken string
+
+	// Web Push / VAPID (US-23). Optional like LINE: with no keys the resident PWA routes answer
+	// PUSH_NOT_CONFIGURED and no push worker runs. Generate a pair with `go run ./cmd/vapidkeys`.
+	VAPIDPublicKey   string
+	VAPIDPrivateKey  string
+	VAPIDSubject     string        // contact for push-service operators: mailto: or https: URL
+	PushBatchWindow  time.Duration // merge a room's Parcels checked in within this window into one notification
+	PushPollInterval time.Duration
 }
 
 func Load() (Config, error) {
@@ -40,6 +48,12 @@ func Load() (Config, error) {
 
 		LineChannelSecret:      os.Getenv("LINE_CHANNEL_SECRET"),
 		LineChannelAccessToken: os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"),
+
+		VAPIDPublicKey:   os.Getenv("VAPID_PUBLIC_KEY"),
+		VAPIDPrivateKey:  os.Getenv("VAPID_PRIVATE_KEY"),
+		VAPIDSubject:     os.Getenv("VAPID_SUBJECT"),
+		PushBatchWindow:  60 * time.Second,
+		PushPollInterval: 10 * time.Second,
 	}
 
 	if c.DatabaseURL == "" {
@@ -64,6 +78,17 @@ func Load() (Config, error) {
 			return c, fmt.Errorf("SESSION_TTL_HOURS must be a positive integer")
 		}
 		c.SessionTTL = time.Duration(h) * time.Hour
+	}
+
+	if c.VAPIDPrivateKey != "" && !strings.HasPrefix(c.VAPIDSubject, "mailto:") && !strings.HasPrefix(c.VAPIDSubject, "https://") {
+		return c, errors.New("VAPID_SUBJECT must be a mailto: or https:// contact when VAPID keys are set")
+	}
+	if v := os.Getenv("PUSH_BATCH_WINDOW_SECONDS"); v != "" {
+		n, err := strconv.Atoi(v)
+		if err != nil || n < 0 || n > 3600 {
+			return c, fmt.Errorf("PUSH_BATCH_WINDOW_SECONDS must be an integer between 0 and 3600")
+		}
+		c.PushBatchWindow = time.Duration(n) * time.Second
 	}
 
 	for _, p := range strings.Split(os.Getenv("TRUSTED_PROXIES"), ",") {

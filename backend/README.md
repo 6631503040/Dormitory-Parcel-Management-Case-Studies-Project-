@@ -45,6 +45,9 @@ touch real data. Without `TEST_DATABASE_URL` they are **skipped**, not passed �
 | `TRUSTED_PROXIES` | none | comma-separated; only these may set `X-Forwarded-For` (client IP in `access_logs`) |
 | `LINE_CHANNEL_SECRET` | none | optional; verifies `X-Line-Signature` on `/line/webhook`. Empty → the route responds `LINE_NOT_CONFIGURED` |
 | `LINE_CHANNEL_ACCESS_TOKEN` | none | optional; needed to send LINE reply messages (issued separately from the channel secret, same LINE console page) |
+| `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` | none | optional; Web Push key pair (`go run ./cmd/vapidkeys`, or `/app/vapidkeys` in the image). Empty → resident routes answer `PUSH_NOT_CONFIGURED` and no push worker runs |
+| `VAPID_SUBJECT` | none | required with the keys: `mailto:` or `https://` contact for push-service operators |
+| `PUSH_BATCH_WINDOW_SECONDS` | `60` | Parcels for one room checked in within this window go out as one notification |
 
 ## API contract
 
@@ -70,8 +73,26 @@ State-changing requests must send `Content-Type: application/json`. Every list i
 | `GET /rooms/:roomId/line-otp` | signed in | Staff-facing: the room's pending LINE OTP, to read out loud at the desk. 404 `NO_PENDING_LINE_OTP` once it's used/expired |
 | `POST /line/webhook` | LINE's servers (`X-Line-Signature`, not a session cookie) | US-08 "Check Parcel" button + US-11 OTP-linking conversation — see below |
 | `GET /healthz` | anyone | Liveness + DB ping |
+| `GET /resident/push/config` | anyone | Web Push: `{vapidPublicKey, consentVersion}` |
+| `POST /resident/otp` `{roomNumber, consentVersion, consentAccepted}` | anyone | US-24 step 1: claim a room → `{claimToken, expiresAt, roomNumber, buildingCode}` (no code) |
+| `POST /resident/otp/verify` `{claimToken, code, subscription}` | anyone | US-24 step 4: register this browser → `{deviceToken, device}` |
+| `GET /resident/me` | device `Bearer` token | US-25: the room's Pending Parcels |
+| `PUT` / `DELETE /resident/push/subscription` | device `Bearer` token | Replace a rotated browser subscription · turn notifications off |
+| `GET /rooms/:roomId/resident-otp` | signed in | US-24 step 3: the code Staff read out loud. 404 `NO_PENDING_RESIDENT_OTP` |
+| `GET` / `DELETE /rooms/:roomId/push-subscriptions` | signed in | Devices registered to a room `{activeCount}` · revoke them all `{revokedCount}` |
 
-### LINE integration (Epic E3 — see `docs/01-requirements/product_backlog.md`)
+### Web Push notifications (Epic E3, revised 2026-10-21 — replaces LINE)
+
+Full design: `docs/02-design/web-push-notification.md`. In short: a Resident registers their phone at
+`/resident/` with a code Staff read out at the desk (same in-person identity check as the old LINE
+flow); Check-In then writes a `push_notifications` outbox row **inside its own transaction** and a
+background worker (`internal/notify`) sends it — batched per room, skipped if already picked up,
+retried with backoff, dropped when the browser reports the subscription gone. Encryption (RFC 8291)
+and VAPID (RFC 8292) are implemented with the Go standard library in `internal/push`; push endpoints
+are restricted to the real browser push services (SSRF guard).
+
+
+### LINE integration (deprecated 2026-10-21 — superseded by Web Push above; still compiled, no longer in the UI)
 
 A resident's LINE account is never trusted with a free-text room number any more than a Staff
 member is — it goes through an unambiguous match (the full building+floor+room number, e.g.
@@ -113,9 +134,14 @@ Every error is `{"code": "...", "params": {...}}` with no user-facing text — t
 | `PARCEL_HAS_ROOM` | 409 | Assign-room on a Parcel that already has one |
 | `UNSUPPORTED_MEDIA_TYPE` | 415 | Body is not `application/json` |
 | `ROOM_NOT_IN_DIRECTORY` / `RESIDENT_NOT_IN_ROOM` | 422 | Room id not in the directory · recipient doesn't live there |
-| `AMBIGUOUS_ROOM` | 422 | A LINE-typed room claim matched more than one room (e.g. `101` exists in two buildings) |
+| `AMBIGUOUS_ROOM` | 422 | A resident-typed room claim matched more than one room (e.g. `101` exists in two buildings) |
 | `NO_PENDING_LINE_OTP` | 404 | No unexpired, unconsumed OTP for that room right now |
 | `LINE_NOT_CONFIGURED` | 503 | `LINE_CHANNEL_SECRET` isn't set — the webhook is deliberately inert |
+| `PUSH_NOT_CONFIGURED` | 503 | No VAPID keys — resident push routes are deliberately inert |
+| `NO_PENDING_RESIDENT_OTP` | 404 | No open registration request for that room right now |
+| `OTP_INVALID` | 422 | Wrong code, or a code no Staff member has looked up yet (`params.attemptsLeft`) |
+| `OTP_EXPIRED` | 410 | Expired, already used, or burnt after 5 wrong tries (`params.reason = "locked"`) |
+| `TOO_MANY_OTP_REQUESTS` | 429 | The room already has 3 open registration requests |
 | `INTERNAL_ERROR` | 500 | Details are logged server-side only |
 
 ## Design notes

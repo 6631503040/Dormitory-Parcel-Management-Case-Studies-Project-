@@ -31,12 +31,14 @@ function toQueryString(params) {
   return s ? `?${s}` : "";
 }
 
-async function request(path, { method = "GET", body, signal } = {}) {
-  const init = { method, credentials: "include", signal };
+// `token` is the Resident PWA's device bearer token (resident routes have no session cookie).
+async function request(path, { method = "GET", body, signal, token } = {}) {
+  const init = { method, credentials: "include", signal, headers: {} };
   if (body !== undefined) {
-    init.headers = { "Content-Type": "application/json" };
+    init.headers["Content-Type"] = "application/json";
     init.body = JSON.stringify(body);
   }
+  if (token) init.headers.Authorization = `Bearer ${token}`;
 
   let res;
   try {
@@ -56,7 +58,7 @@ async function request(path, { method = "GET", body, signal } = {}) {
   }
 
   if (!res.ok) {
-    if (res.status === 401) onUnauthenticated?.();
+    if (res.status === 401 && !token) onUnauthenticated?.();
     throw new ApiError(data?.code || "INTERNAL_ERROR", data?.params, res.status);
   }
   return data;
@@ -86,4 +88,23 @@ export const api = {
   // The pending LINE OTP for a room (US-11 step 3): staff read this code out to the resident in
   // person. It is never sent over LINE itself.
   lineOtp: (roomId) => request(`/rooms/${roomId}/line-otp`),
+
+  // Web Push registration (US-24 step 3): the room's pending code, read out loud at the desk. The
+  // Resident's PWA never receives it — that in-person hand-off is the identity check.
+  residentOtp: (roomId) => request(`/rooms/${roomId}/resident-otp`),
+  roomPushSubscriptions: (roomId) => request(`/rooms/${roomId}/push-subscriptions`),
+  revokeRoomPushSubscriptions: (roomId) => request(`/rooms/${roomId}/push-subscriptions`, { method: "DELETE" }),
+};
+
+// Resident PWA (/resident/). No Staff session: register with a desk OTP, then use the device token.
+export const residentApi = {
+  pushConfig: () => request("/resident/push/config"),
+  claimRoom: (roomNumber, consentVersion) =>
+    request("/resident/otp", { method: "POST", body: { roomNumber, consentVersion, consentAccepted: true } }),
+  verify: (claimToken, code, subscription) =>
+    request("/resident/otp/verify", { method: "POST", body: { claimToken, code, subscription } }),
+  status: (token) => request("/resident/me", { token }),
+  updateSubscription: (token, subscription) =>
+    request("/resident/push/subscription", { method: "PUT", body: subscription, token }),
+  unsubscribe: (token) => request("/resident/push/subscription", { method: "DELETE", token }),
 };

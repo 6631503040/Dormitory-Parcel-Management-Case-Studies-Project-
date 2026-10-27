@@ -13,9 +13,17 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Store struct{ pool *pgxpool.Pool }
+type Store struct {
+	pool *pgxpool.Pool
 
-func New(pool *pgxpool.Pool) *Store { return &Store{pool: pool} }
+	// PushBatchWindow is how long Check-In waits to merge a room's Parcels into one Web Push
+	// notification (see enqueuePush). Settable so tests and demos don't have to wait a minute.
+	PushBatchWindow time.Duration
+}
+
+func New(pool *pgxpool.Pool) *Store {
+	return &Store{pool: pool, PushBatchWindow: DefaultPushBatchWindow}
+}
 
 // querier is satisfied by both *pgxpool.Pool and pgx.Tx.
 type querier interface {

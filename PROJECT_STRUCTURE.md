@@ -22,7 +22,8 @@ Case Studies Project/
 ├── backend/                   # Go + Gin REST API (module `dpms/backend`) — see backend/README.md
 │   ├── cmd/server/            #   API entrypoint (applies db/migrations on start)
 │   ├── cmd/seed/              #   Synthetic data: directory, staff, ~1,000 parcels (dev only)
-│   └── internal/              #   apperr (error codes) · config · db (pool + migrator) · auth · store (all SQL) · api (routes, handlers, integration tests)
+│   ├── cmd/vapidkeys/         #   Prints a Web Push (VAPID) key pair for docker/.env
+│   └── internal/              #   apperr (error codes) · config · db (pool + migrator) · auth · store (all SQL) · api (routes, handlers, integration tests) · push (Web Push crypto, stdlib only) · notify (push outbox worker)
 ├── db/
 │   └── migrations/            # PostgreSQL schema, applied in filename order (0001 = design-spec §4; 0002+ = documented extensions)
 ├── docker/                    # docker-compose.yml (db + backend), backend.Dockerfile, .env.example (copy to .env, gitignored)
@@ -44,7 +45,7 @@ Case Studies Project/
 │   │   ├── rule.md                      #   SDPMS legal/compliance rules (parallel to root rule.md — see note)
 │   │   ├── survey_interview_analysis.md #   Survey + interview findings (Thai) from 10 users + staff PDF
 │   │   ├── diagram/                     #   Design diagrams (empty placeholder, not yet tracked)
-│   │   └── prototype/                   #   React+Vite client — visually a prototype, but now calls the real backend API
+│   │   └── prototype/                   #   React+Vite client — visually a prototype, but now calls the real backend API. Two entries: Staff desk (/) and Resident notification PWA (/resident/ → resident/, src/resident/, public/resident/)
 │   │       ├── index.html, package.json, vite/tailwind/postcss/vitest configs
 │   │       └── src/
 │   │           ├── api/           #   client.js (fetch wrapper) + errorMessages.js (code → Thai text)
