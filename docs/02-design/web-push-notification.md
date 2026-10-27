@@ -120,6 +120,13 @@ also asks for notification permission, which Safari requires inside a user gestu
 (this room's Pending Parcels, refresh, turn notifications off). It doubles as the pull view that
 `US-08` used to provide.
 
+- **The status view keeps itself current while open** (added 2026-10-27). It reloads `GET /resident/me`
+  (1) when a push arrives — the service worker posts `{type: "parcel_arrived"}` to every open
+  `/resident/` window after showing the notification; (2) when the page returns to the foreground
+  (`visibilitychange`); and (3) every 30 s while visible. (3) is what removes a Picked Up Parcel from
+  the list: Check-Out sends no push, by design. Background reloads are silent (no spinner); the page
+  shows "อัปเดตล่าสุด <time>" and keeps the manual "รีเฟรช" button.
+
 - The service worker (`public/resident/sw.js`) builds the Thai notification text from machine values
   — the backend never sends user-facing strings (design-spec §5).
 - `pushsubscriptionchange` is handled: the worker re-subscribes and `PUT`s the new subscription using
@@ -190,7 +197,8 @@ need no CSRF handling and can't be triggered by a cross-site form.
   already picked up, OTP must be read by Staff, lockout, rate limit, gone subscription, retry/backoff,
   unsubscribe, Staff revoke, re-registering the same browser, rotated subscription, SSRF allow-list,
   feature-off behaviour.
-- `src/resident/ResidentApp.test.jsx`, `src/components/ResidentOtpModal.test.jsx` — UI flows with MSW.
+- `src/resident/ResidentApp.test.jsx`, `src/components/ResidentOtpModal.test.jsx` — UI flows with MSW,
+  including the self-refresh on returning to the foreground and on a service-worker `parcel_arrived` message.
 - Manual end-to-end (2026-10-21): real backend + Vite + Chromium; service-worker push delivered via
   DevTools rendered "พัสดุมาถึงแล้ว / ห้อง 3101 มีพัสดุใหม่ 2 ชิ้น (รอรับทั้งหมด 3 ชิ้น)…".
 
@@ -199,5 +207,8 @@ need no CSRF handling and can't be triggered by a cross-site form.
 - Advisor sign-off on the E3 change (pull → push).
 - Real-device check on an iPhone (Home Screen PWA) and an Android phone over HTTPS.
 - Optional later: a reminder for Parcels Pending longer than N days (would reuse the same outbox).
-- The LINE code path (`internal/line`, `/line/webhook`, `LineOtpModal.jsx`) is no longer wired into
-  the UI; remove it in a follow-up once the advisor confirms.
+- ~~Remove the LINE code path~~ — **done 2026-10-27**: `internal/line`, `store/line.go`,
+  `api/line_handlers.go` + tests, `/line/webhook`, `/rooms/:roomId/line-otp`, `LINE_*` config and error
+  codes, `LineOtpModal.jsx` deleted. Helpers the Resident flow shares (`ResolveRoomExact`,
+  `PendingParcelSummary`, `randomDigits`) moved to `store/room_claim.go`. Migration `0004` stays
+  (applied migrations are never edited), so its two tables remain, unused.

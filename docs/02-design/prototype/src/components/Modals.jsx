@@ -35,16 +35,12 @@ function ModalShell({ title, icon: Icon, onClose, children, className = "", foot
   );
 }
 
-function LabeledInput({ label, value, onChange, onKeyDown, placeholder, type = "text", autoFocus, error, inputRef, list, disabled = false, onPrepareScan, reserveMessage = false, feedback = "" }) {
+function LabeledInput({ label, value, onChange, onKeyDown, placeholder, type = "text", autoFocus, error, inputRef, list, disabled = false, reserveMessage = false, feedback = "" }) {
   const id = useId();
   return (
     <div className="form-field">
       <label htmlFor={id}>{label}</label>
-      <div className={onPrepareScan ? "scan-input-row" : undefined}>
-        <input id={id} ref={inputRef} disabled={disabled} type={type} value={value} onChange={onChange} onKeyDown={onKeyDown} placeholder={placeholder} autoFocus={autoFocus} list={list} aria-invalid={!!error} aria-describedby={[error && `${id}-error`, onPrepareScan && `${id}-scan-help`].filter(Boolean).join(" ") || undefined} />
-        {onPrepareScan && <button type="button" disabled={disabled} onClick={onPrepareScan} aria-label="เตรียมสแกน" title="เตรียมสแกน" className="desk-button scan-prepare-button"><ScanLine size={20} aria-hidden="true" /></button>}
-      </div>
-      {onPrepareScan && <span id={`${id}-scan-help`} className="sr-only">กด Enter เพื่อยืนยันรหัส</span>}
+      <input id={id} ref={inputRef} disabled={disabled} type={type} value={value} onChange={onChange} onKeyDown={onKeyDown} placeholder={placeholder} autoFocus={autoFocus} list={list} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} />
       {reserveMessage ? (
         <div className="field-message">
           {error ? <p id={`${id}-error`} className="field-error" role="alert">{error}</p> : <p className="search-feedback" role="status">{feedback}</p>}
@@ -114,7 +110,7 @@ function CheckOutModal({ onClose, onConfirm }) {
       const result = await api.getParcel(code);
       if (id !== requestId.current) return;
       if (result.status !== "pending") { setError("พัสดุนี้นำออกแล้วหรือไม่อยู่ในสถานะรอรับ"); return; }
-      if (!result.room) { setError("พัสดุนี้ยังไม่ระบุห้อง กรุณาจัดห้องก่อนนำออก"); return; }
+      // A Parcel with no room can be handed over too (migration 0007) — it just has no room list.
       setParcel(result); setScan(result.trackingCode);
       setSelected(new Map([[result.trackingCode, result]]));
     } catch (err) {
@@ -153,14 +149,14 @@ function CheckOutModal({ onClose, onConfirm }) {
     <form onSubmit={lookup} className="checkout-lookup">
       <LabeledInput label="สแกนหรือกรอกเลขพัสดุ" value={scan} inputRef={scanRef} disabled={disabled || confirmAll} error={error} reserveMessage
         onChange={(event) => { setScan(event.target.value); setError(""); }}
-        onPrepareScan={() => { scanRef.current?.focus(); scanRef.current?.select(); }}
         onKeyDown={(event) => { if (event.key === "Enter" && event.nativeEvent.isComposing) event.preventDefault(); }} placeholder="สแกนหรือพิมพ์ แล้วกด Enter" />
       <button type="submit" disabled={disabled || confirmAll} className="desk-button checkout-lookup-button">{searching ? "กำลังค้นหา…" : "ค้นหาพัสดุ"}</button>
     </form>
     {parcel && <section className="checkout-parcel-detail" aria-label="ข้อมูลพัสดุที่ค้นพบ">
       <div className="checkout-detail-heading"><h3>{parcel.trackingCode}</h3><span className="parcel-status parcel-status-pending"><span className="pending-dot" aria-hidden="true" />รอรับ</span></div>
-      <div className="checkout-recipient"><strong>{parcel.room ? `ห้อง ${parcel.room.buildingCode}${parcel.room.roomNumber}` : "ยังไม่ระบุห้อง"}</strong><p>{parcel.residents?.map((resident) => resident.fullName).join(" / ") || roomLabel(parcel)}</p></div>
+      <div className="checkout-recipient"><strong>{parcel.room ? `ห้อง ${parcel.room.buildingCode}${parcel.room.roomNumber}` : "ยังไม่ระบุห้อง"}</strong>{parcel.room && <p>{parcel.residents?.map((resident) => resident.fullName).join(" / ") || roomLabel(parcel)}</p>}</div>
       <dl className="checkout-detail-meta"><div><dt>วันที่รับเข้า</dt><dd>{formatThaiDateTime(parcel.checkedInAt)}</dd></div></dl>
+      {!parcel.room && <div className="checkout-condition" role="note"><strong>พัสดุไม่มีเลขห้อง</strong><p>ตรวจสอบชื่อผู้รับกับฉลากพัสดุก่อนส่งมอบ</p></div>}
       {parcel.note && <div className="checkout-condition"><strong>หมายเหตุ</strong><p>{parcel.note}</p></div>}
       {parcel.room && <details className="checkout-other-parcels"><summary>พัสดุอื่นของห้องนี้{roomTotal > 0 ? ` (${Math.max(0, roomTotal - 1)})` : ""}</summary>
         <fieldset disabled={disabled || confirmAll || !verified} className="checkout-room-fields">
@@ -259,7 +255,6 @@ function CheckInModal({ onClose }) {
         onChange={(e) => { setCode(e.target.value); setError(null); }}
         onKeyDown={handleCodeKeyDown}
         placeholder="สแกนหรือพิมพ์ แล้วกด Enter"
-        onPrepareScan={() => { codeRef.current?.focus(); codeRef.current?.select(); }}
       />
 
       <InlineError message={error} />

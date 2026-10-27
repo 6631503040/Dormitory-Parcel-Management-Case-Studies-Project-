@@ -45,9 +45,9 @@ type env struct {
 
 func newEnv(t *testing.T) *env { return newEnvWithDeps(t, nil) }
 
-// newEnvWithDeps is newEnv with a chance to override api.Deps fields (e.g. LINE settings) before
-// the router is built — used by the LINE tests, which need a channel secret and a fake reply
-// endpoint that plain feature tests have no reason to carry.
+// newEnvWithDeps is newEnv with a chance to override api.Deps fields (e.g. Web Push settings)
+// before the router is built — used by the push tests, which need a VAPID key and a fake push
+// service that plain feature tests have no reason to carry.
 func newEnvWithDeps(t *testing.T, mutate func(*api.Deps)) *env {
 	t.Helper()
 	base := os.Getenv("TEST_DATABASE_URL")
@@ -465,9 +465,6 @@ func TestUnmatchedParcelLifecycle(t *testing.T) {
 		t.Errorf("unmatched queue = %+v", got)
 	}
 
-	// It can't be handed over until it has a room.
-	wantCode(t, c.post("/api/v1/parcels/check-out", map[string]any{"trackingCodes": []string{"NOROOM1"}}), 409, apperr.ParcelNotPending)
-
 	// Resolve it: only a directory room is accepted.
 	wantCode(t, c.patch("/api/v1/parcels/NOROOM1/room", map[string]any{"roomId": 424242}), 422, apperr.RoomNotInDirectory)
 	wantCode(t, c.patch("/api/v1/parcels/NOROOM1/room", map[string]any{}), 400, apperr.ValidationError)
@@ -501,6 +498,44 @@ func TestUnmatchedParcelLifecycle(t *testing.T) {
 	if strings.Join(types, ",") != "checked_in,room_assigned,checked_out" {
 		t.Errorf("events = %v", types)
 	}
+}
+
+// TestCheckOutParcelWithoutRoom: a Parcel with no room can be handed over straight away (migration
+// 0007) — it leaves the unmatched queue, keeps its reason and note, and the handover is audited.
+func TestCheckOutParcelWithoutRoom(t *testing.T) {
+	e := newEnv(t)
+	c := e.login("op1")
+	if r := c.post("/api/v1/parcels", map[string]any{"trackingCode": "NOROOM9", "unmatchedReason": "other", "note": "ไม่มีเลขห้องบนฉลาก"}); r.Status != 201 {
+		t.Fatalf("check-in: %d %s", r.Status, r.Body)
+	}
+	c.checkIn("WITHROOM9", e.roomB1101)
+
+	// Mixed with a Parcel that has a room, in one Check Out Selected.
+	r := c.post("/api/v1/parcels/check-out", map[string]any{"trackingCodes": []string{"NOROOM9", "WITHROOM9"}})
+	if r.Status != 200 {
+		t.Fatalf("check-out: %d %s", r.Status, r.Body)
+	}
+
+	var detail store.ParcelDetail
+	c.get("/api/v1/parcels/NOROOM9").decode(t, &detail)
+	if detail.Status != "picked_up" || detail.Room != nil || detail.UnmatchedReason == nil || detail.Note == nil ||
+		detail.CheckedOutBy == nil || detail.CheckedOutBy.FullName != "Operator One" {
+		t.Errorf("after check-out = %+v", detail.Parcel)
+	}
+	if n := len(detail.Events); n != 2 || detail.Events[1].EventType != "checked_out" {
+		t.Errorf("events = %+v", detail.Events)
+	}
+	if got := c.list("status=pending&unmatched=true"); got.Total != 0 {
+		t.Errorf("still in the unmatched queue: %+v", got)
+	}
+	if got := c.list("status=picked_up&unmatched=true"); got.Total != 1 || got.Items[0].TrackingCode != "NOROOM9" {
+		t.Errorf("picked-up unmatched = %+v", got)
+	}
+
+	// Handed over means done: no second check-out, no late room assignment, no edit.
+	wantCode(t, c.post("/api/v1/parcels/check-out", map[string]any{"trackingCodes": []string{"NOROOM9"}}), 409, apperr.ParcelNotPending)
+	wantCode(t, c.patch("/api/v1/parcels/NOROOM9/room", map[string]any{"roomId": e.roomB1101}), 409, apperr.ParcelNotPending)
+	wantCode(t, c.patch("/api/v1/parcels/NOROOM9", map[string]any{"note": "x"}), 409, apperr.ParcelNotPending)
 }
 
 // TestUnmatchedReasonFilter: the unmatched queue's reason tabs (No match / No resident / Ambiguous /
@@ -814,6 +849,35 @@ func TestDashboardCounts(t *testing.T) {
 	}
 	wantCode(t, c.get("/api/v1/dashboard?date=2026-13-45"), 400, apperr.ValidationError)
 	wantCode(t, c.get("/api/v1/dashboard?date=today"), 400, apperr.ValidationError)
+
+	// Week (Monday–Sunday) and month ranges around a fixed date: Thu 2026-10-29.
+	if w := get("?period=week&date=2026-10-29"); w.Period != "week" || w.From != "2026-10-26" || w.To != "2026-11-01" {
+		t.Errorf("week range = %+v", w)
+	}
+	if w := get("?period=week&date=2026-11-01"); w.From != "2026-10-26" { // Sunday stays in the same week
+		t.Errorf("sunday week range = %+v", w)
+	}
+	if m := get("?period=month&date=2026-02-14"); m.Period != "month" || m.From != "2026-02-01" || m.To != "2026-02-28" {
+		t.Errorf("month range = %+v", m)
+	}
+	if d := get("?date=2026-10-29"); d.Period != "day" || d.From != "2026-10-29" || d.To != "2026-10-29" {
+		t.Errorf("day range = %+v", d)
+	}
+	wantCode(t, c.get("/api/v1/dashboard?period=year"), 400, apperr.ValidationError)
+
+	// A Parcel that arrived 40 days ago counts as received only in its own period, but is still
+	// waiting in the system now.
+	c.checkIn("OLD1", e.roomB1102)
+	e.exec(`UPDATE parcels SET checked_in_at = now() - interval '40 days' WHERE tracking_code = 'OLD1'`)
+	for _, p := range []string{"day", "week", "month"} {
+		if got := get("?period=" + p); got.CheckedIn != 4 || got.PickedUp != 1 || got.Pending != 4 {
+			t.Errorf("%s = %+v", p, got)
+		}
+	}
+	old := today.AddDate(0, 0, -40).Format("2006-01-02")
+	if got := get("?period=month&date=" + old); got.CheckedIn != 1 || got.Pending != 1 {
+		t.Errorf("month 40 days ago = %+v", got)
+	}
 }
 
 func TestRBACAdminOnlyAccessLogs(t *testing.T) {
@@ -857,12 +921,9 @@ func TestDatabaseEnforcesInvariants(t *testing.T) {
 	mustFail("update access log", `UPDATE access_logs SET username = 'x'`)
 	mustFail("delete access log", `DELETE FROM access_logs`)
 
-	// A Parcel is never roomless without a reason, roomless parcels are never handed over,
-	// and picked-up parcels always record who and when.
+	// A Parcel is never roomless without a reason, and picked-up parcels always record who and when.
 	mustFail("no room no reason", `INSERT INTO parcels (tracking_code, checked_in_by) VALUES ('BAD1', $1)`, staff)
 	mustFail("unknown room", `INSERT INTO parcels (tracking_code, room_id, checked_in_by) VALUES ('BAD2', 424242, $1)`, staff)
 	mustFail("picked up without who/when", `UPDATE parcels SET status = 'picked_up' WHERE tracking_code = 'INV1'`)
-	e.exec(`INSERT INTO parcels (tracking_code, unmatched_reason, checked_in_by) VALUES ('ROOMLESS', 'other', $1)`, staff)
-	mustFail("roomless picked up", `UPDATE parcels SET status = 'picked_up', checked_out_by = $1, checked_out_at = now() WHERE tracking_code = 'ROOMLESS'`, staff)
 	mustFail("duplicate code", `INSERT INTO parcels (tracking_code, room_id, checked_in_by) VALUES ('INV1', $1, $2)`, e.roomB1101, staff)
 }

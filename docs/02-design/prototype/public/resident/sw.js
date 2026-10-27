@@ -30,15 +30,21 @@ self.addEventListener("push", (event) => {
   if (data.type !== "parcel_arrived") return;
   const { title, body } = describe(data);
   event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
-      tag: "dpms-parcel", // a newer notification replaces the older one instead of piling up
-      renotify: true,
-      icon: "/resident/icon-192.png",
-      badge: "/resident/icon-192.png",
-      lang: "th",
-      data: { url: data.url || "/resident/" },
-    })
+    Promise.all([
+      self.registration.showNotification(title, {
+        body,
+        tag: "dpms-parcel", // a newer notification replaces the older one instead of piling up
+        renotify: true,
+        icon: "/resident/icon-192.png",
+        badge: "/resident/icon-192.png",
+        lang: "th",
+        data: { url: data.url || "/resident/" },
+      }),
+      // An open status page reloads its Pending list right away instead of waiting for its poll.
+      self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((wins) => {
+        for (const w of wins) w.postMessage({ type: "parcel_arrived" });
+      }),
+    ])
   );
 });
 

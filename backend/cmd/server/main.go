@@ -77,9 +77,6 @@ func main() {
 			Location:       loc,
 			Ping:           pool.Ping,
 
-			LineChannelSecret:      cfg.LineChannelSecret,
-			LineChannelAccessToken: cfg.LineChannelAccessToken,
-
 			PushPublicKey: pushPublicKey,
 		}),
 		ReadHeaderTimeout: 5 * time.Second,

@@ -168,7 +168,7 @@ func (e *pushEnv) register(room string, roomID int64, endpointPath string) strin
 	}
 	var reg store.ResidentRegistration
 	r.decode(e.t, &reg)
-	if reg.DeviceToken == "" || reg.Device.RoomNumber != "101" || reg.Device.BuildingCode != "1" {
+	if reg.DeviceToken == "" || reg.Device.BuildingCode+reg.Device.RoomNumber != room {
 		e.t.Fatalf("registration: %s", r.Body)
 	}
 	return reg.DeviceToken
@@ -235,6 +235,27 @@ func TestPush_PickedUpBeforeDeliveryIsCancelled(t *testing.T) {
 	}
 	if n := e.queryInt(`SELECT count(*) FROM push_notifications WHERE status = 'cancelled'`); n != 1 {
 		t.Fatalf("cancelled = %d", n)
+	}
+}
+
+// A Parcel moved to another room by an edit (US-26) notifies the new room; the old room's queued
+// notification no longer counts it, so it is cancelled instead of announcing someone else's Parcel.
+func TestPush_EditedRoomNotifiesNewRoomOnly(t *testing.T) {
+	e := newPushEnv(t)
+	e.register("1101", e.roomB1101, "/sub/old")
+	e.register("1102", e.roomB1102, "/sub/new")
+	op := e.login("op1")
+	op.checkIn("TH-MOVE", e.roomB1101)
+	if r := op.patch("/api/v1/parcels/TH-MOVE", map[string]any{"roomId": e.roomB1102}); r.Status != 200 {
+		t.Fatalf("edit: %d %s", r.Status, r.Body)
+	}
+	e.runWorker()
+	msgs := e.fake.messages()
+	if len(msgs) != 1 || msgs[0].Room != "1102" || msgs[0].NewCount != 1 {
+		t.Fatalf("payloads = %+v", msgs)
+	}
+	if n := e.queryInt(`SELECT count(*) FROM push_notifications WHERE status = 'cancelled' AND room_id = $1`, e.roomB1101); n != 1 {
+		t.Fatalf("old room's notification not cancelled")
 	}
 }
 

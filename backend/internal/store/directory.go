@@ -110,6 +110,9 @@ func (s *Store) ListDirectory(ctx context.Context, query string, page, pageSize 
 
 type Dashboard struct {
 	Date             string   `json:"date"`
+	Period           string   `json:"period"` // day | week | month
+	From             string   `json:"from"`   // first day of the period (yyyy-mm-dd, local)
+	To               string   `json:"to"`     // last day of the period, inclusive
 	CheckedIn        int64    `json:"checkedIn"`
 	PickedUp         int64    `json:"pickedUp"`
 	Pending          int64    `json:"pending"`
@@ -117,8 +120,9 @@ type Dashboard struct {
 	RecentCheckIns   []Parcel `json:"recentCheckIns"`
 }
 
-// Dashboard counts one calendar day [dayStart, dayEnd): Parcels checked in, Parcels picked up, and
-// Parcels still Pending at the end of that day (checked in before it ended and not yet handed over).
+// Dashboard counts one period [dayStart, dayEnd) — a day, week or month: Parcels checked in, Parcels
+// picked up, and Parcels still Pending at the end of the period (checked in before it ended and not
+// yet handed over by then).
 func (s *Store) Dashboard(ctx context.Context, date string, dayStart, dayEnd time.Time, recentLimit int) (*Dashboard, error) {
 	d := &Dashboard{Date: date}
 	err := s.pool.QueryRow(ctx, `

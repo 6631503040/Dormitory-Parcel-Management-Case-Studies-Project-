@@ -17,7 +17,11 @@ import {
 //   claim  -> type Room Number, accept consent, ask for a code (the code is NOT sent here)
 //   verify -> Staff read the code out at the desk; type it, allow notifications
 //   status -> registered: this room's Pending Parcels, turn notifications off
+// The status view keeps itself current while it is open: it reloads when a push arrives (the
+// service worker posts "parcel_arrived"), when the page comes back to the foreground, and every
+// STATUS_POLL_MS while visible — the last one also catches Check-Out, which sends no push.
 const TOKEN_KEY = "dpms.residentDeviceToken";
+const STATUS_POLL_MS = 30_000;
 
 function loadToken() {
   try {
@@ -200,7 +204,7 @@ function VerifyStep({ claim, vapidPublicKey, onRegistered, onRestart }) {
   );
 }
 
-function StatusView({ status, onRefresh, refreshing, onTurnOff }) {
+function StatusView({ status, updatedAt, onRefresh, refreshing, onTurnOff }) {
   const [confirm, setConfirm] = useState(false);
   const { device, pendingCount, pending } = status;
   return (
@@ -229,6 +233,7 @@ function StatusView({ status, onRefresh, refreshing, onTurnOff }) {
         <button type="button" className="desk-button resident-secondary resident-block mt-4" onClick={onRefresh} disabled={refreshing}>
           <RefreshCw size={16} aria-hidden="true" />{refreshing ? "กำลังโหลด…" : "รีเฟรช"}
         </button>
+        {updatedAt && <p className="resident-muted mt-2" role="status">อัปเดตล่าสุด {formatThaiDateTime(updatedAt)} · หน้านี้อัปเดตอัตโนมัติขณะเปิดอยู่</p>}
       </section>
 
       <section className="resident-card">
@@ -255,6 +260,7 @@ export default function ResidentApp() {
   const [config, setConfig] = useState(null);
   const [claim, setClaim] = useState(null);
   const [status, setStatus] = useState(null);
+  const [updatedAt, setUpdatedAt] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [fatal, setFatal] = useState("");
 
@@ -264,15 +270,18 @@ export default function ResidentApp() {
     setStatus(null);
   }, []);
 
-  const loadStatus = useCallback(async (t) => {
-    setRefreshing(true);
+  // silent: a background reload (push, focus, poll) — no spinner on the refresh button.
+  const loadStatus = useCallback(async (t, { silent = false } = {}) => {
+    if (!silent) setRefreshing(true);
     try {
       setStatus(await residentApi.status(t));
+      setUpdatedAt(new Date().toISOString());
+      setFatal("");
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) forget(); // revoked, expired or replaced
       else setFatal(errorMessage(err));
     } finally {
-      setRefreshing(false);
+      if (!silent) setRefreshing(false);
     }
   }, [forget]);
 
@@ -292,6 +301,24 @@ export default function ResidentApp() {
       .catch(() => {});
   }, [token, loadStatus]);
 
+  useEffect(() => {
+    if (!token) return undefined;
+    const reload = () => {
+      if (document.visibilityState === "visible") loadStatus(token, { silent: true });
+    };
+    const onWorkerMessage = (event) => {
+      if (event.data?.type === "parcel_arrived") loadStatus(token, { silent: true });
+    };
+    const poll = setInterval(reload, STATUS_POLL_MS);
+    document.addEventListener("visibilitychange", reload);
+    navigator.serviceWorker?.addEventListener("message", onWorkerMessage);
+    return () => {
+      clearInterval(poll);
+      document.removeEventListener("visibilitychange", reload);
+      navigator.serviceWorker?.removeEventListener("message", onWorkerMessage);
+    };
+  }, [token, loadStatus]);
+
   const turnOff = async () => {
     try {
       await residentApi.unsubscribe(token);
@@ -307,7 +334,7 @@ export default function ResidentApp() {
 
   let body;
   if (support !== "ok") body = <Unsupported reason={support} />;
-  else if (token && status) body = <StatusView status={status} refreshing={refreshing} onRefresh={() => loadStatus(token)} onTurnOff={turnOff} />;
+  else if (token && status) body = <StatusView status={status} updatedAt={updatedAt} refreshing={refreshing} onRefresh={() => loadStatus(token)} onTurnOff={turnOff} />;
   else if (token) body = <p className="resident-muted">กำลังโหลด…</p>;
   else if (!config) body = fatal ? null : <p className="resident-muted">กำลังโหลด…</p>;
   else if (claim)

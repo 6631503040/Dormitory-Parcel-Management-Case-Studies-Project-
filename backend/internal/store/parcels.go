@@ -261,7 +261,8 @@ func collectIDs(rows pgx.Rows) (ids []int64, codes []string, err error) {
 }
 
 // CheckOut hands over the listed Parcels ("Check Out Selected") all-or-nothing: if any code is
-// unknown or no longer Pending, nothing changes and the error names the offending codes.
+// unknown or no longer Pending, nothing changes and the error names the offending codes. A Parcel
+// with no room (unmatched) can be handed over too; it keeps its unmatched_reason (migration 0007).
 func (s *Store) CheckOut(ctx context.Context, staffID int64, codes []string) ([]Parcel, error) {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
@@ -271,7 +272,7 @@ func (s *Store) CheckOut(ctx context.Context, staffID int64, codes []string) ([]
 
 	rows, err := tx.Query(ctx,
 		`UPDATE parcels SET status = 'picked_up', checked_out_by = $1, checked_out_at = now(), updated_at = now()
-		 WHERE tracking_code = ANY($2) AND status = 'pending' AND room_id IS NOT NULL
+		 WHERE tracking_code = ANY($2) AND status = 'pending'
 		 RETURNING id, tracking_code`, staffID, codes)
 	if err != nil {
 		return nil, err
@@ -395,12 +396,16 @@ func (s *Store) AssignRoom(ctx context.Context, staffID int64, trackingCode stri
 		`UPDATE parcels SET room_id = $1, unmatched_reason = NULL, updated_at = now()
 		 WHERE tracking_code = $2 AND room_id IS NULL AND status = 'pending' RETURNING id`, roomID, trackingCode).Scan(&id)
 	if errors.Is(err, pgx.ErrNoRows) {
-		var exists bool
-		if qerr := tx.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM parcels WHERE tracking_code = $1)`, trackingCode).Scan(&exists); qerr != nil {
+		var status string
+		qerr := tx.QueryRow(ctx, `SELECT status::text FROM parcels WHERE tracking_code = $1`, trackingCode).Scan(&status)
+		if errors.Is(qerr, pgx.ErrNoRows) {
+			return nil, apperr.New(apperr.ParcelNotFound, map[string]any{"trackingCodes": []string{trackingCode}})
+		}
+		if qerr != nil {
 			return nil, qerr
 		}
-		if !exists {
-			return nil, apperr.New(apperr.ParcelNotFound, map[string]any{"trackingCodes": []string{trackingCode}})
+		if status != "pending" { // e.g. an unmatched Parcel that was already handed over
+			return nil, apperr.New(apperr.ParcelNotPending, map[string]any{"trackingCodes": []string{trackingCode}})
 		}
 		return nil, apperr.New(apperr.ParcelHasRoom, map[string]any{"trackingCode": trackingCode})
 	}
@@ -418,6 +423,116 @@ func (s *Store) AssignRoom(ctx context.Context, staffID int64, trackingCode stri
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
+	parcels, err := parcelsByIDs(ctx, s.pool, []int64{id})
+	if err != nil || len(parcels) == 0 {
+		return nil, err
+	}
+	return &parcels[0], nil
+}
+
+// EditParcelInput holds the fields Staff may correct after Check-In. A nil field is left unchanged;
+// an empty Note clears it.
+type EditParcelInput struct {
+	TrackingCode *string
+	RoomID       *int64
+	Note         *string
+}
+
+// EditParcel corrects a Pending Parcel that has a room (US-26). Picked Up Parcels are handover
+// evidence and are never edited; unmatched ones go through AssignRoom. The `edited` event records
+// each changed field's before/after value, so the original Check-In stays reconstructable. A room
+// change re-validates against the directory, drops a recipient who doesn't live in the new room,
+// and notifies the new room (the old room's queued notification recounts by room, so it skips it).
+func (s *Store) EditParcel(ctx context.Context, staffID int64, trackingCode string, in EditParcelInput) (*Parcel, error) {
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck
+
+	var (
+		id                       int64
+		status                   string
+		roomID                   *int64
+		note                     *string
+		roomNumber, buildingCode *string
+	)
+	err = tx.QueryRow(ctx,
+		`SELECT p.id, p.status::text, p.room_id, p.note, r.room_number, b.code
+		 FROM parcels p LEFT JOIN rooms r ON r.id = p.room_id LEFT JOIN buildings b ON b.id = r.building_id
+		 WHERE p.tracking_code = $1 FOR UPDATE OF p`, trackingCode).
+		Scan(&id, &status, &roomID, &note, &roomNumber, &buildingCode)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, apperr.New(apperr.ParcelNotFound, map[string]any{"trackingCodes": []string{trackingCode}})
+	}
+	if err != nil {
+		return nil, err
+	}
+	if status != "pending" || roomID == nil {
+		return nil, apperr.New(apperr.ParcelNotPending, map[string]any{"trackingCodes": []string{trackingCode}})
+	}
+
+	changes := map[string]any{}
+	newCode := trackingCode
+	if in.TrackingCode != nil && *in.TrackingCode != trackingCode {
+		newCode = *in.TrackingCode
+		changes["trackingCode"] = map[string]any{"from": trackingCode, "to": newCode}
+	}
+	newRoomID := *roomID
+	if in.RoomID != nil && *in.RoomID != *roomID {
+		var toNumber, toBuilding string
+		err := tx.QueryRow(ctx,
+			`SELECT r.room_number, b.code FROM rooms r JOIN buildings b ON b.id = r.building_id WHERE r.id = $1`,
+			*in.RoomID).Scan(&toNumber, &toBuilding)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, apperr.New(apperr.RoomNotInDirectory, map[string]any{"roomId": *in.RoomID})
+		}
+		if err != nil {
+			return nil, err
+		}
+		newRoomID = *in.RoomID
+		changes["room"] = map[string]any{
+			"from": map[string]any{"id": *roomID, "label": *buildingCode + *roomNumber},
+			"to":   map[string]any{"id": newRoomID, "label": toBuilding + toNumber},
+		}
+	}
+	newNote := note
+	if in.Note != nil {
+		var n *string
+		if *in.Note != "" {
+			n = in.Note
+		}
+		if (n == nil) != (note == nil) || (n != nil && *n != *note) {
+			newNote = n
+			changes["note"] = map[string]any{"from": note, "to": n}
+		}
+	}
+
+	if len(changes) > 0 {
+		_, err = tx.Exec(ctx,
+			`UPDATE parcels SET tracking_code = $2, room_id = $3, note = $4, updated_at = now(),
+			        resident_id = CASE WHEN room_id = $3 THEN resident_id END
+			 WHERE id = $1`, id, newCode, newRoomID, newNote)
+		if pgConstraint(err, "23505", "parcels_tracking_code_key") {
+			_ = tx.Rollback(ctx)
+			return nil, s.duplicateError(ctx, newCode)
+		}
+		if err != nil {
+			return nil, err
+		}
+		if err := insertEvent(ctx, tx, id, staffID, "edited", map[string]any{"changes": changes}); err != nil {
+			return nil, err
+		}
+		if newRoomID != *roomID {
+			if err := enqueuePush(ctx, tx, newRoomID, id, s.PushBatchWindow); err != nil {
+				return nil, err
+			}
+		}
+		if err := tx.Commit(ctx); err != nil {
+			return nil, err
+		}
+	}
+
 	parcels, err := parcelsByIDs(ctx, s.pool, []int64{id})
 	if err != nil || len(parcels) == 0 {
 		return nil, err

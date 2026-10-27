@@ -1,23 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { PackagePlus, ScanLine } from "lucide-react";
-import { SearchBar, ParcelTable, PageHeader, PagePagination, toDateInputValue } from "./shared";
+import { SearchBar, ParcelTable, PageHeader, PagePagination } from "./shared";
 import { InlineError } from "./Modals";
 import UnmatchedQueue from "./UnmatchedQueue";
-import { api } from "../api/client";
-import { errorMessage } from "../api/errorMessages";
+import SummaryBoard from "./SummaryBoard";
 import useParcelPage, { PARCEL_PAGE_SIZE } from "./useParcelPage";
 
 export default function DashboardPage({ onOpenCheckOut, onOpenCheckIn, onOpenHistory, refreshKey, onDataChanged }) {
-  const [summary, setSummary] = useState(null);
-  const [summaryError, setSummaryError] = useState(null);
-  useEffect(() => {
-    const controller = new AbortController();
-    setSummaryError(null);
-    api.dashboard(toDateInputValue(), controller.signal).then((res) => {
-      if (!controller.signal.aborted) setSummary(res);
-    }).catch((err) => { if (!controller.signal.aborted) setSummaryError(errorMessage(err)); });
-    return () => controller.abort();
-  }, [refreshKey]);
   const [query, setQuery] = useState("");
   const { items, total, page, setPage, loading, error } = useParcelPage({ query, status: "pending", unmatched: false, refreshKey });
   return (
@@ -29,8 +18,7 @@ export default function DashboardPage({ onOpenCheckOut, onOpenCheckIn, onOpenHis
           <button onClick={onOpenCheckOut} className="desk-button desk-button-primary"><ScanLine size={18} aria-hidden="true" />นำพัสดุออก</button>
         </div>
       </div>
-      <InlineError message={summaryError} />
-      {summary && <p className="daily-summary">วันนี้ · รับเข้า {summary.checkedIn} · นำออก {summary.pickedUp} · รอรับ {summary.pending}</p>}
+      <SummaryBoard refreshKey={refreshKey} />
       <section className="parcel-register dashboard-register" aria-label="ค้นหาและจัดการพัสดุ">
         <div className="register-toolbar"><SearchBar label="ค้นหาพัสดุรอรับ" value={query} onChange={setQuery} placeholder="เลขห้อง ชื่อผู้รับ หรือเลขพัสดุ" /></div>
         <InlineError message={error} />

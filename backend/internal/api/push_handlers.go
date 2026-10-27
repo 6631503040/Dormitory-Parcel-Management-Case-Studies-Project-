@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -20,6 +21,9 @@ import (
 const PushConsentVersion = "push-v1"
 
 const residentDeviceKey = "residentDevice"
+
+// otpPattern is the shape of the 6-digit code Staff read out at the desk.
+var otpPattern = regexp.MustCompile(`^\d{6}$`)
 
 type pushSubscriptionBody struct {
 	Endpoint string `json:"endpoint"`
@@ -120,7 +124,7 @@ func (h *handlers) residentVerifyOTP(c *gin.Context) {
 		return
 	}
 	code := strings.TrimSpace(body.Code)
-	if !lineOTPPattern.MatchString(code) {
+	if !otpPattern.MatchString(code) {
 		fail(c, apperr.Validation("code", "format"))
 		return
 	}

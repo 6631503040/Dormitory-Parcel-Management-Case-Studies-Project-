@@ -258,6 +258,59 @@ func (h *handlers) assignRoom(c *gin.Context) {
 	c.JSON(http.StatusOK, parcel)
 }
 
+type editParcelRequest struct {
+	TrackingCode *string `json:"trackingCode"`
+	RoomID       *int64  `json:"roomId"`
+	Note         *string `json:"note"` // "" clears the note
+}
+
+// editParcel corrects a Pending Parcel after Check-In (US-26). Omitted fields stay as they are.
+// The room is still a directory id, never text; every change is written to the audit trail.
+func (h *handlers) editParcel(c *gin.Context) {
+	code, e := normalizeTrackingCode(c.Param("trackingCode"))
+	if e != nil {
+		fail(c, e)
+		return
+	}
+	var req editParcelRequest
+	if e := bindBody(c, &req); e != nil {
+		fail(c, e)
+		return
+	}
+
+	var in store.EditParcelInput
+	if req.TrackingCode != nil {
+		newCode, e := normalizeTrackingCode(*req.TrackingCode)
+		if e != nil {
+			fail(c, e)
+			return
+		}
+		in.TrackingCode = &newCode
+	}
+	if req.RoomID != nil {
+		if *req.RoomID < 1 {
+			fail(c, apperr.Validation("roomId", "must_be_positive_integer"))
+			return
+		}
+		in.RoomID = req.RoomID
+	}
+	if req.Note != nil {
+		n := strings.TrimSpace(*req.Note)
+		if utf8.RuneCountInString(n) > maxNoteLen {
+			fail(c, apperr.Validation("note", "too_long"))
+			return
+		}
+		in.Note = &n
+	}
+
+	parcel, err := h.Store.EditParcel(c.Request.Context(), currentStaff(c).ID, code, in)
+	if err != nil {
+		fail(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, parcel)
+}
+
 // --- Search & Lookup ---------------------------------------------------------------------------
 
 func (h *handlers) getParcel(c *gin.Context) {
@@ -384,25 +437,44 @@ func (h *handlers) listDirectory(c *gin.Context) {
 
 // --- Dashboard & audit -------------------------------------------------------------------------
 
-// dashboard returns the day's counts. The day is a calendar day in dormitory local time.
+// dashboard returns the counts for the day, week or month (`period`, default day) that contains
+// `date`, in dormitory local time. A week runs Monday–Sunday; a month is the calendar month.
 func (h *handlers) dashboard(c *gin.Context) {
 	loc := h.Location
 	date := time.Now().In(loc).Format("2006-01-02")
 	if v := c.Query("date"); v != "" {
 		date = v
 	}
-	start, err := time.ParseInLocation("2006-01-02", date, loc)
+	day, err := time.ParseInLocation("2006-01-02", date, loc)
 	if err != nil {
 		fail(c, apperr.Validation("date", "must_be_yyyy_mm_dd"))
 		return
 	}
-	end := start.AddDate(0, 0, 1)
+
+	period := c.DefaultQuery("period", "day")
+	var start, end time.Time
+	switch period {
+	case "day":
+		start, end = day, day.AddDate(0, 0, 1)
+	case "week":
+		start = day.AddDate(0, 0, -((int(day.Weekday()) + 6) % 7)) // back to Monday
+		end = start.AddDate(0, 0, 7)
+	case "month":
+		start = time.Date(day.Year(), day.Month(), 1, 0, 0, 0, 0, loc)
+		end = start.AddDate(0, 1, 0)
+	default:
+		fail(c, apperr.Validation("period", "invalid_value"))
+		return
+	}
 
 	d, err := h.Store.Dashboard(c.Request.Context(), date, start, end, recentCheckIns)
 	if err != nil {
 		fail(c, err)
 		return
 	}
+	d.Period = period
+	d.From = start.Format("2006-01-02")
+	d.To = end.AddDate(0, 0, -1).Format("2006-01-02") // inclusive last day
 	c.JSON(http.StatusOK, d)
 }
 

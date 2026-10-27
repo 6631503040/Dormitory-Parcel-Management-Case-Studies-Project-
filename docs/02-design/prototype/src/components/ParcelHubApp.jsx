@@ -122,7 +122,7 @@ export default function ParcelHubApp() {
       {modal === "checkout" && <CheckOutModal onClose={() => setModal(null)} onConfirm={handleCheckOutConfirm} />}
       {modal === "checkin" && <CheckInModal onClose={closeCheckIn} />}
       {modal === "residentOtp" && <ResidentOtpModal onClose={() => setModal(null)} />}
-      {historyCode && <ParcelHistoryModal trackingCode={historyCode} onClose={() => setHistoryCode(null)} />}
+      {historyCode && <ParcelHistoryModal trackingCode={historyCode} onClose={() => setHistoryCode(null)} onChanged={refresh} />}
 
       <Banner message={banner?.message} tone={banner?.tone} notificationId={banner?.id} onClose={() => setBanner(null)} />
     </div>

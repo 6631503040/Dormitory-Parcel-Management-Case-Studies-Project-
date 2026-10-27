@@ -14,7 +14,7 @@
 
 | Step | Action |
 |---|---|
-| 1. Learns a parcel has arrived | Goes to the parcel counter |
+| 1. Learns a parcel has arrived | Gets a phone notification the moment staff check it in, or opens the Resident page (`/resident/`) to see the room's Pending parcels — then goes to the parcel counter. *(Registration once beforehand: enter the room number on `/resident/`, accept the consent notice, and type the 6-digit code staff read out at the counter.)* |
 | 2. Provides information to staff | States their room number/name so staff can search for it |
 | 3. Waits while staff search and retrieve the parcel | Waits at the counter |
 | 4. Receives the parcel | Checks the parcel and receives it from staff |

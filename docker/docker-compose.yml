@@ -38,9 +38,6 @@ services:
       SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET (32+ characters) in docker/.env}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       MIGRATIONS_DIR: /app/migrations
-      # Optional: LINE Messaging API (Epic E3). Leave unset to run without the LINE feature.
-      LINE_CHANNEL_SECRET: ${LINE_CHANNEL_SECRET:-}
-      LINE_CHANNEL_ACCESS_TOKEN: ${LINE_CHANNEL_ACCESS_TOKEN:-}
       # Optional: Web Push for Residents (US-23/US-24). Leave unset to run without notifications.
       VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
       VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
