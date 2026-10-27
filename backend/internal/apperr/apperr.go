@@ -26,6 +26,13 @@ const (
 	AmbiguousRoom         = "AMBIGUOUS_ROOM"
 	NoPendingLineOTP      = "NO_PENDING_LINE_OTP"
 	LineNotConfigured     = "LINE_NOT_CONFIGURED"
+
+	// Web Push (US-23/US-24)
+	PushNotConfigured    = "PUSH_NOT_CONFIGURED"
+	NoPendingResidentOTP = "NO_PENDING_RESIDENT_OTP"
+	OTPInvalid           = "OTP_INVALID"
+	OTPExpired           = "OTP_EXPIRED"
+	TooManyOTPRequests   = "TOO_MANY_OTP_REQUESTS"
 )
 
 var statusByCode = map[string]int{
@@ -47,6 +54,11 @@ var statusByCode = map[string]int{
 	AmbiguousRoom:         http.StatusUnprocessableEntity,
 	NoPendingLineOTP:      http.StatusNotFound,
 	LineNotConfigured:     http.StatusServiceUnavailable,
+	PushNotConfigured:     http.StatusServiceUnavailable,
+	NoPendingResidentOTP:  http.StatusNotFound,
+	OTPInvalid:            http.StatusUnprocessableEntity,
+	OTPExpired:            http.StatusGone,
+	TooManyOTPRequests:    http.StatusTooManyRequests,
 }
 
 // Error is returned by the store and handlers; the API layer renders it as {code, params}.

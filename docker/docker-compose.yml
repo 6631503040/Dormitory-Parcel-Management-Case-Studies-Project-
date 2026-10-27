@@ -41,6 +41,11 @@ services:
       # Optional: LINE Messaging API (Epic E3). Leave unset to run without the LINE feature.
       LINE_CHANNEL_SECRET: ${LINE_CHANNEL_SECRET:-}
       LINE_CHANNEL_ACCESS_TOKEN: ${LINE_CHANNEL_ACCESS_TOKEN:-}
+      # Optional: Web Push for Residents (US-23/US-24). Leave unset to run without notifications.
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-}
+      PUSH_BATCH_WINDOW_SECONDS: ${PUSH_BATCH_WINDOW_SECONDS:-60}
     ports:
       - "${API_PORT:-8080}:8080"
 

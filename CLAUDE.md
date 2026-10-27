@@ -90,6 +90,9 @@ New feature requests go through advisor review — flag them as scope creep, don
 
 Tables: `buildings`, `rooms`, `residents` (the official directory), `staff`,
 `parcels`, `parcel_events` (audit trail).
+Resident notifications (Epic E3, Web Push — `docs/02-design/web-push-notification.md`):
+`resident_otp_challenges`, `push_subscriptions`, `push_notifications` (outbox). The LINE tables
+(`line_links`, `line_otp_challenges`) are deprecated and no longer written.
 Enums: `staff_role`, `parcel_status` (`pending` / `picked_up` / `archived`),
 `parcel_event_type`.
 

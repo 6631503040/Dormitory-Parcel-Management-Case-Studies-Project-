@@ -8,7 +8,7 @@
 
 **ID key:** `US-##` = User Story (a feature a real user asked for, sourced from interviews) · `LR-##` = Legal Requirement (a duty the law imposes on us regardless of whether any user asked for it) · `ET-##` = Ethics requirement (a safeguard the ETDA AI Ethics guideline requires around our AI features, e.g. OCR/matching).
 
-**Why LR and ET are split out from US instead of folded in:** they come from a different source and a different owner. A `US` story is justified because a resident or staff member told you it hurts — you can point to an interview quote. A `LR` story is justified because a law says so, whether or not anyone asked for it — you point to a statute section instead. An `ET` story is justified because the AI Ethics guideline requires it whenever an AI/OCR step is involved. Keeping them as separate IDs makes each one traceable to its actual source (which the W5 Gate rubric checks), and stops legal/ethics duties from quietly disappearing when a story gets simplified. In practice a legal or ethics duty is often *attached to* a user story (e.g. LR-05's e-signature requirement lives inside the US-11 LINE-linking flow) — the split is about bookkeeping and traceability, not about building them as separate screens.
+**Why LR and ET are split out from US instead of folded in:** they come from a different source and a different owner. A `US` story is justified because a resident or staff member told you it hurts — you can point to an interview quote. A `LR` story is justified because a law says so, whether or not anyone asked for it — you point to a statute section instead. An `ET` story is justified because the AI Ethics guideline requires it whenever an AI/OCR step is involved. Keeping them as separate IDs makes each one traceable to its actual source (which the W5 Gate rubric checks), and stops legal/ethics duties from quietly disappearing when a story gets simplified. In practice a legal or ethics duty is often *attached to* a user story (e.g. LR-05's consent-record requirement lives inside the US-24 device-registration flow) — the split is about bookkeeping and traceability, not about building them as separate screens.
 
 Each story below is written as `As a <role>, I want to <action>, so that <value>`, with a MoSCoW priority and testable Acceptance Criteria.
 
@@ -20,7 +20,7 @@ Each story below is written as `As a <role>, I want to <action>, so that <value>
 |---|---|
 | **E1** | Parcel Intake & Registration |
 | **E2** | Resident & Room Matching |
-| **E3** | LINE Parcel-Status Check & OTP Identity Verification |
+| **E3** | Resident Parcel Notification (PWA / Web Push) & OTP Device Verification *(revised 2026-10-21; was: LINE Parcel-Status Check)* |
 | **E4** | Parcel Check-Out (Bulk + Selective) |
 | **E5** | Legal & Compliance (PDPA · CCA §26 · ETA §9) |
 | **E6** | AI Ethics & Human-in-the-Loop Safeguards |
@@ -61,13 +61,42 @@ As staff, I want unmatchable parcels parked in a visible queue, tagged with *why
 - Given a parcel is tagged, then it appears on a building-wide queue, oldest first, filterable by reason.
 - Given a supervisor resolves a queued parcel, the resolution is logged with staff account, timestamp, and reason.
 
-### E3 — LINE Parcel-Status Check & OTP Identity Verification
+### E3 — Resident Parcel Notification (PWA / Web Push) & OTP Device Verification
+
+> **Revision 2026-10-21 — LINE dropped, replaced by Web Push.** The team no longer uses LINE. US-08 and US-11 are **deprecated** (kept below for traceability, IDs never reused) and superseded by **US-23 / US-24 / US-25**. The change also turns E3 from *pull* (Resident asks) into *push* (Resident is told on Check-In) — a Resident-facing behaviour change, so it is **pending advisor sign-off** (scope gate, `CLAUDE.md`). No new framework or library: Go standard-library crypto + browser-native Service Worker / Push APIs. Design: `docs/02-design/web-push-notification.md`.
+
+**US-23 — Push notification on Check-In** *(Must Have, supersedes US-08)*
+As a registered student resident, I want my phone to notify me when staff check in a parcel for my room, so that I know to come down without having to keep checking.
+- Given a resident's device is registered to their room (US-24), when staff check in a parcel for that room, then a system notification reaches the device (typically within about a minute) saying the room has new parcel(s) waiting and the total pending.
+- Given several parcels for the same room are checked in within the batch window (default 60 s), then the resident gets **one** notification with the combined count, not one per parcel.
+- Given every parcel in a pending notification is already checked out before it is sent, then no notification is sent.
+- The notification carries only the room number and counts — no tracking code, courier, sender or name (ties to US-10, LR-03).
+- Given the push service is down or slow, check-in still succeeds immediately; delivery is retried in the background (ties to ET-04). A device the push service reports as gone stops being notified.
+- Given a parcel is checked in with no room (unmatched queue, US-06), the notification goes out when staff assign its room.
+
+**US-24 — OTP-verified device registration at the desk** *(Must Have, supersedes US-11)*
+As a student resident, I want to prove I live in the room before my phone is registered for its notifications, so that only the real occupant is told about that room's parcels.
+- Registration is a four-step challenge, all required: (1) the resident opens the dorm's notification page (`/resident/`, QR code at the desk), enters the full room number (building+room, e.g. `3101`) and accepts the consent notice; (2) the system creates a single-use 6-digit code valid for 5 minutes — the resident's phone receives **only** a claim token, never the code; (3) a staff member looks up the pending code for that room and reads it to the resident in person — this in-person hand-off is the identity check; (4) the resident types the code, allows notifications, and only a correct match registers the device to that room.
+- A code that no staff member has looked up is treated as wrong; 5 wrong attempts burn it; at most 3 open requests per room; a room number that exists in more than one building must be entered in full.
+- Given a registration succeeds, the system records the room, the device, which staff member issued the code, when, and the exact consent version shown (ties to LR-01, LR-05). No name, phone number or student ID is collected.
+- Given a resident wants to stop, they can turn notifications off in the page, or ask staff, who can revoke every device of a room (e.g. at move-out); registrations also expire after 180 days. Every unregister is timestamped with its reason (and the staff member, if staff did it).
+
+**US-25 — Parcel status page for registered residents** *(Should Have, replaces the pull half of US-08)*
+As a registered student resident, I want to open the notification page and see what is waiting for my room, so that I can check without asking staff.
+- The page shows the room, the count of pending parcels, and each one's tracking code and check-in time (US-10 minimal data) — nothing about other rooms.
+- Given the device's registration was revoked, expired or replaced, the page falls back to the registration screen instead of showing data.
+- On iPhone/iPad the page explains that it must be added to the Home Screen first (iOS 16.4+ requirement for web notifications).
+
+---
+
+*Deprecated 2026-10-21 (LINE no longer used) — kept for traceability:*
+
 
 > LINE linking is an opt-in convenience, not something every resident has — it's not a data source staff depend on. The value: a linked resident can tap a "Check Parcel" button (rich-menu icon, `backend/img/percel_icon.png`) in the dorm's LINE chat at any time to see whether something is waiting for them, instead of asking staff in person or trusting a courier app that may say "delivered" before staff have keyed the parcel into this system. This is a pull, not a push — the system never messages a resident on its own; it only answers when asked. Most residents may never link at all, and that's the normal, expected state — not something to chase down.
 >
 > Interviews (`survey_interview_analysis.md` §1) found the single most common resident complaint (6/9) is that a courier's shipping app shows "delivered" before staff have keyed the parcel into this system, so the resident finds nothing yet when they check. That gap belongs to the courier, not to SDPMS — closing it would mean live courier-API integration, which is out of scope for this build (`spec.md` §3). A status check made before staff have keyed the parcel in correctly returns "not yet," not a false positive — that's intended behavior, not a bug to chase.
 
-**US-08 — On-demand parcel-status check via LINE**
+**~~US-08 — On-demand parcel-status check via LINE~~** *(Deprecated 2026-10-21 → US-23, US-25)*
 As a linked student resident, I want to tap a "Check Parcel" button in LINE, so that I can see whether I have anything waiting without asking staff or waiting for a notification that might never come.
 - Given a resident's LINE account is linked to their room, when they tap the "Check Parcel" icon, then the bot replies within a few seconds with the count and status (pending) of open parcels for that room.
 - Given the resident's LINE account is not yet linked, tapping "Check Parcel" prompts them to link first (US-11) instead of returning any parcel data.
@@ -77,7 +106,7 @@ As a linked student resident, I want to tap a "Check Parcel" button in LINE, so 
 As a student resident, I want a status reply that identifies my parcel without exposing sender or other residents' info, so that my privacy is protected.
 - The reply includes only building, room, count of pending parcels, and each parcel's system-generated reference — no courier/company identity, no other resident's name, no payment/CoD amount, no shipment contents.
 
-**US-11 — OTP-verified LINE linking**
+**~~US-11 — OTP-verified LINE linking~~** *(Deprecated 2026-10-21 → US-24)*
 As a student resident, I want to prove I actually live in the room I claim before my LINE account gets linked to it, so that only the real occupant can check that room's parcel status.
 - Linking is a four-step challenge, all required: (1) the resident messages the dorm's official LINE account with their claimed room number; (2) the system generates a single-use OTP (random code) tied to that room number and that LINE account, valid for a short window; (3) a staff member looks up the pending code for that room and reads it to the resident in person at the parcel desk — this in-person hand-off is the actual identity check, same as the rest of the current desk process, no digital signature involved; (4) the resident types the code back into the LINE chat, the bot asks them to confirm it, and only a correct match links the LINE account to that room.
 - Given the code doesn't match, or expires before it's used, the link is refused and the resident must restart from step 1 — the system never links on a guess.
@@ -107,14 +136,14 @@ As staff, I want the resident's registered name/room shown clearly next to the p
 ### E5 — Legal & Compliance
 
 **LR-01 — PDPA consent capture at onboarding**
-As the team, we must get explicit, plain-language consent before storing any resident's name, room, or LINE ID, so the system has a lawful basis to hold that data.
+As the team, we must get explicit, plain-language consent before storing any resident's name, room, or device/push identifier (formerly LINE ID), so the system has a lawful basis to hold that data.
 - No personal field saves until consent is explicitly given via a plain-language notice (not buried in a policy).
 - The system records who consented, the exact text/version shown, and when.
 
 **LR-03 — Data minimisation**
 As the team, we must collect and transmit only the personal data each feature actually needs.
 - Any label photo captured for matching is deleted or blurred once intake is confirmed — never retained "in case."
-- LINE status-check replies exclude any field not strictly needed to identify the parcel to its recipient (ties to US-10).
+- Push notification payloads and the resident status page exclude any field not strictly needed to identify the parcel to its recipient (ties to US-10, US-23, US-25); device registration stores no name, phone or student ID.
 
 **LR-04 — Access & action audit log (≥90 days)**
 As the team, we must log every login and every meaningful action (intake, match, override, checkout) with who/when/what, to satisfy Computer Crime Act §26.
@@ -123,7 +152,7 @@ As the team, we must log every login and every meaningful action (intake, match,
 
 **LR-05 — Verifiable record for consent actions**
 As the team, every "I agree" tap or approval must record who, when, and exactly what text was shown, so it holds up under ETA §9. *(Parcel pickup itself has no digital signature — see the note at the top of Epic 4 — so this applies to consent actions only, not checkout.)*
-- Ties into LR-01 (PDPA consent) and US-11 (staff issuing/reading out the OTP that links a LINE account to a room): each stores who acted, timestamp, method, and the exact terms version presented — never just `agreed = true`.
+- Ties into LR-01 (PDPA consent) and US-24 (staff issuing/reading out the OTP that registers a device to a room): each stores who acted, timestamp, method, and the exact terms version presented — never just `agreed = true`.
 
 ### E6 — AI Ethics & Human-in-the-Loop
 
@@ -134,15 +163,15 @@ As the team, any OCR read or algorithmic match suggestion must always require ex
 - A record only saves after a human accepts, edits, or rejects the suggestion — no "auto-apply above X% confidence" path exists.
 
 **ET-04 — Graceful degradation when AI/external services fail**
-As staff, I want to keep checking parcels in and out even if OCR or the LINE API is down, so a third-party outage never stops daily operations.
+As staff, I want to keep checking parcels in and out even if OCR or a push notification service is down, so a third-party outage never stops daily operations.
 - If OCR is unreachable, photo capture automatically offers manual entry (US-02) with no loss of intake capability.
-- If LINE's API is unreachable, check-in still succeeds; OTP issuance and status-check replies simply report "try again later" rather than blocking the workflow.
+- If a browser push service is unreachable, check-in still succeeds; notifications wait in an outbox and are retried in the background, never blocking the workflow (US-23).
 
 ---
 
 ## 4. Recommended Sprint-0 scope
 
-All 16 stories above are Must Have and form one traceable chain: **scan → match → link/check → checkout**, with the legal/ethics duties attached at the exact step they apply (LR-05 lives inside US-11, LR-03 lives inside US-01/US-10, ET-01 stands ready for whenever an AI-suggestion feature ships). This is the slice to build first.
+All 16 stories above are Must Have and form one traceable chain: **scan → match → link/check → checkout**, with the legal/ethics duties attached at the exact step they apply (LR-05 lives inside US-24, LR-03 lives inside US-01/US-10, ET-01 stands ready for whenever an AI-suggestion feature ships). This is the slice to build first.
 
 ## 5. Deferred — not detailed yet (title only, pull into a future sprint when needed)
 
