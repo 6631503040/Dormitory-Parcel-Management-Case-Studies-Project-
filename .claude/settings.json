@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(git rm *)",
+      "Bash(git add *)",
+      "Bash(grep -n \"getByPlaceholderText\\\\|getByLabelText\\\\|getByText\\(\\\\\"\\\\|findByText\\(\\\\\"\\\\|getByRole\\(\\\\\"button\\\\\", { name:\" src/components/DashboardPage.test.jsx src/components/ArchivePage.test.jsx)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" -X POST http://localhost:8080/api/v1/line/webhook -H \"Content-Type: application/json\" -d '{\"events\":[]}')",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" -X POST https://whitney-schorlaceous-irritably.ngrok-free.dev/api/v1/line/webhook -H \"Content-Type: application/json\" -d '{\"events\":[]}')",
+      "Bash(curl -sv -X POST https://whitney-schorlaceous-irritably.ngrok-free.dev/api/v1/line/webhook -H \"Content-Type: application/json\" -H \"ngrok-skip-browser-warning: true\" -d '{\"events\":[]}')",
+      "Bash(curl -s -c /tmp/cookie.txt -X POST http://localhost:8080/api/v1/auth/login -H \"Content-Type: application/json\" -d '{\"username\":\"somsri\",\"password\":\"parcel1234\"}' -o /dev/null -w \"login: %{http_code}\\\\n\")",
+      "Bash(curl -s -b /tmp/cookie.txt \"http://localhost:8080/api/v1/dashboard?date=2026-10-07\")",
+      "PowerShell(Start-Process \"C:\\\\Users\\\\Admin\\\\AppData\\\\Local\\\\DBeaver\\\\dbeaver.exe\")",
+      "Bash(tasklist //FI \"IMAGENAME eq dbeaver.exe\")"
+    ]
+  }
+}
