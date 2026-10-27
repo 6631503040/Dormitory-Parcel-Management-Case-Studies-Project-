@@ -24,8 +24,6 @@ const (
 	NoPendingParcels      = "NO_PENDING_PARCELS"
 	PendingCountChanged   = "PENDING_COUNT_CHANGED"
 	AmbiguousRoom         = "AMBIGUOUS_ROOM"
-	NoPendingLineOTP      = "NO_PENDING_LINE_OTP"
-	LineNotConfigured     = "LINE_NOT_CONFIGURED"
 
 	// Web Push (US-23/US-24)
 	PushNotConfigured    = "PUSH_NOT_CONFIGURED"
@@ -52,8 +50,6 @@ var statusByCode = map[string]int{
 	NoPendingParcels:      http.StatusNotFound,
 	PendingCountChanged:   http.StatusConflict,
 	AmbiguousRoom:         http.StatusUnprocessableEntity,
-	NoPendingLineOTP:      http.StatusNotFound,
-	LineNotConfigured:     http.StatusServiceUnavailable,
 	PushNotConfigured:     http.StatusServiceUnavailable,
 	NoPendingResidentOTP:  http.StatusNotFound,
 	OTPInvalid:            http.StatusUnprocessableEntity,

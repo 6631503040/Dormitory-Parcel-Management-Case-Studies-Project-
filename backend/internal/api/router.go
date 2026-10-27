@@ -35,12 +35,6 @@ type Deps struct {
 	Location       *time.Location // dormitory local time (Asia/Bangkok): Dashboard day boundaries
 	Ping           func(context.Context) error
 
-	// LINE Messaging API (Epic E3). Empty LineChannelSecret disables the webhook. LineReplyEndpoint
-	// is a test-only seam — leave empty in production to use the real LINE API.
-	LineChannelSecret      string
-	LineChannelAccessToken string
-	LineReplyEndpoint      string
-
 	// Web Push (US-23/US-24). Empty PushPublicKey disables the resident routes (PUSH_NOT_CONFIGURED);
 	// Check-In keeps working either way. PushEndpointAllowed is a test-only seam — nil means only
 	// the real browser push services are accepted (see push.DefaultEndpointAllowed).
@@ -70,9 +64,6 @@ func NewRouter(d Deps) *gin.Engine {
 	v1.POST("/auth/login", h.login)
 	v1.POST("/auth/logout", h.logout)
 
-	// Called by LINE's servers, not a browser session — verified via X-Line-Signature, not a cookie.
-	v1.POST("/line/webhook", h.lineWebhook)
-
 	// Residents (no Staff account): the PWA registers with a desk-issued OTP, then authenticates
 	// with its own device bearer token.
 	resident := v1.Group("/resident")
@@ -94,9 +85,9 @@ func NewRouter(d Deps) *gin.Engine {
 	authed.GET("/parcels", h.listParcels)
 	authed.POST("/parcels/check-out", h.checkOut)
 	authed.GET("/parcels/:trackingCode", h.getParcel)
+	authed.PATCH("/parcels/:trackingCode", h.editParcel)
 	authed.PATCH("/parcels/:trackingCode/room", h.assignRoom)
 	authed.POST("/rooms/:roomId/check-out-all", h.checkOutAll)
-	authed.GET("/rooms/:roomId/line-otp", h.lineOTPForRoom)
 	authed.GET("/rooms/:roomId/resident-otp", h.residentOTPForRoom)
 	authed.GET("/rooms/:roomId/push-subscriptions", h.roomPushSubscriptions)
 	authed.DELETE("/rooms/:roomId/push-subscriptions", h.revokeRoomPushSubscriptions)

@@ -21,13 +21,7 @@ type Config struct {
 	CookieSecure   bool     // set true whenever the app is served over HTTPS
 	TrustedProxies []string // reverse proxies allowed to set X-Forwarded-For
 
-	// LINE Messaging API (Epic E3: Check-Parcel status button + OTP-verified linking). Both are
-	// optional — an empty LineChannelSecret disables the webhook entirely (LINE_NOT_CONFIGURED)
-	// rather than failing startup, since not every deployment (or every dev machine) wires this up.
-	LineChannelSecret      string
-	LineChannelAccessToken string
-
-	// Web Push / VAPID (US-23). Optional like LINE: with no keys the resident PWA routes answer
+	// Web Push / VAPID (US-23). Optional: with no keys the resident PWA routes answer
 	// PUSH_NOT_CONFIGURED and no push worker runs. Generate a pair with `go run ./cmd/vapidkeys`.
 	VAPIDPublicKey   string
 	VAPIDPrivateKey  string
@@ -45,9 +39,6 @@ func Load() (Config, error) {
 		SessionSecret: []byte(os.Getenv("SESSION_SECRET")),
 		SessionTTL:    8 * time.Hour,
 		CookieSecure:  getenv("COOKIE_SECURE", "false") == "true",
-
-		LineChannelSecret:      os.Getenv("LINE_CHANNEL_SECRET"),
-		LineChannelAccessToken: os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"),
 
 		VAPIDPublicKey:   os.Getenv("VAPID_PUBLIC_KEY"),
 		VAPIDPrivateKey:  os.Getenv("VAPID_PRIVATE_KEY"),

@@ -179,6 +179,37 @@ describe("ResidentApp", () => {
     await waitFor(() => expect(put).toEqual(SUB));
   });
 
+  it("reloads the Pending list when the page comes back to the foreground", async () => {
+    localStorage.setItem(TOKEN_KEY, "dev-token");
+    mockConfig();
+    mockStatus([{ trackingCode: "TH1", checkedInAt: "2026-10-21T03:00:00Z" }]);
+    render(<ResidentApp />);
+    expect(await screen.findByText("TH1")).toBeInTheDocument();
+
+    mockStatus([]); // Staff checked it out meanwhile — no push is sent for a Check-Out
+    document.dispatchEvent(new Event("visibilitychange"));
+    expect(await screen.findByText(/ยังไม่มีพัสดุรอรับ/)).toBeInTheDocument();
+    expect(screen.queryByText("TH1")).not.toBeInTheDocument();
+  });
+
+  it("reloads the Pending list when the service worker reports a new push", async () => {
+    const worker = new EventTarget();
+    Object.defineProperty(navigator, "serviceWorker", { value: worker, configurable: true });
+    try {
+      localStorage.setItem(TOKEN_KEY, "dev-token");
+      mockConfig();
+      mockStatus([]);
+      render(<ResidentApp />);
+      expect(await screen.findByText(/ยังไม่มีพัสดุรอรับ/)).toBeInTheDocument();
+
+      mockStatus([{ trackingCode: "TH2", checkedInAt: "2026-10-21T03:00:00Z" }]);
+      worker.dispatchEvent(new MessageEvent("message", { data: { type: "parcel_arrived" } }));
+      expect(await screen.findByText("TH2")).toBeInTheDocument();
+    } finally {
+      delete navigator.serviceWorker;
+    }
+  });
+
   it("tells iPhone users to add the page to the Home Screen first", async () => {
     vi.mocked(pushSupport.pushSupport).mockReturnValue("ios_install");
     render(<ResidentApp />);

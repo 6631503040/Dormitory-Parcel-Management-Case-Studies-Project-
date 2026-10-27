@@ -39,7 +39,7 @@ The established stack is React with Vite and Tailwind CSS → Go/Gin API → Pos
 
 Room Number selection must use directory validation rather than free-text entry; the server must revalidate it. The target system requires an online connection for validation and audit recording. Parcel records are archived rather than hard-deleted. Store timestamps in UTC and display them in Asia/Bangkok local time.
 
-Out of scope: physical storage-location tracking, handwriting OCR, native mobile apps, direct courier API integration, and resident self-service Check-Out. LINE notifications and an unmatched-parcel queue require a separate scope decision before implementation.
+Out of scope: physical storage-location tracking, handwriting OCR, native mobile apps, direct courier API integration, and resident self-service Check-Out. The unmatched-parcel queue and the Resident notification page (`/resident/`, PWA + Web Push — it replaced the dropped LINE notifications on 2026-10-21) are implemented but still require a separate scope decision (advisor sign-off).
 
 Open decisions: the precise post-pickup archival window and any future expansion beyond the locked scope. Planned security, compliance, deployment, and performance requirements must not be represented as implemented or verified solely because they appear in project documentation.
 

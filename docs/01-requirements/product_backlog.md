@@ -46,11 +46,20 @@ As a dormitory parcel staff member, I want to manually enter the tracking number
 - Given a barcode fails 3 scans, when staff taps "Enter manually," then a form opens for the tracking number, then hands off to the same room/recipient step as US-01 (Epic 2) — manual entry is not a shortcut that skips room identification.
 - Given staff cannot determine a room at all (illegible, missing), then submission of that field is skipped and the parcel routes to the unmatched queue (US-06) instead of saving a null room.
 
+**US-26 — Edit a checked-in Parcel** *(Must Have, added 2026-10-27 — correction step of Check-In, not a new feature area)*
+As a dormitory parcel staff member, I want to correct a Parcel I already checked in — a mistyped tracking number, the wrong room, or a missing/incorrect problem note — so that a keying mistake doesn't send the Parcel (or its notification) to the wrong resident.
+- Given a Parcel is **Pending and has a room**, when staff opens it (Parcel History) and taps "แก้ไข", then they can change the Tracking Code, the Room Number and the note in one form; only the changed fields are sent.
+- The Room Number is still chosen from the directory (never free text) and re-validated server-side; a Tracking Code that already belongs to another Parcel is rejected as a duplicate with where/when it was checked in.
+- Given a Parcel is **Picked Up**, then it cannot be edited — it is handover evidence. Given a Parcel has **no room** (unmatched), then it is resolved through Assign Room (US-06), not edit.
+- Given an edit is saved, then an append-only `edited` event records the staff member, the time, and every changed field's **before and after** value; the original Check-In event and "checked in by" are never rewritten (ties to LR-04, chain of custody).
+- Given the room changed, then a recipient picked at Check-In who doesn't live in the new room is dropped, the new room's registered devices are notified (US-23), and the old room is not told about this Parcel.
+- *Tests:* TC14, TC41, TC61.
+
 ### E2 — Resident & Room Matching
 
 **US-05 — Search resident by room number, or by name/nickname**
 As staff, I want to look up who's assigned to a room, or search by the name/nickname written on the package when the room isn't legible, so that I can confirm who a parcel belongs to.
-- Given a valid room number, when staff searches, then the resident's name and LINE-link status return in under 1 second.
+- Given a valid room number, when staff searches, then the resident's name returns in under 1 second. *(Revised 2026-10-27: was "name and LINE-link status" — LINE removed; the desk sees a room's registered-device count in the Resident registration-code dialog instead, US-24.)*
 - Given no resident is on file for that room, then the system says so clearly and routes to US-06.
 - Given only a name/nickname is legible, when staff types it into search, then the system returns **plain text matches only** (exact or partial substring) — no AI ranking, confidence score, or suggested "best guess."
 - Given a name/nickname search returns exactly one match, the system asks a direct yes/no confirmation — "Is this Room 304 — Warinthorn K.?" — before assigning the parcel. Given it returns zero or more than one match, it routes to US-06 instead (tagged No match or Ambiguous).
@@ -60,6 +69,9 @@ As staff, I want unmatchable parcels parked in a visible queue, tagged with *why
 - Given a parcel can't be resolved, then it's tagged with one reason: **No match** (the room number or name/nickname search returned nothing), **No resident** (room number is valid but nobody's on file for it), **Ambiguous** (the name/nickname search text matches residents in two or more rooms — e.g. the same nickname appears in 3 rooms), or **Other**.
 - Given a parcel is tagged, then it appears on a building-wide queue, oldest first, filterable by reason.
 - Given a supervisor resolves a queued parcel, the resolution is logged with staff account, timestamp, and reason.
+- Given the resident is at the desk for a parcel that still has no room, staff can **check it out directly** without assigning a room first (Check Out Selected, US-13). It keeps its reason and note, leaves the queue, and the handover is logged like any other (LR-04); a room can no longer be assigned afterwards. *(Added 2026-10-27, migration `0007`.)*
+- *Status 2026-10-27:* the Dashboard's problem section lists the queue **newest first**, which does not meet "oldest first" above — open defect (Test Plan TC25). Staff now tick a single "problem" box at Check-In, so new parcels are filed as **Other**; the API still filters by reason, but the UI has no reason tabs.
+- *Tests:* TC06, TC25, TC62.
 
 ### E3 — Resident Parcel Notification (PWA / Web Push) & OTP Device Verification
 
@@ -73,6 +85,7 @@ As a registered student resident, I want my phone to notify me when staff check 
 - The notification carries only the room number and counts — no tracking code, courier, sender or name (ties to US-10, LR-03).
 - Given the push service is down or slow, check-in still succeeds immediately; delivery is retried in the background (ties to ET-04). A device the push service reports as gone stops being notified.
 - Given a parcel is checked in with no room (unmatched queue, US-06), the notification goes out when staff assign its room.
+- *Tests:* TC46, TC52–TC56, UAT08.
 
 **US-24 — OTP-verified device registration at the desk** *(Must Have, supersedes US-11)*
 As a student resident, I want to prove I live in the room before my phone is registered for its notifications, so that only the real occupant is told about that room's parcels.
@@ -80,12 +93,15 @@ As a student resident, I want to prove I live in the room before my phone is reg
 - A code that no staff member has looked up is treated as wrong; 5 wrong attempts burn it; at most 3 open requests per room; a room number that exists in more than one building must be entered in full.
 - Given a registration succeeds, the system records the room, the device, which staff member issued the code, when, and the exact consent version shown (ties to LR-01, LR-05). No name, phone number or student ID is collected.
 - Given a resident wants to stop, they can turn notifications off in the page, or ask staff, who can revoke every device of a room (e.g. at move-out); registrations also expire after 180 days. Every unregister is timestamped with its reason (and the staff member, if staff did it).
+- *Tests:* TC49, TC51, TC57–TC58, UAT07, UAT10.
 
 **US-25 — Parcel status page for registered residents** *(Should Have, replaces the pull half of US-08)*
 As a registered student resident, I want to open the notification page and see what is waiting for my room, so that I can check without asking staff.
 - The page shows the room, the count of pending parcels, and each one's tracking code and check-in time (US-10 minimal data) — nothing about other rooms.
+- Given the page is open, then it keeps itself current without a manual refresh: it reloads when a notification arrives, when the resident returns to the app, and every 30 seconds while visible — so a Check-Out (which sends no notification) disappears from the list within about 30 s. A manual "รีเฟรช" button and a "last updated" time remain. *(Added 2026-10-27.)*
 - Given the device's registration was revoked, expired or replaced, the page falls back to the registration screen instead of showing data.
 - On iPhone/iPad the page explains that it must be added to the Home Screen first (iOS 16.4+ requirement for web notifications).
+- *Tests:* TC50, TC53–TC55, UAT09.
 
 ---
 
@@ -127,6 +143,8 @@ As staff, I want to check out every open parcel for a room in one action, so tha
 As staff, I want to check out one specific parcel while leaving others open, so that I can handle partial pickups or missing items correctly.
 - Given multiple open parcels, when staff scan and confirm only one, only that one changes to "collected" once its barcode is matched at handover.
 - Given a parcel is marked missing/unclaimed, a reason code is required and stored.
+- Given the scanned parcel has **no room** (US-06), the check-out screen says no room is assigned, reminds staff to check the recipient's name against the label, shows no room list, and still allows the handover. *(Added 2026-10-27.)*
+- *Tests:* TC27–TC30, TC34–TC35, TC62.
 
 **US-15 — Room-mismatch double-check** *(soft warning, not a hard block)*
 As staff, I want the resident's registered name/room shown clearly next to the parcel's recorded room before I hand it over, so that I have a chance to catch an obviously wrong room even without a formal ID check.
@@ -146,9 +164,11 @@ As the team, we must collect and transmit only the personal data each feature ac
 - Push notification payloads and the resident status page exclude any field not strictly needed to identify the parcel to its recipient (ties to US-10, US-23, US-25); device registration stores no name, phone or student ID.
 
 **LR-04 — Access & action audit log (≥90 days)**
-As the team, we must log every login and every meaningful action (intake, match, override, checkout) with who/when/what, to satisfy Computer Crime Act §26.
-- Every login (success or fail) and every state-changing action is logged with actor, action, timestamp, and affected record.
+As the team, we must log every login and every meaningful action (intake, match, override, edit, checkout) with who/when/what, to satisfy Computer Crime Act §26.
+- Every login (success or fail) and every state-changing action is logged with actor, action, timestamp, and affected record. An edit (US-26) also records each changed field's before and after value.
 - Log entries are retained a **minimum** of 90 days — an auto-delete job that clears logs earlier is a violation, even if done to save storage.
+- Only the `admin` role can read the login log (enforced in the API, not just hidden in the UI). *Status 2026-10-27:* the API exists; there is no log screen yet.
+- *Tests:* TC41, TC63.
 
 **LR-05 — Verifiable record for consent actions**
 As the team, every "I agree" tap or approval must record who, when, and exactly what text was shown, so it holds up under ETA §9. *(Parcel pickup itself has no digital signature — see the note at the top of Epic 4 — so this applies to consent actions only, not checkout.)*
@@ -171,14 +191,31 @@ As staff, I want to keep checking parcels in and out even if OCR or a push notif
 
 ## 4. Recommended Sprint-0 scope
 
-All 16 stories above are Must Have and form one traceable chain: **scan → match → link/check → checkout**, with the legal/ethics duties attached at the exact step they apply (LR-05 lives inside US-24, LR-03 lives inside US-01/US-10, ET-01 stands ready for whenever an AI-suggestion feature ships). This is the slice to build first.
+The active stories above (all Must Have except US-25, Should Have) form one traceable chain: **scan → match → notify/check → checkout**, with the legal/ethics duties attached at the exact step they apply (LR-05 lives inside US-24, LR-03 lives inside US-01/US-10, ET-01 stands ready for whenever an AI-suggestion feature ships). This is the slice to build first.
+
+**Test traceability.** `docs/Test-Plan.docx` (DPMS-TP-002, v1.5, 27 Oct 2026) holds TC01–TC63 and UAT01–UAT10; stories touched on 2026-10-27 list their cases under *Tests*. UAT is five Staff (UAT01–UAT06) and five Residents (UAT07–UAT10).
 
 ## 5. Deferred — not detailed yet (title only, pull into a future sprint when needed)
 
 Grouped by why they're waiting, not by ID order — nothing here is dropped, just not expanded into full stories yet.
 
 **Future epic — Staff Operations Console** *(Must Have for the product long-term — but it's UX/NFR polish on top of the core workflow, not the workflow itself, so it waits)*
-- US-16–19 — live dashboard, fast search, low-training UI, peak-load performance. Once built, it should include a **problem-parcel bottleneck view**: counts and quick access by US-06's reason category (No match / No resident / Ambiguous / Other) across all buildings, so a supervisor can see where things are stuck without paging through each building one by one.
+- US-17–19 — fast search, low-training UI, peak-load performance.
+- US-16 — live dashboard: **pulled forward and built 2026-10-27**, detailed below. Still owed from the original idea: a **problem-parcel bottleneck view** with counts and quick access by US-06's reason category (No match / No resident / Ambiguous / Other) across all buildings, so a supervisor can see where things are stuck without paging through each building one by one.
+
+**US-16 — Dashboard summary board** *(Must Have — CLAUDE.md feature 4 "Daily Status Dashboard"; added 2026-10-27)*
+As staff, I want to see how many parcels came in, went out, and are still waiting — for today, this week or this month — so that I can tell how busy the desk is and how much is piling up.
+- The Dashboard shows three counts: **Received** (checked in during the period), **Picked Up** (checked out during the period) and **Waiting** (still Pending at the end of the period — for the current period, right now).
+- Staff switch the period between **Day / Week / Month**; a week runs Monday–Sunday and a month is the calendar month, both in Asia/Bangkok time. Previous/next controls step through periods (next is disabled on the current one) and a button returns to the current period.
+- For the current period, Waiting says how many of its parcels have no room (US-06), since those are not in the Pending list below it.
+- The counts refresh after every Check-In, Check-Out or edit made from the Dashboard.
+- *Tests:* TC59.
+
+**US-27 — Read-only Resident Directory page** *(Must Have — CLAUDE.md "read-only Resident/Room Directory reference"; added 2026-10-27)*
+As staff, I want to look up who lives in which room without starting a Check-In, so that I can answer questions at the desk quickly.
+- Search by room, resident name/nickname or building; results are paginated; an empty search says so plainly.
+- Read-only: no create, edit or delete; no phone numbers shown (LR-03).
+- *Status 2026-10-27:* the API (`GET /api/v1/directory`) exists; the page is **not built** — Test Plan TC60 is Blocked until it is.
 
 **Future epic — Multi-Building Administration** *(Should Have / Could Have — only matters once more than one building is actually live)*
 - US-20–22 — cross-building volume reporting, role-based staff access per building, aging-parcel escalation.

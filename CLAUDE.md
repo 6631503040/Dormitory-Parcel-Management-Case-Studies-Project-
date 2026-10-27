@@ -64,6 +64,12 @@ beyond this set without flagging it (Technical Risk mitigation).
 
 Plus: read-only Resident/Room Directory reference, and an audit trail on every check-in/check-out.
 
+Plus (Epic E3, **advisor sign-off pending** — scope change): the **Resident notification page**
+`/resident/` — a separate PWA where a Resident registers their phone with a desk OTP, sees their
+room's Pending Parcels (the page refreshes itself while open), and gets a Web Push notification on
+Check-In. It **replaces LINE**, which the team dropped on 2026-10-21; the LINE code was removed on
+2026-10-27. Design: `docs/02-design/web-push-notification.md`.
+
 **Out of scope:** handwriting OCR, mobile app (web only), direct courier API integration.
 New feature requests go through advisor review — flag them as scope creep, don't just build them.
 
@@ -92,7 +98,7 @@ Tables: `buildings`, `rooms`, `residents` (the official directory), `staff`,
 `parcels`, `parcel_events` (audit trail).
 Resident notifications (Epic E3, Web Push — `docs/02-design/web-push-notification.md`):
 `resident_otp_challenges`, `push_subscriptions`, `push_notifications` (outbox). The LINE tables
-(`line_links`, `line_otp_challenges`) are deprecated and no longer written.
+(`line_links`, `line_otp_challenges`, migration 0004) remain in the schema but no code uses them.
 Enums: `staff_role`, `parcel_status` (`pending` / `picked_up` / `archived`),
 `parcel_event_type`.
 

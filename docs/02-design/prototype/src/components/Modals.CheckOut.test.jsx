@@ -57,8 +57,9 @@ describe("scanner-first CheckOutModal", () => {
     await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "X");
     expect(screen.getByRole("button", {name: "ยืนยันนำพัสดุออก"})).toBeDisabled();
   });
-  it("focuses the tracking field using the icon-only scanner button", async () => {
-    const {user} = setup(); await user.click(screen.getByRole("button", {name: "เตรียมสแกน"}));
+  it("has no separate scanner button — the scanner types straight into the tracking field", () => {
+    setup();
+    expect(screen.queryByRole("button", {name: "เตรียมสแกน"})).not.toBeInTheDocument();
     expect(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ")).toHaveFocus();
   });
   it("shows API not-found and picked-up errors without allowing checkout", async () => {
@@ -71,12 +72,24 @@ describe("scanner-first CheckOutModal", () => {
     await user.click(screen.getByRole("button", {name: "ค้นหาพัสดุ"}));
     await screen.findByText("พัสดุนี้นำออกแล้วหรือไม่อยู่ในสถานะรอรับ");
   });
-  it("requires directory assignment before an unmatched parcel can be checked out", async () => {
-    const {user} = setup();
-    server.use(http.get("/api/v1/parcels/:code", () => HttpResponse.json({...parcel, room: null, residents: []})));
+  it("checks out a parcel that has no room, without asking for one", async () => {
+    const {user, onConfirm} = setup();
+    const roomless = {...parcel, room: null, residents: [], unmatchedReason: "other"};
+    let sent;
+    server.use(
+      http.get("/api/v1/parcels/:code", () => HttpResponse.json(roomless)),
+      http.post("/api/v1/parcels/check-out", async ({request}) => {
+        sent = await request.json(); return HttpResponse.json({parcels: [{...roomless, status: "picked_up"}]});
+      })
+    );
     await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "TH100{Enter}");
-    await screen.findByText("พัสดุนี้ยังไม่ระบุห้อง กรุณาจัดห้องก่อนนำออก");
-    expect(screen.queryByRole("button", {name: "ยืนยันนำพัสดุออก"})).not.toBeInTheDocument();
+    await screen.findByRole("region", {name: "ข้อมูลพัสดุที่ค้นพบ"});
+    expect(screen.getByText("ยังไม่ระบุห้อง")).toBeInTheDocument();
+    expect(screen.getByText("ตรวจสอบชื่อผู้รับกับฉลากพัสดุก่อนส่งมอบ")).toBeInTheDocument();
+    expect(screen.queryByText(/พัสดุอื่นของห้องนี้/)).not.toBeInTheDocument(); // no room, no room list
+    await user.click(screen.getByRole("button", {name: "ยืนยันนำพัสดุออก"}));
+    await waitFor(() => expect(onConfirm).toHaveBeenCalled());
+    expect(sent).toEqual({trackingCodes: ["TH100"]});
   });
   it("keeps a failed selection for retry and does not report completion", async () => {
     const {user, onConfirm} = setup();

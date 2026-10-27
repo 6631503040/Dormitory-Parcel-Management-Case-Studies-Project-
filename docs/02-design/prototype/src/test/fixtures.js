@@ -55,6 +55,9 @@ export function makeParcelDetail(overrides = {}) {
 export function makeDashboard(overrides = {}) {
   return {
     date: "2026-09-22",
+    period: "day",
+    from: "2026-09-22",
+    to: "2026-09-22",
     checkedIn: 4,
     pickedUp: 1,
     pending: 3,

@@ -80,14 +80,14 @@ export const api = {
       method: "POST",
       body: expectedCount != null ? { expectedCount } : undefined,
     }),
+  // Correct a Pending Parcel after Check-In (US-26): send only the fields that changed; note "" clears it.
+  updateParcel: (trackingCode, changes) =>
+    request(`/parcels/${encodeURIComponent(trackingCode)}`, { method: "PATCH", body: changes }),
   assignRoom: (trackingCode, roomId) =>
     request(`/parcels/${encodeURIComponent(trackingCode)}/room`, { method: "PATCH", body: { roomId } }),
 
-  dashboard: (date, signal) => request(`/dashboard${toQueryString({ date })}`, { signal }),
-
-  // The pending LINE OTP for a room (US-11 step 3): staff read this code out to the resident in
-  // person. It is never sent over LINE itself.
-  lineOtp: (roomId) => request(`/rooms/${roomId}/line-otp`),
+  // period: "day" | "week" (Mon–Sun) | "month" — the one that contains `date`.
+  dashboard: ({ date, period } = {}, signal) => request(`/dashboard${toQueryString({ date, period })}`, { signal }),
 
   // Web Push registration (US-24 step 3): the room's pending code, read out loud at the desk. The
   // Resident's PWA never receives it — that in-person hand-off is the identity check.
