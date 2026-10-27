@@ -396,3 +396,15 @@ input::placeholder, textarea::placeholder { color: var(--desk-muted); opacity: 1
 
 .unmatched-content { padding: 0 16px 16px; }
 .desk-dialog[open] { position: fixed; inset: 0; }
+
+/* One focus indicator; avoid stacking the browser outline with Tailwind rings. */
+.room-combobox-input { border-color: var(--desk-control-border) !important; border-radius: 6px; box-shadow: none; }
+.room-combobox-input:focus, .room-combobox-input:focus-visible { border-color: var(--desk-primary) !important; outline: 2px solid var(--desk-primary); outline-offset: -1px; box-shadow: none; }
+.issue-toggle { width: 100%; min-height: 64px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; text-align: left; border-radius: 6px; }
+.issue-toggle:hover { background: var(--desk-primary-light); }
+.issue-toggle-heading, .issue-toggle-action { display: inline-flex; align-items: center; gap: 10px; }
+.issue-toggle-heading { flex-wrap: wrap; }
+.issue-toggle-action { color: var(--desk-primary); font-size: 13px; white-space: nowrap; }
+.issue-toggle-action svg { transition: transform 150ms ease-out; }
+.issue-toggle[aria-expanded="true"] .issue-toggle-action svg { transform: rotate(180deg); }
+@media (max-width: 640px) { .issue-toggle { padding-inline: 8px; gap: 8px; } .issue-toggle-heading { gap: 6px; } }

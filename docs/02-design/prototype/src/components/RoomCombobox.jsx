@@ -124,7 +124,7 @@ const RoomCombobox = forwardRef(function RoomCombobox(
         <label htmlFor={`${baseId}-input`} className="block text-sm font-semibold mb-2" style={{ ...bodyFont, color: C.textMuted }}>{label}</label>
       )}
       {value ? (
-        <div className={`flex items-center justify-between gap-2 border-2 ${sizeClass}`} style={{ ...bodyFont, borderColor: C.primary, background: C.primaryLight, color: C.text }}>
+        <div className={`flex items-center justify-between gap-2 border ${sizeClass}`} style={{ ...bodyFont, borderColor: C.primary, background: C.primaryLight, color: C.text }}>
           <span className="font-semibold truncate">{entryLabel(value)}</span>
           <button type="button" onClick={clear} aria-label="เปลี่ยนห้อง" className="p-1 rounded-lg hover:bg-white flex-shrink-0">
             <X size={16} style={{ color: C.textMuted }} />
@@ -151,7 +151,7 @@ const RoomCombobox = forwardRef(function RoomCombobox(
             onBlur={() => setOpen(false)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className={`w-full border-2 outline-none focus:ring-2 focus:ring-blue-300 ${sizeClass}`}
+            className={`room-combobox-input w-full border ${sizeClass}`}
             style={{ ...bodyFont, borderColor: C.border, color: C.text }}
           />
           {loading && <Loader2 size={16} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin" style={{ color: C.textMuted }} />}

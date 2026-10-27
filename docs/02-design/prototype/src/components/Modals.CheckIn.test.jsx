@@ -71,8 +71,10 @@ describe("CheckInModal", () => {
     const user = userEvent.setup();
     render(<CheckInModal onClose={vi.fn()} />);
     await user.type(screen.getByLabelText(/เลขพัสดุ/), "TH100"); await pickRoom(user);
-    await user.click(screen.getByRole("checkbox", {name: "พัสดุชำรุด"}));
-    await user.type(screen.getByLabelText("เหตุผลที่ชำรุด"), "กล่องเปียก");
+    await user.click(screen.getByRole("checkbox", {name: "พัสดุมีปัญหา"}));
+    expect(screen.getAllByRole("checkbox")).toHaveLength(1);
+    expect(screen.getByText("1101 · สมชาย ใจดี")).toBeInTheDocument();
+    await user.type(screen.getByLabelText("รายละเอียดปัญหา (ไม่บังคับ)"), "กล่องเปียก");
     await user.click(screen.getByRole("button", {name: "บันทึก"}));
     await screen.findByText("บันทึกแล้วรอบนี้ (1)");
     expect(body).toEqual({trackingCode: "TH100", roomId: 1, note: "ชำรุด: กล่องเปียก"});
