@@ -1,33 +1,168 @@
-/* Resident PWA (/resident/): phone-first, one column, same design tokens as the Staff desk. */
-.resident-page { min-height: 100dvh; padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; }
-.resident-shell { width: 100%; max-width: 440px; }
-.resident-brand { display: flex; align-items: center; gap: 10px; color: var(--desk-primary); margin: 8px 0 20px; }
-.resident-brand span { font-size: 18px; font-weight: 700; color: var(--desk-text); }
-.resident-card { background: var(--desk-surface); border: 1px solid var(--desk-border); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
-.resident-card h1 { margin: 0 0 6px; font-size: 22px; line-height: 1.35; font-weight: 600; }
-.resident-card h2 { margin: 0 0 8px; font-size: 16px; font-weight: 600; }
-.resident-muted { color: var(--desk-muted); font-size: 13px; }
-.resident-steps { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-.resident-steps li { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--desk-muted); }
-.resident-steps b { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--desk-primary-light); color: var(--desk-primary); font-size: 12px; flex-shrink: 0; }
-.resident-steps li[aria-current="step"] { color: var(--desk-text); font-weight: 500; }
-.resident-steps li[aria-current="step"] b { background: var(--desk-primary); color: var(--desk-surface); }
-.resident-consent { background: var(--desk-bg); border-radius: 8px; padding: 12px 14px; margin: 4px 0 16px; }
-.resident-consent ul { margin: 0 0 10px; padding-left: 18px; list-style: disc; font-size: 13px; color: var(--desk-muted); display: grid; gap: 4px; }
-.resident-check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; min-height: 44px; }
-.resident-check input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--desk-primary); flex-shrink: 0; }
-.resident-block { width: 100%; }
+/* Resident PWA (/resident/): the Staff desk's visual system (DESIGN.md, styles.css tokens),
+   laid out phone-first. One emphasised line per screen says what to do now. */
+/* The Staff sign-in's powder-blue ground. On wide screens the dormitory art and the card form one
+   980px group centred on the page (art 460, gap 40, column 480); narrower, the card stands alone. */
+.resident-page { --shell: 480px; min-height: 100dvh; background: var(--desk-surface); color: var(--desk-text); font-family: var(--desk-font); }
+.resident-column { position: relative; z-index: 1; }
+.resident-page .login-visual { position: fixed; inset: 0; }
+.resident-page .login-visual img { left: calc(50% - 490px); width: 460px; }
+@media (max-width: 999px) { .resident-page .login-visual img { display: none; } }
+@media (min-width: 1000px) {
+  .resident-page[data-screen="flow"] .resident-shell { margin-left: calc(50% + 10px); }
+  .resident-page[data-screen="flow"] .resident-bar { padding-left: calc(50% - 490px); }
+}
+/* Focused fields stop below the sticky header and above the pinned button. */
+html:has(.resident-page) { scroll-padding-top: 76px; scroll-padding-bottom: 104px; }
+
+.resident-bar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; min-height: 60px; background: var(--desk-surface); border-bottom: 1px solid var(--desk-border);
+  /* the brand lines up with the 480px content column at every width */
+  padding: max(8px, env(safe-area-inset-top)) max(16px, calc((100% - var(--shell)) / 2 + 16px)) 8px; }
+.resident-brand { display: flex; align-items: center; gap: 10px; color: var(--desk-primary); }
+.resident-brand span { font-size: var(--desk-type-titleLarge); font-weight: 700; letter-spacing: -.02em; color: var(--desk-text); }
+.resident-brand small { font-size: var(--desk-type-bodyMedium); font-weight: 500; color: var(--desk-muted); }
+.resident-shell { width: 100%; max-width: var(--shell); margin: 0 auto; padding: 16px 16px max(24px, env(safe-area-inset-bottom)); }
+
+.resident-card { --card-pad: 20px; background: var(--desk-surface); border: 1px solid var(--desk-border); border-radius: var(--desk-radius-md); padding: var(--card-pad); margin-bottom: 16px; }
+.resident-card h1 { margin: 0 0 6px; font-size: var(--desk-type-headlineMedium); line-height: 1.35; font-weight: 600; letter-spacing: -.02em; text-wrap: balance; }
+.resident-card h2 { margin: 0 0 4px; font-size: var(--desk-type-titleMedium); font-weight: 600; }
+.resident-lead { margin: 0; font-size: var(--desk-type-bodyLarge); color: var(--desk-muted); text-wrap: pretty; }
+.resident-muted { margin: 0; font-size: var(--desk-type-bodyMedium); color: var(--desk-muted); text-wrap: pretty; }
+.resident-hint { margin: 6px 0 0; font-size: var(--desk-type-bodyMedium); color: var(--desk-muted); line-height: 1.5; text-wrap: pretty; }
+.resident-loading { padding: 32px 0; color: var(--desk-muted); }
+.resident-inline-icon { display: inline; vertical-align: -3px; }
+.resident-emph { font-weight: 600; color: var(--desk-text); } /* emphasis by weight; blue stays for actions, as on the Staff desk */
+.resident-emph-done { color: var(--desk-success); }
+.resident-say { white-space: nowrap; }
+
+/* Steps follow the desk's navigation: the current one underlined in primary, done ones checked in green. */
+.resident-steps { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0 0 16px; padding: 0; list-style: none; font-size: var(--desk-type-bodyMedium); color: var(--desk-muted); }
+.resident-steps li { display: inline-flex; align-items: center; gap: 4px; }
+.resident-steps li[data-state="done"] { color: var(--desk-success); }
+.resident-steps li[data-state="current"] { color: var(--desk-primary); font-weight: 600; text-decoration: underline 2px; text-underline-offset: 6px; }
+
+.resident-field { margin: 18px 0 0; }
+.resident-card .form-field .resident-room-input { min-height: 56px; font-size: var(--desk-type-headlineMedium); font-weight: 600; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.resident-card .form-field .resident-room-input::placeholder { font-size: var(--desk-type-titleMedium); font-weight: 400; letter-spacing: 0; }
+.resident-card .form-field input[aria-invalid="true"] { border-color: var(--desk-warning); }
+.resident-card .form-field input:disabled { background: var(--desk-bg); color: var(--desk-muted); border-color: var(--desk-border); }
+.resident-error { margin: 6px 0 0; color: var(--desk-warning); font-size: var(--desk-type-bodyMedium); font-weight: 500; }
+.resident-error-fix { display: block; margin-top: 2px; }
+.resident-error-fix .resident-emph { color: var(--desk-text); }
+
+.resident-consent { margin-top: 4px; background: var(--desk-bg); border-radius: var(--desk-radius-md); padding: 12px 14px 6px; }
+.resident-consent h2 { font-size: var(--desk-type-bodyLarge); }
+.resident-consent ul { margin: 0 0 4px; padding-left: 18px; list-style: disc; display: grid; gap: 4px; font-size: var(--desk-type-bodyMedium); color: var(--desk-muted); text-wrap: pretty; }
+.resident-check { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: var(--desk-type-bodyLarge); cursor: pointer; }
+.resident-check input { width: 20px; height: 20px; margin: 0; accent-color: var(--desk-primary); flex-shrink: 0; }
+.resident-check input[aria-invalid="true"] { outline: 2px solid var(--desk-warning); outline-offset: 2px; }
+
+.resident-timing { display: flex; align-items: center; gap: 8px; margin: 16px 0 0; font-size: var(--desk-type-bodyLarge); }
+.resident-timing svg, .resident-timer svg { color: var(--desk-primary); flex-shrink: 0; }
+
+/* The primary action: full width, and pinned in thumb reach when the card is taller than the phone. */
+.resident-dock { margin-top: 16px; }
+.resident-block { width: 100%; min-height: 48px; }
 .resident-secondary { border-color: var(--desk-control-border); background: var(--desk-surface); color: var(--desk-primary); }
-.resident-code input { font-size: 28px; letter-spacing: .35em; text-align: center; font-variant-numeric: tabular-nums; }
-.resident-room { font-size: 30px; font-weight: 700; letter-spacing: .02em; color: var(--desk-primary); font-variant-numeric: tabular-nums; }
-.resident-count { display: flex; align-items: baseline; gap: 8px; margin: 4px 0 12px; }
-.resident-count strong { font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
-.resident-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--desk-border); }
-.resident-list li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--desk-border); font-size: 13px; }
-.resident-list code { font-family: "Roboto Mono", "SF Mono", Consolas, monospace; font-size: 13px; }
-.resident-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--desk-success); background: var(--desk-success-light); border-radius: 4px; padding: 3px 8px; }
-.resident-notice { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; background: var(--desk-primary-light); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; }
-.resident-notice-warning { background: var(--desk-warning-light); color: var(--desk-warning); }
-.resident-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.resident-link { min-height: 44px; color: var(--desk-primary); font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
-.resident-danger { min-height: 44px; color: var(--desk-warning); font-size: 13px; }
+.resident-secondary:hover:not(:disabled) { background: var(--desk-primary-light); }
+.resident-danger-button { display: flex; width: 100%; min-height: 48px; margin-top: 10px; align-items: center; justify-content: center; border: 1px solid var(--desk-warning); border-radius: var(--desk-radius-sm); background: var(--desk-surface); color: var(--desk-warning); font-weight: 600; }
+.resident-danger-button:hover:not(:disabled) { background: var(--desk-warning-light); }
+.resident-danger-button:disabled { color: var(--desk-muted); border-color: var(--desk-border); }
+.resident-link { display: block; min-height: 44px; margin: 4px auto 0; padding: 0 8px; color: var(--desk-primary); font-size: var(--desk-type-bodyMedium); text-decoration: underline; text-underline-offset: 4px; }
+.resident-link:disabled { color: var(--desk-muted); }
+
+/* Verify: the room, set large in primary, is what Staff check at the counter. */
+/* The room sits in a labelled info box, like a field read-out on the Staff desk. */
+.resident-room-box { margin-top: 14px; padding: 12px 14px; border: 1px solid var(--desk-border); border-radius: var(--desk-radius-md); background: var(--desk-bg); }
+.resident-room-label { display: block; font-size: var(--desk-type-bodyMedium); font-weight: 500; color: var(--desk-muted); }
+.resident-room { margin: 2px 0 0; font-size: var(--desk-type-displayLarge); line-height: 1.15; font-weight: 700; letter-spacing: .02em; color: var(--desk-text); font-variant-numeric: tabular-nums; }
+.resident-room-caption { margin: 2px 0 0; font-size: var(--desk-type-bodyMedium); color: var(--desk-muted); }
+.resident-code-form { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--desk-border); }
+.resident-label-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.resident-label-row label { font-size: var(--desk-type-bodyMedium); font-weight: 500; }
+.resident-timer { display: inline-flex; align-items: center; gap: 6px; font-size: var(--desk-type-bodyLarge); font-weight: 600; font-variant-numeric: tabular-nums; }
+.resident-timer.is-urgent, .resident-timer.is-urgent svg { color: var(--desk-warning); }
+
+/* Six boxes split 3+3 over one real input (autofill, paste and screen readers see a plain field). */
+.resident-codebox { position: relative; height: 56px; }
+.resident-codebox input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; color: transparent; caret-color: transparent; font-size: 16px; letter-spacing: 1em; cursor: text; }
+.resident-codebox input::selection { background: transparent; }
+.resident-codebox input:focus-visible { outline: none; }
+.resident-codebox-cells { display: grid; grid-template-columns: repeat(3, 1fr) 12px repeat(3, 1fr); gap: 8px; height: 100%; pointer-events: none; }
+.resident-codebox-cells span { display: flex; align-items: center; justify-content: center; border: 1px solid var(--desk-control-border); border-radius: var(--desk-radius-sm); background: var(--desk-surface); font-size: var(--desk-type-headlineMedium); font-weight: 600; color: var(--desk-text); font-variant-numeric: tabular-nums; }
+.resident-codebox-cells span:nth-child(4) { grid-column: 5; }
+.resident-codebox:focus-within .resident-codebox-cells { outline: 2px solid var(--desk-primary); outline-offset: 4px; border-radius: var(--desk-radius-sm); }
+.resident-codebox:focus-within .resident-codebox-cells span[data-next] { border-color: var(--desk-primary); box-shadow: inset 0 0 0 1px var(--desk-primary); }
+.resident-codebox.is-invalid .resident-codebox-cells span { border-color: var(--desk-warning); }
+.resident-codebox:has(input:disabled) .resident-codebox-cells span { background: var(--desk-bg); color: var(--desk-muted); }
+
+.resident-prompt-note { display: flex; align-items: flex-start; gap: 10px; margin: 16px 0 0; padding: 10px 12px; border-radius: var(--desk-radius-md); background: var(--desk-primary-light); font-size: var(--desk-type-bodyLarge); line-height: 1.55; }
+.resident-prompt-note svg { margin-top: 3px; color: var(--desk-primary); flex-shrink: 0; }
+
+/* Status: the Staff desk's working screen, a page heading over a parcel register. */
+.resident-page[data-screen="status"] { --shell: 640px; background: var(--desk-bg); }
+.resident-status-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-top: 8px; }
+.resident-status-heading .desk-button { flex-shrink: 0; }
+.resident-register { margin-bottom: 16px; overflow: hidden; }
+.resident-table { min-width: 0; }
+.resident-table thead th { border-top: 0; border-bottom: 1px solid var(--desk-border); }
+.resident-table tbody tr + tr td { border-top: 1px solid var(--desk-border); }
+.resident-code-cell { font-weight: 500; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.resident-table td.resident-wait { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.resident-wait-inline { display: none; }
+.resident-empty { margin: 0; padding: 24px; font-size: var(--desk-type-bodyLarge); color: var(--desk-muted); text-wrap: pretty; }
+.resident-register-meta { margin: 0; padding: 10px 24px; border-top: 1px solid var(--desk-border); font-size: var(--desk-type-labelSmall); color: var(--desk-muted); }
+.resident-action-error { margin-bottom: 12px; }
+.resident-device { padding: 20px 24px; margin-bottom: 16px; }
+.resident-device h2 { margin: 0 0 12px; font-size: var(--desk-type-titleMedium); font-weight: 600; }
+.resident-device dl { margin: 0 0 8px; }
+.resident-device dl > div { display: flex; justify-content: space-between; gap: 16px; padding: 6px 0; font-size: var(--desk-type-bodyLarge); }
+.resident-device dt { color: var(--desk-muted); }
+.resident-device dd { margin: 0; font-weight: 500; text-align: right; }
+.resident-on { display: inline-flex; align-items: center; gap: 6px; color: var(--desk-success); }
+.resident-device-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--desk-border); }
+.resident-test { font-size: var(--desk-type-bodyMedium); }
+.resident-confirm-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.resident-confirm-actions > * { flex: 1 1 200px; min-height: 44px; margin: 0; }
+.resident-danger { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--desk-warning); font-size: var(--desk-type-bodyMedium); text-decoration: underline; text-underline-offset: 4px; }
+.resident-confirm { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--desk-border); }
+.resident-confirm p { margin: 0 0 12px; font-size: var(--desk-type-bodyMedium); }
+
+/* Notices use the desk's tinted feedback surfaces: blue info, green success, red error. */
+.resident-notice { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 16px; padding: 12px 14px; border-radius: var(--desk-radius-md); background: var(--desk-primary-light); font-size: var(--desk-type-bodyLarge); line-height: 1.55; }
+.resident-card .resident-notice { margin: 16px 0 0; }
+.resident-notice > svg { margin-top: 3px; flex-shrink: 0; color: var(--desk-primary); }
+.resident-notice-body { flex: 1; min-width: 0; text-wrap: pretty; }
+.resident-notice-error { background: var(--desk-warning-light); color: var(--desk-warning); }
+.resident-notice-error > svg { color: var(--desk-warning); }
+.resident-notice-success { background: var(--desk-success-light); }
+.resident-notice-success > svg { color: var(--desk-success); }
+.resident-notice-success .resident-emph-done { color: var(--desk-text); } /* green on green-light falls under 4.5:1; the icon carries the colour */
+.resident-notice-stack, .resident-notice-now { flex-direction: column; align-items: stretch; gap: 12px; }
+.resident-notice-action, .resident-notice-close { flex-shrink: 0; min-height: 44px; min-width: 44px; margin: -10px 0; padding: 0 8px; color: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+.resident-notice-body .resident-notice-action { display: block; margin: 2px 0 -10px -8px; }
+.resident-notice-close { display: inline-flex; align-items: center; justify-content: center; margin-right: -10px; color: var(--desk-muted); }
+
+.resident-howto { margin: 14px 0 0; padding-left: 20px; list-style: decimal; display: grid; gap: 8px; font-size: var(--desk-type-bodyLarge); }
+.resident-copy { display: grid; gap: 10px; margin-top: 16px; }
+.resident-copy code { padding: 10px 12px; border-radius: var(--desk-radius-sm); background: var(--desk-bg); font-family: var(--desk-font); font-size: var(--desk-type-bodyMedium); overflow-wrap: anywhere; }
+
+@media (max-width: 599px) and (max-height: 760px) {
+  .resident-dock { position: sticky; bottom: 0; z-index: 1; margin: 16px calc(var(--card-pad) * -1) 0; padding: 12px var(--card-pad) max(12px, env(safe-area-inset-bottom)); background: var(--desk-surface); border-top: 1px solid var(--desk-border); }
+}
+@media (max-height: 640px) {
+  .resident-card h1 { font-size: var(--desk-type-titleLarge); }
+  .resident-room { margin-top: 6px; }
+  .resident-code-form { margin-top: 12px; padding-top: 12px; }
+  .resident-steps { margin-bottom: 10px; }
+}
+@media (max-width: 520px) {
+  .resident-table .resident-wait { display: none; }
+  .resident-wait-inline { display: block; color: var(--desk-text); font-weight: 500; }
+  .resident-table th, .resident-table td { padding-inline: 16px; }
+  .resident-empty, .resident-register-meta { padding-inline: 16px; }
+  .resident-device { padding: 16px; }
+}
+@media (max-width: 359px) {
+  .resident-card { --card-pad: 16px; }
+  .resident-steps { flex-wrap: nowrap; gap: 10px; font-size: var(--desk-type-labelSmall); white-space: nowrap; }
+}
