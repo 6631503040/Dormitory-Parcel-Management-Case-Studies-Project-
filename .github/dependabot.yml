@@ -1,0 +1,23 @@
+# Weekly dependency updates, grouped so the team reviews at most one PR per ecosystem per week.
+# Each PR runs CI; merge it only when green.
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: /backend
+    schedule: { interval: weekly }
+    groups:
+      go: { patterns: ["*"] }
+
+  - package-ecosystem: npm
+    directory: /docs/02-design/prototype
+    schedule: { interval: weekly }
+    groups:
+      npm: { patterns: ["*"], update-types: [minor, patch] }
+
+  - package-ecosystem: docker
+    directory: /docker
+    schedule: { interval: weekly }
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }

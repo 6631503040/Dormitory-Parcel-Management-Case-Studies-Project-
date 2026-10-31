@@ -17,6 +17,8 @@ Case Studies Project/
 ├── PROJECT_STRUCTURE.md       # This file — the repo map
 ├── README.md                  # Repo readme (stub — needs rewriting)
 ├── rule.md                    # Legal/compliance rules (PDPA, Computer Crime Act §26, Electronic Transactions Act)
+├── .github/                   # CI (workflows/ci.yml: Go tests on a real PostgreSQL, Vitest + build, image build, secret scan) · dependabot.yml
+├── .dockerignore              # Keeps node_modules, dist, .env and documents out of every Docker build
 ├── Project Proposal_Dormitory Parcel Management System.docx   # Original proposal (source of truth for scope/goals/risks)
 │
 ├── backend/                   # Go + Gin REST API (module `dpms/backend`) — see backend/README.md
@@ -26,7 +28,7 @@ Case Studies Project/
 │   └── internal/              #   apperr (error codes) · config · db (pool + migrator) · auth · store (all SQL) · api (routes, handlers, integration tests) · push (Web Push crypto, stdlib only) · notify (push outbox worker)
 ├── db/
 │   └── migrations/            # PostgreSQL schema, applied in filename order (0001 = design-spec §4; 0002+ = documented extensions)
-├── docker/                    # docker-compose.yml (db + backend), backend.Dockerfile, .env.example (copy to .env, gitignored)
+├── docker/                    # docker-compose.yml (db + backend), backend.Dockerfile (dev, API only), app.Dockerfile (production: client + API in one image, deployed on Render), .env.example (copy to .env, gitignored)
 │
 ├── docs/                      # Numbered documentation, one folder per project phase/artifact
 │   ├── 01-requirements/       # Milestone 1 — requirements & SRS
