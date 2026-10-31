@@ -38,19 +38,19 @@ function mockDashboard(counts = {}) {
   return requests;
 }
 
-const card = (label) => screen.getByText(label).closest(".summary-card");
+const card = (label) => screen.getByText(label).closest("[data-kind]");
 // Wait for real numbers, not the loading state (whose notes already read "…ตอนนี้").
-const loaded = () => waitFor(() => expect(within(card("พัสดุเข้า")).queryByText("–")).not.toBeInTheDocument());
+const loaded = () => waitFor(() => expect(within(card("รับเข้า")).queryByText("–")).not.toBeInTheDocument());
 
 describe("SummaryBoard", () => {
   it("shows today's received, picked up and still-waiting counts", async () => {
     const requests = mockDashboard({ day: { checkedIn: 12, pickedUp: 7, pending: 1234, unmatchedPending: 26 } });
     render(<SummaryBoard refreshKey={0} />);
-    await waitFor(() => expect(within(card("พัสดุเข้า")).getByText("12")).toBeInTheDocument());
-    expect(within(card("พัสดุออก")).getByText("7")).toBeInTheDocument();
-    expect(within(card("รอรับในระบบ")).getByText("1,234")).toBeInTheDocument();
+    await waitFor(() => expect(within(card("รับเข้า")).getByText("12")).toBeInTheDocument());
+    expect(within(card("นำออก")).getByText("7")).toBeInTheDocument();
+    expect(within(card("คงเหลือรอรับ")).getByText("1,234")).toBeInTheDocument();
     // The waiting total includes unmatched Parcels, which the list below doesn't show — say so.
-    expect(screen.getByText("ค้างอยู่ตอนนี้ · รวมพัสดุมีปัญหา 26 ชิ้น")).toBeInTheDocument();
+    expect(screen.queryByText(/รวมพัสดุมีปัญหา/)).not.toBeInTheDocument();
     expect(requests[0]).toEqual({ date: toDateInputValue(), period: "day" });
     // Can't step into the future from the current period.
     expect(screen.getByRole("button", { name: "วันถัดไป" })).toBeDisabled();
@@ -63,12 +63,12 @@ describe("SummaryBoard", () => {
     await loaded();
 
     await user.click(screen.getByRole("button", { name: "สัปดาห์" }));
-    await waitFor(() => expect(within(card("พัสดุเข้า")).getByText("80")).toBeInTheDocument());
+    await waitFor(() => expect(within(card("รับเข้า")).getByText("80")).toBeInTheDocument());
     expect(screen.getByRole("button", { name: "สัปดาห์" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByText("รับเข้าในสัปดาห์นี้")).toBeInTheDocument();
+    expect(screen.getByText("รายการในสัปดาห์ที่เลือก")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "เดือน" }));
-    await waitFor(() => expect(within(card("พัสดุเข้า")).getByText("300")).toBeInTheDocument());
+    await waitFor(() => expect(within(card("รับเข้า")).getByText("300")).toBeInTheDocument());
     expect(requests.map((r) => r.period)).toEqual(["day", "week", "month"]);
   });
 
@@ -79,10 +79,10 @@ describe("SummaryBoard", () => {
     await loaded();
     await user.click(screen.getByRole("button", { name: "เดือน" }));
     await loaded();
-    expect(screen.getByText("รับเข้าในเดือนนี้")).toBeInTheDocument();
+    expect(screen.getByText("รายการในเดือนที่เลือก")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "เดือนก่อนหน้า" }));
-    expect(await screen.findByText("ค้างอยู่ ณ สิ้นสุดช่วง")).toBeInTheDocument();
+    expect(await screen.findByText("ณ สิ้นสุดช่วงที่เลือก")).toBeInTheDocument();
     const prev = new Date();
     prev.setDate(1);
     prev.setMonth(prev.getMonth() - 1);
@@ -90,7 +90,7 @@ describe("SummaryBoard", () => {
     expect(screen.getByRole("button", { name: "เดือนถัดไป" })).toBeEnabled();
 
     await user.click(screen.getByRole("button", { name: "กลับไปเดือนนี้" }));
-    expect(await screen.findByText("รับเข้าในเดือนนี้")).toBeInTheDocument();
+    expect(await screen.findByText("รายการในเดือนที่เลือก")).toBeInTheDocument();
     expect(requests.at(-1).date).toBe(toDateInputValue());
   });
 
@@ -98,7 +98,26 @@ describe("SummaryBoard", () => {
     server.use(http.get("/api/v1/dashboard", () => HttpResponse.json({ code: "INTERNAL_ERROR", params: {} }, { status: 500 })));
     render(<SummaryBoard refreshKey={0} />);
     expect(await screen.findByText(/เกิดข้อผิดพลาด/)).toBeInTheDocument();
-    expect(within(card("พัสดุเข้า")).getByText("–")).toBeInTheDocument();
+    expect(within(card("รับเข้า")).getByText("–")).toBeInTheDocument();
+  });
+
+  it("keeps return navigation available when a historical request fails", async () => {
+    mockDashboard();
+    server.use(http.get("/api/v1/dashboard", ({ request }) => {
+      const params = new URL(request.url).searchParams;
+      const date = params.get("date");
+      if (date !== toDateInputValue()) return HttpResponse.json({ code: "INTERNAL_ERROR" }, { status: 500 });
+      return HttpResponse.json(makeDashboard({ date, period: "day", from: date, to: date }));
+    }));
+    const user = userEvent.setup();
+    render(<SummaryBoard refreshKey={0} />);
+    await loaded();
+    await user.click(screen.getByRole("button", { name: "วันก่อนหน้า" }));
+    await screen.findByRole("alert");
+    expect(screen.getByRole("button", { name: "วันถัดไป" })).toBeEnabled();
+    await user.click(screen.getByRole("button", { name: "กลับไปวันนี้" }));
+    await loaded();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("labels each period in Thai with Buddhist-era years", () => {
