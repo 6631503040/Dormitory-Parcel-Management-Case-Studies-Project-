@@ -440,3 +440,9 @@ input::placeholder, textarea::placeholder { color: var(--desk-muted); opacity: 1
 .issue-toggle-action svg { transition: transform 150ms ease-out; }
 .issue-toggle[aria-expanded="true"] .issue-toggle-action svg { transform: rotate(180deg); }
 @media (max-width: 640px) { .issue-toggle { padding-inline: 8px; gap: 8px; } .issue-toggle-heading { gap: 6px; } }
+
+/* Check-In stages locally; only the footer action writes to the API. */
+.checkin-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.checkin-drafts li { align-items: flex-start; gap: 8px; }
+.checkin-draft-details { display: grid; gap: 4px; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.checkin-draft-details > span { color: var(--desk-muted); font-size: 13px; }
