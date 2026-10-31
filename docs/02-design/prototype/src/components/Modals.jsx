@@ -286,7 +286,7 @@ function CheckInModal({ onClose }) {
         <div><h3>ปิดโดยไม่บันทึก?</h3><p>ข้อมูลที่ยังไม่ได้บันทึกจะไม่ถูกเก็บไว้</p></div>
       </div>
       <div className="checkin-close-actions">
-        <button type="button" className="text-button checkin-discard" onClick={onClose}>ทิ้งรายการและปิด</button>
+        <button type="button" className="desk-button checkin-discard" onClick={onClose}>ทิ้งรายการและปิด</button>
         <button type="button" className="desk-button desk-button-primary" autoFocus onClick={() => setConfirmClose(false)}>กลับไปทำต่อ</button>
       </div>
     </div>
