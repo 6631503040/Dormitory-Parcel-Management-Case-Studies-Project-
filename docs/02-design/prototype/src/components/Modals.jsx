@@ -211,8 +211,8 @@ function CheckInModal({ onClose }) {
   const resetFields = () => {
     setCode(""); setRoom(null); setDamaged(false); setDamageReason("");
   };
-  const addDraft = () => {
-    if (!canAdd || busy.current) return;
+  const currentDraft = () => {
+    if (!canAdd) { setError("กรอกเลขพัสดุและเลือกห้องให้ครบ หรือระบุว่าพัสดุมีปัญหา"); return null; }
     const trackingCode = code.trim().toUpperCase();
     if (drafts.some((item) => item.input.trackingCode === trackingCode)) {
       setError("เลขพัสดุนี้อยู่ในรายการรอบันทึกแล้ว"); return;
@@ -221,19 +221,33 @@ function CheckInModal({ onClose }) {
     const input = !room
       ? { trackingCode, unmatchedReason: UNMATCHED_REASON_DEFAULT, note: damageReason.trim() || undefined }
       : { trackingCode, roomId: room.id, ...(damaged ? { note: `ชำรุด: ${damageReason.trim() || "ไม่ได้ระบุเหตุผล"}` } : {}) };
-    setDrafts((list) => [...list, { input, room, damaged, damageReason, error: null }]);
+    return { input, room, damaged, damageReason, error: null };
+  };
+  const addDraft = () => {
+    if (busy.current) return;
+    const draft = currentDraft();
+    if (!draft) return;
+    setDrafts((list) => [...list, draft]);
     setPage(Math.ceil((drafts.length + 1) / 8));
     setError(null); resetFields(); codeRef.current?.focus();
   };
   const submitAll = async () => {
-    if (busy.current || !drafts.length) return;
-    if (hasFields) { setError("กดเพิ่มรายการก่อนบันทึกทั้งหมด หรือเคลียร์ช่องกรอก"); return; }
-    busy.current = true; setSubmitting(true); setError(null); setProgress(0); setBatchTotal(drafts.length);
+    if (busy.current) return;
+    let batch = drafts;
+    if (hasFields) {
+      const draft = currentDraft();
+      if (!draft) return;
+      batch = [...drafts, draft];
+    }
+    if (!batch.length) return;
+    busy.current = true;
+    setDrafts(batch); resetFields();
+    setSubmitting(true); setError(null); setProgress(0); setBatchTotal(batch.length);
     // The existing API saves one Parcel per request. Only confirmed successes leave the queue;
     // failed/uncertain requests remain visible and are never silently treated as saved.
     let successes = 0;
-    for (let index = 0; index < drafts.length; index += 1) {
-      const draft = drafts[index];
+    for (let index = 0; index < batch.length; index += 1) {
+      const draft = batch[index];
       try {
         await api.checkIn(draft.input);
         successes += 1;
@@ -245,7 +259,7 @@ function CheckInModal({ onClose }) {
       }
       setProgress(index + 1);
     }
-    if (successes < drafts.length) setError(`บันทึกสำเร็จ ${successes} จาก ${drafts.length} รายการ รายการที่เหลือยังไม่ได้ยืนยันการบันทึก`);
+    if (successes < batch.length) setError(`บันทึกสำเร็จ ${successes} จาก ${batch.length} รายการ รายการที่เหลือยังไม่ได้ยืนยันการบันทึก`);
     setPage(1); busy.current = false; setSubmitting(false);
   };
   const requestClose = () => {
@@ -277,8 +291,8 @@ function CheckInModal({ onClose }) {
   ) : savedCount > 0 && !drafts.length && !hasFields && !submitting ? (
     <button type="button" className="desk-button desk-button-primary dialog-submit" onClick={requestClose}>เสร็จสิ้น</button>
   ) : (
-    <button type="button" disabled={submitting || !drafts.length} onClick={submitAll} className="desk-button desk-button-primary dialog-submit">
-      {submitting ? `กำลังบันทึก ${progress} / ${batchTotal}…` : `บันทึกทั้งหมด (${drafts.length})`}
+    <button type="button" disabled={submitting || (!drafts.length && !canAdd)} onClick={submitAll} className="desk-button desk-button-primary dialog-submit">
+      {submitting ? `กำลังบันทึก ${progress} / ${batchTotal}…` : "บันทึกทั้งหมด"}
     </button>
   );
   return (
