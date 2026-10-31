@@ -6,7 +6,7 @@
 #
 # docker/backend.Dockerfile (API only) is still what docker-compose uses in development.
 
-FROM node:22-alpine AS web
+FROM node:25-alpine AS web
 WORKDIR /web
 COPY docs/02-design/prototype/package.json docs/02-design/prototype/package-lock.json ./
 RUN npm ci
