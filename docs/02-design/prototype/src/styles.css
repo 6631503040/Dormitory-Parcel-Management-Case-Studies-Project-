@@ -462,11 +462,9 @@ input::placeholder, textarea::placeholder { color: var(--desk-muted); opacity: 1
 .form-label-row .checkin-clear { flex-shrink: 0; padding-inline: 4px; }
 @media (max-width: 400px) { .checkin-footer-actions { grid-template-columns: 1fr; gap: 8px; } }
 
-.checkin-close-message { display: flex; align-items: flex-start; gap: 12px; }
-.checkin-close-icon { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 8px; background: var(--desk-warning-light); color: var(--desk-warning); flex-shrink: 0; }
-.checkin-close-message h3 { margin: 0 0 4px; font-size: 16px; font-weight: 600; color: var(--desk-text); }
+ .checkin-close-message h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; color: var(--desk-text); }
 .checkin-close-message p { margin: 0; font-size: 13px; color: var(--desk-muted); }
-.checkin-close-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-.checkin-discard { color: var(--desk-warning); border-color: var(--desk-warning); background: var(--desk-surface); }
-.checkin-discard:hover { background: var(--desk-warning-light); }
-@media (max-width: 400px) { .checkin-close-actions { grid-template-columns: 1fr; gap: 8px; } }
+.checkin-close-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.checkin-discard { color: var(--desk-muted); font-size: 13px; padding: 0 4px; }
+.checkin-discard:hover { color: var(--desk-warning); }
+.checkin-close-actions .desk-button-primary { min-width: 144px; }

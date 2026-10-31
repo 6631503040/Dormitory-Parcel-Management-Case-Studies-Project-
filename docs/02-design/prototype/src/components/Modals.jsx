@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useRef, useState } from "react";
-import { X, ScanLine, PackagePlus, Plus, AlertTriangle } from "lucide-react";
+import { X, ScanLine, PackagePlus, Plus } from "lucide-react";
 import { C, roomLabel, formatThaiDateTime } from "./shared";
 import RoomCombobox from "./RoomCombobox";
 import { api, ApiError } from "../api/client";
@@ -283,11 +283,10 @@ function CheckInModal({ onClose }) {
   const footer = confirmClose ? (
     <div className="checkin-close-confirmation">
       <div className="checkin-close-message" role="alert">
-        <span className="checkin-close-icon"><AlertTriangle size={20} aria-hidden="true" /></span>
-        <div><h3>ยังไม่ได้บันทึกข้อมูล</h3><p>หากปิดหน้าต่าง ข้อมูลที่ยังไม่ได้บันทึกจะถูกล้าง</p></div>
+        <div><h3>ปิดโดยไม่บันทึก?</h3><p>ข้อมูลที่ยังไม่ได้บันทึกจะไม่ถูกเก็บไว้</p></div>
       </div>
       <div className="checkin-close-actions">
-        <button type="button" className="desk-button checkin-discard" onClick={onClose}>ทิ้งรายการและปิด</button>
+        <button type="button" className="text-button checkin-discard" onClick={onClose}>ทิ้งรายการและปิด</button>
         <button type="button" className="desk-button desk-button-primary" autoFocus onClick={() => setConfirmClose(false)}>กลับไปทำต่อ</button>
       </div>
     </div>
