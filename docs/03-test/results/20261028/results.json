@@ -1,0 +1,386 @@
+{
+  "TC01": {
+    "status": "Pass",
+    "actual": "Empty submit: \"กรุณากรอกชื่อผู้ใช้และรหัสผ่าน\", focus on username; missing password: focus on password. Show/hide toggles type text/password and keeps the value. Wrong password: \"ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง\" (password not shown). Enter with valid account sent 1 request and signed in.",
+    "evidence": "Headless Chrome 156, test stack :5174/:8081",
+    "at": "2026-10-28T10:17:47.574Z"
+  },
+  "TC02": {
+    "status": "Pass",
+    "actual": "Unknown user -> 401 INVALID_CREDENTIALS; wrong password -> 401 INVALID_CREDENTIALS (same answer, no hint which part was wrong). Valid login -> 200; /auth/me returns Somsri Rattanakul with role operator. Access log recorded: nobody-here:failed,somsri:failed,somsri:success.",
+    "evidence": "API /auth/login, /auth/me; access_logs rows",
+    "at": "2026-10-28T10:17:49.929Z"
+  },
+  "TC03": {
+    "status": "Pass",
+    "actual": "Sign Out returns to login; Back and reload stay on login; service without a session answers 401. Observation: an old session cookie copied before sign-out still answers 200 until it expires (stateless cookie, known gap in backend/README.md).",
+    "evidence": "Known gap: no server-side session revocation",
+    "at": "2026-10-28T10:20:15.982Z"
+  },
+  "TC04": {
+    "status": "Pass",
+    "actual": "Saved N01, N02; typed N03. Sign Out could not be used while the dialog was open (dialog stayed open). After closing and signing out/in: N01=1, N02=1 records (Pending), N03=0 (never recorded). No discard prompt needed.",
+    "evidence": "Codes TP69-T04-N01..N03 (equivalent data)",
+    "at": "2026-10-28T10:17:59.229Z"
+  },
+  "TC05": {
+    "status": "Pass",
+    "actual": "Dashboard/Archive switch shows the selected page and marks the active menu (aria-current=page). First Tab reaches \"ข้ามไปยังเนื้อหา\", Enter jumps to #main-content; Check-In and Check-Out buttons are reachable by Tab. Data unchanged by navigation.",
+    "evidence": "",
+    "at": "2026-10-28T10:18:01.935Z"
+  },
+  "TC06": {
+    "status": "Pass",
+    "actual": "Room A shows \"1090 · ทดสอบ เอ\", B shows \"1101/2 · ทดสอบ บี\" (leading zero and slash kept, names match). Unknown room gives no option and Save stays disabled; service rejects room id 999999 (422 ROOM_NOT_IN_DIRECTORY) and a blank room (400). Blank room with the problem box ticked is saved without a room (null,other).",
+    "evidence": "Room numbers stored as 090 and 101/2 in building 1 (labels 1090, 1101/2)",
+    "at": "2026-10-28T10:18:06.196Z"
+  },
+  "TC07": {
+    "status": "Blocked",
+    "actual": "No physical scanner was available in this run. Typed input does not establish a scanner result (Section 3), so ten-label continuous scanning was not executed.",
+    "evidence": "Needs the project scanner and labels N01-N10",
+    "at": "2026-10-28T10:18:06.226Z"
+  },
+  "TC08": {
+    "status": "Blocked",
+    "actual": "Keyboard emulation only: code field focused on open; Enter after the code moved focus to Room Number without saving; Save disabled until a room was chosen; saved to room A correctly. Physical scanner not available, so the case cannot pass yet.",
+    "evidence": "Rerun with the project scanner",
+    "at": "2026-10-28T10:18:08.721Z"
+  },
+  "TC09": {
+    "status": "Blocked",
+    "actual": "No physical scanner or deteriorated label available; disconnect/reconnect could not be tested. Manual typing of a verified code works (see TC10/TC12).",
+    "evidence": "Needs the project scanner",
+    "at": "2026-10-28T10:18:08.733Z"
+  },
+  "TC10": {
+    "status": "Pass",
+    "actual": "Service: blank, spaces-only, 65 chars, inner space, Thai and tab are rejected (400); 64 chars accepted and stored whole; \"t10-lower\" stored as T10-LOWER; \"  T10-PAD  \" stored as T10-PAD. Interface: a 65-character code shows \"ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่\" and is not saved.",
+    "evidence": "",
+    "at": "2026-10-28T10:18:10.736Z"
+  },
+  "TC11": {
+    "status": "Pass",
+    "actual": "Re-scanning N01 in the same session: \"เลขพัสดุ TP69-T11-N01 ถูกบันทึกไว้แล้วที่ห้อง 1090 เมื่อ 28 ต.ค. 2569 17:18\", code kept in the field. Service: \"TP69-T01-P01\"->409 DUPLICATE_TRACKING_CODE; \"TP69-T01-X01\"->409 DUPLICATE_TRACKING_CODE; \"tp69-t01-p01\"->409 DUPLICATE_TRACKING_CODE; \"  TP69-T01-P01  \"->409 DUPLICATE_TRACKING_CODE. Exactly one record per code remains.",
+    "evidence": "",
+    "at": "2026-10-28T10:18:14.001Z"
+  },
+  "TC12": {
+    "status": "Pass",
+    "actual": "Saved two Parcels for A and one for B. Each kept its own room (TP69-T12-N01=A,TP69-T12-N02=A,TP69-T12-N03=B). After each Save the code field was empty and the room picker was empty again; the session list shows 3 entries.",
+    "evidence": "",
+    "at": "2026-10-28T10:18:17.404Z"
+  },
+  "TC13": {
+    "status": "Pass",
+    "actual": "Save disabled when empty (true), code only (true), room only (true). Saved N01; typed N02 and closed: N01=1 record, N02=0, 0 page errors.",
+    "evidence": "",
+    "at": "2026-10-28T10:18:20.252Z"
+  },
+  "TC14": {
+    "status": "Pass",
+    "actual": "N02 was saved to B by mistake, opened from the Dashboard and corrected with Edit. History shows \"ห้อง: 1101/2 → 1090\" by Somsri Rattanakul; N01 and N03 unchanged (all three now in A).",
+    "evidence": "",
+    "at": "2026-10-28T10:18:24.862Z"
+  },
+  "TC15": {
+    "status": "Pass",
+    "actual": "X: closed=true, focus back on \"รับพัสดุเข้า\", reopened empty=true; Escape: closed=true, focus back on \"รับพัสดุเข้า\", reopened empty=true; outside: closed=true, focus back on \"รับพัสดุเข้า\", reopened empty=true. The two saved Parcels appear on the Dashboard (2); the typed N03 was never saved (0).",
+    "evidence": "",
+    "at": "2026-10-28T10:18:29.477Z"
+  },
+  "TC16": {
+    "status": "Pass",
+    "actual": "Reload and navigating away with a typed code showed 0 leave-page warnings (by design). The typed code was not saved (0); previously saved records intact; still signed in after returning (true).",
+    "evidence": "",
+    "at": "2026-10-28T10:18:32.362Z"
+  },
+  "TC17": {
+    "status": "Pass",
+    "actual": "No detail: saved as \"ชำรุด: ไม่ได้ระบุเหตุผล\". Typing 491 characters: the form kept 490 (stored note 497 characters with the prefix). Service: 500-character note 201, 501 400. HTML-like text shown as plain text, 0 script alerts. Unticking before saving stored no note.",
+    "evidence": "",
+    "at": "2026-10-28T10:20:30.610Z"
+  },
+  "TC18": {
+    "status": "Pass",
+    "actual": "Dashboard note \"Dented right corner\"; Check-Out summary \"ชำรุด: Dented right corner\"; after Check-Out the Archive row shows Picked Up with the damage note, stored note unchanged (\"ชำรุด: Dented right corner\").",
+    "evidence": "Equivalent of P2: TP69-T18-D02",
+    "at": "2026-10-28T10:18:41.707Z"
+  },
+  "TC19": {
+    "status": "Pass",
+    "actual": "With a 2.5 s delayed response, two clicks plus Enter sent 1 request; fields were locked and Escape did not close the dialog. A forced failure showed \"เกิดข้อผิดพลาดบางอย่าง กรุณาลองใหม่อีกครั้ง\" and kept the code and room; the retry saved once. Records: N01=1, N02=1, 2 Check-In events.",
+    "evidence": "Delay and failure injected in the browser (Playwright route)",
+    "at": "2026-10-28T10:18:51.094Z"
+  },
+  "TC20": {
+    "status": "Pass",
+    "actual": "Room 2T20 (10 Pending + 1 Picked Up): Dashboard listed the 10 Pending only (\"1–8 จาก 10 รายการ\"), Picked Up X1 excluded. After one new Check-In: \"1–8 จาก 11 รายการ\". After Check-Out of P1: \"1–8 จาก 10 รายการ\", matching the service count (10).",
+    "evidence": "Equivalent room 2T20",
+    "at": "2026-10-28T10:23:27.893Z"
+  },
+  "TC21": {
+    "status": "Pass",
+    "actual": "Search \"090\" returned 8 rows, all 1090 · ทดสอบ เอ; search \"101/2\" returned 2 rows, all 1101/2 · ทดสอบ บี. Leading zero and slash kept; no rows from other rooms.",
+    "evidence": "",
+    "at": "2026-10-28T10:23:30.634Z"
+  },
+  "TC22": {
+    "status": "Pass",
+    "actual": "\"ทดสอบ เอ\" -> 1–8 จาก 37 รายการ; \"ทดสอบ\" -> 1–8 จาก 49 รายการ; \"TP69-T01-P01\" -> 1–1 จาก 1 รายการ; \"TP69-T01-P0\" -> 1–8 จาก 9 รายการ; \"  TP69-T01-P01  \" -> 1–1 จาก 1 รายการ; \"tp69-t01-p01\" -> 1–1 จาก 1 รายการ. Codes are displayed in upper case.",
+    "evidence": "",
+    "at": "2026-10-28T10:23:37.662Z"
+  },
+  "TC24": {
+    "status": "Pass",
+    "actual": "8 Pending: \"1–8 จาก 8 รายการ\", no page controls. 9 Pending: \"1–8 จาก 9 รายการ\" then \"9–9 จาก 9 รายการ\", next disabled on the last page; after checking out that row: \"1–8 จาก 8 รายการ\", controls gone, no empty page. Full list of 131 Pending: 17 pages of at most 8 rows, 131 unique codes, no gaps or repeats, ellipsis shown (1), last page \"129–131 จาก 131 รายการ\". A new search returns to page 1 (\"1–8 จาก 62 รายการ\").",
+    "evidence": "Rooms 2T24A, 2T24B",
+    "at": "2026-10-28T10:23:57.676Z"
+  },
+  "TC25": {
+    "status": "Fail",
+    "actual": "Section \"พัสดุไม่ทราบห้อง\" shows 10 รายการ (database: 10 Pending without a room). Picked Up and damaged-with-room Parcels are not listed; the damaged Parcel stays in the normal list with its note. After assigning a room the count is 9 รายการ. Failures: order is newest first (first rows TP69-T25B-U03, TP69-T06-N01, TH7531577693), not oldest first as required by US-06",
+    "evidence": "Defect: problem queue sorted newest first (UnmatchedQueue uses the default list order); US-06 requires oldest first",
+    "at": "2026-10-28T10:26:29.988Z"
+  },
+  "TC26": {
+    "status": "Pass",
+    "actual": "Long note on TP69-T26B-P01 (page 2) expands and collapses on its own row; page 1 shows no note before or after paging. On 390x844 the card keeps room, code, Check-In date and the note; no horizontal scroll. Counts are records; no item quantity exists in the system.",
+    "evidence": "shots/TC26-mobile.png",
+    "at": "2026-10-28T10:26:36.039Z"
+  },
+  "TC27": {
+    "status": "Pass",
+    "actual": "Enter on the full code showed: \"TP69-T27-P01รอรับห้อง 2T27ห้องทดสอบ T27วันที่รับเข้า28 ต.ค. 2569 17:24หมายเหตุชำรุด: Corner dentพัสดุอื่นของห้องนี้ (0)เลือกเพิ่มเลือกเพิ่มทั้งหมด…\"; footer \"นำออก 1 รายการ · ห้อง 2T27\". Only the scanned Parcel is selected; status still pending before confirmation.",
+    "evidence": "",
+    "at": "2026-10-28T10:24:40.097Z"
+  },
+  "TC28": {
+    "status": "Pass",
+    "actual": "Blank: \"กรอกเลขพัสดุหรือสแกนบาร์โค้ด\". Unknown: \"ไม่พบพัสดุ: TP69-NOPE-0001\". Already collected X1: \"พัสดุนี้นำออกแล้วหรือไม่อยู่ในสถานะรอรับ\". Partial code: \"ไม่พบพัสดุ: TP69-T01-P\" (exact match only). No confirm button appeared in any case; X1 still picked_up. Duplicate codes cannot exist (unique index on tracking_code), so the malformed-duplicate dataset could not be created.",
+    "evidence": "",
+    "at": "2026-10-28T10:24:44.833Z"
+  },
+  "TC29": {
+    "status": "Pass",
+    "actual": "After finding TP69-T29-P01 and replacing the text with Q1, confirm was disabled (true); a forced click changed nothing (TP69-T29-P01 still pending). A new lookup cleared the old Parcel and showed Q1 in room 1101/2.",
+    "evidence": "",
+    "at": "2026-10-28T10:24:48.573Z"
+  },
+  "TC30": {
+    "status": "Pass",
+    "actual": "Only P1 became Picked Up; P2, P3 and Q1 remain Pending (picked_up, pending, pending, pending). Check-Out recorded by Somsri Rattanakul at the actual time (within 0.2 s of the click); damage note kept (\"ชำรุด: Wet box\").",
+    "evidence": "Equivalent room 2T30",
+    "at": "2026-10-28T10:24:53.634Z"
+  },
+  "TC31": {
+    "status": "Pass",
+    "actual": "Found P1, opened the room's other Parcels (8 rows on page 1), selected P10 on page 1 and P2 on page 2, deselected P2, resized the window: footer \"นำออก 2 รายการ · ห้อง 2T31B\". Only this room's Pending Parcels were listed (Q1 absent). Confirming checked out exactly P01,P10.",
+    "evidence": "Equivalent room 2T31B",
+    "at": "2026-10-28T10:26:39.319Z"
+  },
+  "TC32": {
+    "status": "Pass",
+    "actual": "\"เลือกเพิ่มทั้งหมด\" selected all 10 across pages (button \"ยืนยันนำพัสดุออก (10)\"). Final confirmation read \"นำออกทั้งหมด 10 รายการของห้อง 2T32?\". \"กลับไปตรวจสอบ\" kept the selection (ยืนยันนำพัสดุออก (10)); closing before confirming wrote no status (0 changed) and no events (0).",
+    "evidence": "Equivalent room 2T32",
+    "at": "2026-10-28T10:25:31.072Z"
+  },
+  "TC33": {
+    "status": "Pass",
+    "actual": "Footer before confirming: \"นำออก 10 รายการ · ห้อง 2T33\". After the two-step Check Out All, 10/10 of the room's Pending Parcels are Picked Up; X1 was not recorded again (2 events before and after); Q1 still pending. History: 10 checked_out_bulk events by Prasert Boonmee.",
+    "evidence": "Equivalent room 2T33; S2 = prasert",
+    "at": "2026-10-28T10:25:36.399Z"
+  },
+  "TC34": {
+    "status": "Pass",
+    "actual": "Forced failure: \"เกิดข้อผิดพลาดบางอย่าง กรุณาลองใหม่อีกครั้ง\", no success banner, P1 still pending. Then with a 2.5 s delay: repeated confirm sent 1 request, Escape did not close the dialog and the selection was locked; 3 Parcels Picked Up once. Scanning P1 again: \"พัสดุนี้นำออกแล้วหรือไม่อยู่ในสถานะรอรับ\".",
+    "evidence": "Equivalent room 2T34; delay/failure injected in the browser",
+    "at": "2026-10-28T10:25:44.125Z"
+  },
+  "TC35": {
+    "status": "Fail",
+    "actual": "Two Staff sessions held P1: the first checked it out; the second got \"พัสดุต่อไปนี้นำออกไปแล้วหรือยังไม่มีห้อง: TP69-T35-P01 — กรุณาตรวจสอบรายการอีกครั้ง\" and no second collection (1 Check-Out event). Check Out All with a stale count: 409 PENDING_COUNT_CHANGED. Modified Check Out Selected request mixing A's P2 with B's Q1: 200; Q1 is now picked_up. Failures: mixed-room request accepted (200); Q1 of room B became picked_up",
+    "evidence": "Defect: POST /parcels/check-out does not check that all codes belong to one room",
+    "at": "2026-10-28T10:25:49.310Z"
+  },
+  "TC36": {
+    "status": "Pass",
+    "actual": "Tabs: All 353, Pending 187, Picked Up 157, Problem 9 — each equals the database count and Pending + Picked Up + Problem = All. Searching \"090\" narrowed every tab (All 43, Pending 41, Picked Up 2). Damaged Parcels (15 with a damage note) appear in their status tabs with the note; there is no Damaged tab.",
+    "evidence": "",
+    "at": "2026-10-28T10:29:10.721Z"
+  },
+  "TC37": {
+    "status": "Pass",
+    "actual": "Picked Up + \"090\": \"1–2 จาก 2 รายการ\" (database 2), all rows room 1090, no Pending rows. Code search for X1 returned 1 row; name search \"ทดสอบ เอ\" kept only that Resident. Switching to Pending and clearing the query showed only Pending rows.",
+    "evidence": "Q1 was consumed by the TC35 defect; Q2 used for room B",
+    "at": "2026-10-28T10:29:17.377Z"
+  },
+  "TC38": {
+    "status": "Pass",
+    "actual": "All tab: 354 records in 45 pages of 8; last page \"353–354 จาก 354 รายการ\" (2 rows); previous \"345–352 จาก 354 รายการ\". Searching P3 from the last page returned \"1–1 จาก 1 รายการ\" on page 1. Switching that search to Picked Up: \"0 รายการ\" with the empty-state message, no invalid page.",
+    "evidence": "",
+    "at": "2026-10-28T10:29:22.971Z"
+  },
+  "TC39": {
+    "status": "Pass",
+    "actual": "2026-11-03T18:05:00Z is shown as \"4 พ.ย. 2569 01:05\" (Asia/Bangkok, Buddhist Era) with status Pending and \"–\" for Check-Out time (none invented); the Picked Up row shows its Check-Out time. Observation: dates follow the device's time zone — a browser set to UTC shows \"3 พ.ย. 2569 18:05\", so desk computers must be set to Thailand time.",
+    "evidence": "Observation: frontend formats with the browser time zone, not Asia/Bangkok explicitly",
+    "at": "2026-10-28T10:29:30.259Z"
+  },
+  "TC40": {
+    "status": "Pass",
+    "actual": "P2 checked out by S2: Archive row shows Picked Up with its Check-Out time and damage note \"Dented right corner\"; still there after reload; no longer on the Dashboard (removed from Pending, not deleted).",
+    "evidence": "",
+    "at": "2026-10-28T10:29:36.523Z"
+  },
+  "TC41": {
+    "status": "Pass",
+    "actual": "History of TP69-T41-P01: checked_in:Somsri Rattanakul → edited:Prasert Boonmee → checked_out:Prasert Boonmee, each with its time; the edit keeps the room change (1101/2 → 1090) and \"checked in by\" still shows Somsri. No Staff screen or API can change events; a direct UPDATE/DELETE on parcel_events in the database was rejected/rejected (append-only trigger).",
+    "evidence": "",
+    "at": "2026-10-28T10:29:38.106Z"
+  },
+  "TC42": {
+    "status": "Pass",
+    "actual": "A saved Check-In and a saved Check-Out are identical after reload, after closing and reopening, and from a second Staff device (Edge, signed in as S2): 2 rows, same status and times.",
+    "evidence": "Second device simulated by a separate Edge browser profile on the same computer",
+    "at": "2026-10-28T10:29:46.829Z"
+  },
+  "TC43": {
+    "status": "Fail",
+    "actual": "Database stopped while signed in: reload showed the sign-in page with no error message; signing in then showed \"เกิดข้อผิดพลาดบางอย่าง กรุณาลองใหม่อีกครั้ง\". No sample or empty data was shown as real, and nothing was written while it was down (counts identical before/after). After restarting the database the app recovered on reload (signed in, 8 rows). Failures: outage shown as the sign-in page with no error message (initial session check swallows non-401 errors)",
+    "evidence": "Defect (Medium): ParcelHubApp's first /auth/me catch ignores non-401 errors, so an outage looks like being signed out",
+    "at": "2026-10-28T10:35:12.897Z"
+  },
+  "TC44": {
+    "status": "Pass",
+    "actual": "Service rejecting the save: Check-In showed \"เกิดข้อผิดพลาดบางอย่าง กรุณาลองใหม่อีกครั้ง\" with code and room kept and no success message; Check-Out showed \"เกิดข้อผิดพลาดบางอย่าง กรุณาลองใหม่อีกครั้ง\" with the selection kept and P3 still pending. After restoring, each retry succeeded once (record count 1; P3 picked_up).",
+    "evidence": "Rejection injected in the browser (503)",
+    "at": "2026-10-28T10:29:59.396Z"
+  },
+  "TC45": {
+    "status": "Pass",
+    "actual": "Window B saved N01 first; A's save of N01 was rejected: \"เลขพัสดุ TP69-T45H-N01 ถูกบันทึกไว้แล้วที่ห้อง 1101/2 เมื่อ 28 ต.ค. 2569 17:38\" and B's record stayed in room 1101/2. A then saved N02 normally, and A's Dashboard lists both B's and A's records.",
+    "evidence": "",
+    "at": "2026-10-28T10:38:29.924Z"
+  },
+  "TC46": {
+    "status": "Blocked",
+    "actual": "Staff side (network cut in the browser before confirmation): Check-In showed \"ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่อแล้วลองใหม่\", nothing saved (0); Check-Out of P4+P5 showed \"ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่อแล้วลองใหม่\", no partial change (pending,pending); retries created one record and changed both once (picked_up,picked_up; 5 events, no duplicates). Resident side not verified: no registered phone in this run (Resident notification rows for the Parcel: 0).",
+    "evidence": "Resident-site part needs a real registered phone",
+    "at": "2026-10-28T10:38:37.344Z"
+  },
+  "TC47": {
+    "status": "Blocked",
+    "actual": "Tab/Shift+Tab stayed inside the open dialog (never left). Escape closed the Check-In, Check-Out and history dialogs and returned focus to \"รับพัสดุเข้า\", \"นำพัสดุออก\" and the Parcel's history button. A simulated Enter with isComposing=true did not add or move on. A real Thai IME was not available in headless Chrome, so step 3 is simulated only.",
+    "evidence": "Rerun step 3 with a real Thai keyboard/IME",
+    "at": "2026-10-28T10:31:07.934Z"
+  },
+  "TC48": {
+    "status": "Pass",
+    "actual": "Chrome 156.0.8078.73 1366x768: overflow=false, rows=true, Check-In save=true, Check-Out confirm=true; Chrome 156.0.8078.73 390x844: overflow=false, rows=true, Check-In save=true, Check-Out confirm=true; Chrome 156.0.8078.73 200% of 1366x768: overflow=false, rows=true, Check-In save=true, Check-Out confirm=true; Edge 156.0.4314.50 1366x768: overflow=false, rows=true, Check-In save=true, Check-Out confirm=true; Edge 156.0.4314.50 390x844: overflow=false, rows=true, Check-In save=true, Check-Out confirm=true; Edge 156.0.4314.50 200% of 1366x768: overflow=false, rows=true, Check-In save=true, Check-Out confirm=true. 200% zoom emulated with a half-size viewport.",
+    "evidence": "shots/TC48-*.png",
+    "at": "2026-10-28T10:36:01.127Z"
+  },
+  "TC49": {
+    "status": "Pass",
+    "actual": "No consent: 400; nonexistent room: 422 ROOM_NOT_IN_DIRECTORY; \"101\" (several Buildings): 422 AMBIGUOUS_ROOM. The claim response carries no code. The right code before Staff looked it up: 422 OTP_INVALID (attempts left 4); after five wrong attempts: 410 reason=locked; expired code: 410 OTP_EXPIRED. Four open requests for one room: 201, 201, 201, 429. Correct code: 201, registration records issuing Staff and consent (somsri|push-v1). Status without a device token: 401; device token on a Staff route: 401.",
+    "evidence": "Rooms 3R49, 3R49L; test push subscription",
+    "at": "2026-10-28T12:43:18.378Z"
+  },
+  "TC50": {
+    "status": "Pass",
+    "actual": "Phone A (room 3R50A) shows TP69-T50-A1, TP69-T50-A2; phone B (3R50B) shows TP69-T50-B1. Service responses carry only each room's Parcels (A: 2, B: 1); neither response contains the other room's codes or names.",
+    "evidence": "Two registered browser profiles stand in for two phones",
+    "at": "2026-10-28T12:43:22.823Z"
+  },
+  "TC51": {
+    "status": "Pass",
+    "actual": "Modified token: 401. A's token with B's room added to the request: 200, still A's room only, no B code (none). Token of a phone that turned notifications off: 401; the page dropped the token and returned to registration. Notifications for B never reach A (subscriptions are per room).",
+    "evidence": "",
+    "at": "2026-10-28T12:43:26.768Z"
+  },
+  "TC52": {
+    "status": "Blocked",
+    "actual": "Three Check-Ins for room 3R52 within the batch window produced 1 outbox row covering 3 Parcels (batched, one notification). The worker then sent it to the test endpoint (failed:410); the test endpoint is not a real phone, so arrival, wording and the 90-second target could not be observed.",
+    "evidence": "Needs registered Android and iPhone over HTTPS",
+    "at": "2026-10-28T12:43:56.136Z"
+  },
+  "TC53": {
+    "status": "Pass",
+    "actual": "Status page open with TP69-T53B-P01, TP69-T53B-P02, TP69-T53B-P03. After Staff checked out P1 the page dropped it by itself in 29.6 s (no refresh); P2 and P3 remain. No notification row was created for the pickup (0 before, 0 after). A Parcel checked out before its notification was sent: notification cancelled, nothing sent.",
+    "evidence": "Status page in a registered browser profile",
+    "at": "2026-10-28T12:50:14.347Z"
+  },
+  "TC54": {
+    "status": "Pass",
+    "actual": "Staff selected all three and stepped back once: after 31 s the Resident page still showed 3 Pending. After confirming Check Out All the page reached 0 Pending in 27.6 s without a refresh; no new notification rows for the pickup (0).",
+    "evidence": "",
+    "at": "2026-10-28T12:45:57.467Z"
+  },
+  "TC55": {
+    "status": "Blocked",
+    "actual": "Browser profile taken offline: the page kept showing the last data (TP69-T55C-P01) with its last-updated time rather than claiming it was current. Back online it recovered the latest state in 27.6 s: TP69-T55C-N01, TP69-T55C-N02 (P1 gone, N01 and N02 present), \"อัปเดตล่าสุด 28 ต.ค. 2569 20:09 · หน้านี้อัปเดตอัตโนมัติขณะเปิดอยู่\". Notification replacement on a real offline phone was not observable.",
+    "evidence": "Needs a real phone switched to airplane mode",
+    "at": "2026-10-28T13:09:15.749Z"
+  },
+  "TC56": {
+    "status": "Blocked",
+    "actual": "Rapid Check-In then Check-Out of N01 within the window: one record, final status picked_up; its queued notification ended \"cancelled\" after 1 send attempts (nothing sent). Deliveries to the test subscriptions were answered by the real push service as failed:410; 2 test subscriptions were marked gone and not retried. A push service that fails once with a server error and duplicate/out-of-order delivery could not be simulated in this run.",
+    "evidence": "Failure injection needs the fake push service used by backend/internal/api/push_test.go",
+    "at": "2026-10-28T12:48:14.556Z"
+  },
+  "TC57": {
+    "status": "Pass",
+    "actual": "Turning notifications off: 204; a later Check-In queued 0 notifications. Re-registered, then Staff revoked the room's devices (revokedCount 1); the next Check-In queued 0; the open page returned to registration and Back did not restore the room's data. Unregistration records: resident:-, staff:somsri. A registration past its expiry: status 401, 0 notifications queued.",
+    "evidence": "Expiry simulated by back-dating expires_at in the test database",
+    "at": "2026-10-28T12:48:51.620Z"
+  },
+  "TC58": {
+    "status": "Pass",
+    "actual": "The Resident page has no Staff controls (0). Check-In with the device token: 401 UNAUTHENTICATED; Check-Out: 401 UNAUTHENTICATED. Nothing was created and P8 is still pending.",
+    "evidence": "",
+    "at": "2026-10-28T12:48:54.352Z"
+  },
+  "TC59": {
+    "status": "Pass",
+    "actual": "API vs database reference (received, picked up, waiting): day 2026-10-20..2026-10-20: 1,0,1; day 2026-10-21..2026-10-21: 1,0,2; week 2026-10-19..2026-10-25: 68,41,27; week 2026-10-26..2026-11-01: 338,137,228; month 2026-10-01..2026-10-31: 406,178,228. 23:59 on 20 Oct counted on the 20th and 00:01 on 21 Oct on the 21st; Sunday 25 Oct 23:59 in the week 19–25 Oct and Monday 00:01 in 26 Oct–1 Nov. Screen: today \"28 ต.ค. 2569\" 279/102/228 with next disabled; this week \"26 ต.ค. – 1 พ.ย. 2569\"; previous week \"19 ต.ค. – 25 ต.ค. 2569\" 68/41/27 matching the service, Waiting labelled \"ค้างอยู่ ณ สิ้นสุดช่วง\"; month \"ต.ค. 2569\".",
+    "evidence": "",
+    "at": "2026-10-28T13:43:25.590Z"
+  },
+  "TC60": {
+    "status": "Blocked",
+    "actual": "There is no Directory page: the Staff menu has only หน้าหลัก and ประวัติ. The service exists: GET /directory?q=ทดสอบ returned 32 matches, 5 on page 1 of size 5, without phone numbers; a no-match query returned 0. Read-only access cannot be judged without the page.",
+    "evidence": "Backlog US-27 — page not built",
+    "at": "2026-10-28T13:31:47.942Z"
+  },
+  "TC61": {
+    "status": "Pass",
+    "actual": "Parcel History of TP69-T41-P01 (opened from its Archive row): รับเข้าโดย Somsri Rattanakul · 28 ต.ค. 2569 17:29 | แก้ไขข้อมูลโดย Prasert Boonmee · 28 ต.ค. 2569 17:29ห้อง: 1101/2 → 1090 | นำออกโดย Prasert Boonmee · 28 ต.ค. 2569 17:29. In time order with actors; the edit lists old and new values; no edit control on a Picked Up Parcel (read-only). Unknown code in Check-Out: \"ไม่พบพัสดุ: TP69-UNKNOWN-0001\", staying on the same screen. There are no per-Parcel URLs, so the \"unknown URL\" step does not apply.",
+    "evidence": "",
+    "at": "2026-10-28T13:43:30.272Z"
+  },
+  "TC62": {
+    "status": "Pass",
+    "actual": "N20: room chosen from the directory in the problem section; queue 11 รายการ → 10 รายการ; N20 is Pending for 1090; history checked_in,room_assigned; a notification was queued for room A's registered device (1). N21: Check-Out without a room showed \"พัสดุไม่มีเลขห้องตรวจสอบชื่อผู้รับกับฉลากพัสดุก่อนส่งมอบ\", then Picked Up keeping its note; queue → 9 รายการ. Assigning a room to N21 afterwards: 409 PARCEL_NOT_PENDING.",
+    "evidence": "Delivery of that notification to a real phone is covered by TC52 (Blocked)",
+    "at": "2026-10-28T13:32:27.449Z"
+  },
+  "TC63": {
+    "status": "Pass",
+    "actual": "Operator S1 requesting the access log: 403 FORBIDDEN. Administrator: 200, newest first, page size 5 of 159; latest entries: admin:success, somsri:success, ghost-user-63:failed, somsri:failed, somsri:success. Fields: id,staffId,username,outcome,ipAddress,occurredAt — no password stored or returned. UPDATE/DELETE on access_logs in the database: rejected/rejected, so entries are kept (≥90 days). No access-log screen exists; checked through the service as planned.",
+    "evidence": "",
+    "at": "2026-10-28T13:32:29.345Z"
+  },
+  "TC23": {
+    "status": "Pass",
+    "actual": "Missing value: \"ไม่พบพัสดุที่ตรงกับคำค้นหา\". Clearing the query restored the full list (\"1–8 จาก 220 รายการ\"). With no Pending Parcels left (229 handed over at the end of the run): \"ไม่มีพัสดุรอรับ\", shown as an empty state, 0 error messages.",
+    "evidence": "Step 3 run last, after all other cases",
+    "at": "2026-10-28T13:45:32.058Z"
+  },
+  "TC64": {
+    "status": "Pass",
+    "actual": "Database with 31024 Parcels. One Flash Sale day compressed into 9 s: 1,024 Check-Ins (first 200 as a courier burst for five rooms in 1 s, 10 desks in parallel) and 1,024 Check-Outs, with three Staff sessions searching and paging throughout. check-in n=1024 p50 26 ms, p95 47 ms, max 199 ms, errors 0; check-out n=1024 p50 23 ms, p95 41 ms, max 180 ms, errors 0; search n=272 p50 71 ms, p95 126 ms, max 171 ms, errors 0; room lookup n=51 p50 14 ms, p95 34 ms, max 91 ms, errors 0; dashboard page n=112 p50 22 ms, p95 39 ms, max 71 ms, errors 0; summary n=76 p50 34 ms, p95 61 ms, max 90 ms, errors 0. Records: 1024 created, 1024 unique, 1024 Picked Up; events 1024 Check-In / 1024 Check-Out — none lost or duplicated. 7 notification rows queued without failing any Check-In. Query plans: Tracking Code → Index Scan using parcels_tracking_code_prefix_idx on parcels / Index Cond: (tracking_code = 'LOAD-MVS6NXT4-0001'::text); room Pending → Bitmap Heap Scan on parcels / ->  Bitmap Index Scan on parcels_room_status_idx / Index Cond: ((room_id = 1) AND (status = 'pending'::parcel_status)); code prefix → Index Scan using parcels_tracking_code_prefix_idx on parcels / Index Cond: ((tracking_code ~>=~ 'LOAD-MVS6NXT4-00'::text) AND (tracking_code ~<~ 'LOAD-MVS6NXT4-01'::text)).",
+    "evidence": "Load script on the test PC (Windows 11, Docker PostgreSQL 16, single API instance); results JSON in run/load-result.json",
+    "at": "2026-10-28T14:02:01.435Z"
+  }
+}

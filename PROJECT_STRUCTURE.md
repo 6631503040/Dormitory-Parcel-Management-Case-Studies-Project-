@@ -52,6 +52,9 @@ Case Studies Project/
 │   │           ├── constants/     #   unmatchedReasons.js (mirrors the DB enum)
 │   │           ├── test/          #   Vitest setup, MSW server, fixtures shared by *.test.jsx files
 │   │           └── components/    #   ParcelHubApp, Dashboard, Login, TopNav, Modals, Archive, RoomCombobox, UnmatchedQueue, ParcelHistoryModal, …
+│   ├── 03-test/               # Test phase — UAT instruments (the Test Plan itself is docs/Test-Plan.docx)
+│   │   ├── README.md          #   What belongs here
+│   │   └── uat-forms.gs       #   Apps Script: creates the SUS/TAM questionnaires, task record and consent Google Forms
 │   └── 05-log/                # Dated working log + meeting notes + audit reports
 │       ├── README.md          #   Naming: {YYYYMMDD}-log.md, {YYYYMMDD}-backlog-audit.md, {YYYYMMDD}-{topic}.md
 │       ├── {YYYYMMDD}-log.md
@@ -70,8 +73,9 @@ Case Studies Project/
 > been decided. Until it is, treat `CLAUDE.md` + `design-spec.md` + `docs/01-requirements/`
 > + root `rule.md` as canonical and the `02-design/*.md` set as course-deliverable inputs.
 
-`docs/` folders `03-*` and `04-*` are reserved by the course's numbering scheme and not
-created yet. Add them when the corresponding phase starts and record them here.
+`docs/` folder `03-test/` was added on 2026-10-28 for the test phase; `04-*` is reserved by the
+course's numbering scheme and not created yet. Add it when the corresponding phase starts and
+record it here.
 
 Each `docs/` subfolder has a `README.md` describing what belongs there and its
 conventions — read it before adding files.

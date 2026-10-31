@@ -2,6 +2,9 @@
 docker/.env
 .env
 
+# Office lock files (a document is open in Word)
+~$*
+
 # Build output
 backend/server
 backend/seed
