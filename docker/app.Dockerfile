@@ -13,7 +13,7 @@ RUN npm ci
 COPY docs/02-design/prototype/ ./
 RUN npm run build
 
-FROM golang:1.26-alpine AS api
+FROM golang:1.27-alpine AS api
 WORKDIR /src
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
