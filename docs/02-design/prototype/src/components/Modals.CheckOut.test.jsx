@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor, within, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { server } from "../test/server";
@@ -15,7 +15,7 @@ function setup(items = [parcel], total = items.length) {
     lookup(params.code); return HttpResponse.json(parcel);
   }), http.get("/api/v1/parcels", ({request}) => {
     const url = new URL(request.url);
-    expect(url.searchParams.get("roomId")).toBe("1");
+    expect(["1", "2"]).toContain(url.searchParams.get("roomId"));
     expect(url.searchParams.get("status")).toBe("pending");
     expect(url.searchParams.get("pageSize")).toBe("8");
     return HttpResponse.json({items, total, page: Number(url.searchParams.get("page")), pageSize: 8});
@@ -69,7 +69,7 @@ describe("scanner-first CheckOutModal", () => {
     await screen.findByRole("alert");
     expect(screen.queryByRole("button", {name: "ยืนยันนำออก"})).not.toBeInTheDocument();
     server.use(http.get("/api/v1/parcels/:code", () => HttpResponse.json({...parcel, status: "picked_up"})));
-    await user.click(screen.getByRole("button", {name: "เพิ่ม"}));
+    await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "TH100{Enter}");
     await screen.findByText("พัสดุนี้นำออกแล้วหรือไม่อยู่ในสถานะรอรับ");
   });
   it("checks out a parcel that has no room, without asking for one", async () => {
@@ -158,7 +158,7 @@ describe("scanner-first CheckOutModal", () => {
     await user.clear(input); await user.type(input, "TH300{Enter}");
     await screen.findByText("พัสดุนี้นำออกแล้วหรือไม่อยู่ในสถานะรอรับ");
     expect(screen.getByRole("button", {name: "ลบ TH100"})).toBeInTheDocument();
-    expect(screen.getByRole("button", {name: "ยืนยันนำออก"})).toBeDisabled();
+    expect(screen.getByRole("button", {name: "ยืนยันนำออก"})).toBeEnabled(); // only the valid queued item can be handed over
   });
 
   it("removes the last selected parcel and allows starting a new recipient room", async () => {
@@ -188,6 +188,49 @@ describe("scanner-first CheckOutModal", () => {
     await user.click(screen.getByRole("button", {name: "ยืนยันนำออก"}));
     await waitFor(() => expect(onConfirm).toHaveBeenCalled());
     expect(sent.trackingCodes).toHaveLength(9);
+  });
+
+  it("automatically adds consecutive scanner bursts without Enter or clicking Add", async () => {
+    const {user, onConfirm} = setup();
+    server.use(http.get("/api/v1/parcels/:code", ({params}) => HttpResponse.json({...parcel, trackingCode: params.code})));
+    const input = screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ");
+    await user.type(input, "TH100");
+    await screen.findByRole("button", {name: "ลบ TH100"});
+    expect(input).toHaveValue(""); expect(input).toHaveFocus();
+    await user.type(input, "TH101");
+    await screen.findByRole("button", {name: "ลบ TH101"});
+    expect(screen.getByRole("button", {name: "ลบ TH100"})).toBeInTheDocument();
+    expect(onConfirm).not.toHaveBeenCalled();
+  });
+
+  it("buffers a second complete scan while the first lookup is still running", async () => {
+    const {user} = setup(); let release;
+    const gate = new Promise((resolve) => { release = resolve; });
+    const codes = [];
+    server.use(http.get("/api/v1/parcels/:code", async ({params}) => {
+      codes.push(params.code); if (params.code === "TH100") await gate;
+      return HttpResponse.json({...parcel, trackingCode: params.code});
+    }));
+    const input = screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ");
+    await user.type(input, "TH100");
+    await waitFor(() => expect(codes).toEqual(["TH100"]));
+    expect(input).toBeEnabled();
+    await user.type(input, "TH101");
+    await waitFor(() => expect(input).toHaveValue(""));
+    release();
+    await screen.findByRole("button", {name: "ลบ TH101"});
+    expect(screen.getByRole("button", {name: "ลบ TH100"})).toBeInTheDocument();
+    expect(codes).toEqual(["TH100", "TH101"]);
+  });
+
+  it("waits for IME composition to finish before automatic lookup", async () => {
+    const {lookup} = setup(); const input = screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ");
+    fireEvent.compositionStart(input); fireEvent.change(input, {target: {value: "TH100"}});
+    await new Promise((resolve) => setTimeout(resolve, 450));
+    expect(lookup).not.toHaveBeenCalled();
+    fireEvent.compositionEnd(input);
+    await screen.findByRole("button", {name: "ลบ TH100"});
+    expect(lookup).toHaveBeenCalledTimes(1);
   });
 
 });

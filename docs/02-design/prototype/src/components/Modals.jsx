@@ -35,13 +35,13 @@ function ModalShell({ title, icon: Icon, onClose, children, className = "", foot
   );
 }
 
-function LabeledInput({ label, value, onChange, onKeyDown, placeholder, type = "text", autoFocus, error, inputRef, list, disabled = false, reserveMessage = false, feedback = "", labelAction, inputAction }) {
+function LabeledInput({ label, value, onChange, onKeyDown, placeholder, type = "text", autoFocus, error, inputRef, list, disabled = false, reserveMessage = false, feedback = "", labelAction, inputAction, onCompositionStart, onCompositionEnd }) {
   const id = useId();
   return (
     <div className="form-field">
       {labelAction ? <div className="form-label-row"><label htmlFor={id}>{label}</label>{labelAction}</div> : <label htmlFor={id}>{label}</label>}
       <div className={inputAction ? "form-input-action" : undefined}>
-<input id={id} ref={inputRef} disabled={disabled} type={type} value={value} onChange={onChange} onKeyDown={onKeyDown} placeholder={placeholder} autoFocus={autoFocus} list={list} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} />
+<input onCompositionStart={onCompositionStart} onCompositionEnd={onCompositionEnd} id={id} ref={inputRef} disabled={disabled} type={type} value={value} onChange={onChange} onKeyDown={onKeyDown} placeholder={placeholder} autoFocus={autoFocus} list={list} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} />
         {inputAction}
       </div>
       {reserveMessage ? (
@@ -65,6 +65,8 @@ const ROOM_PAGE_SIZE = 8;
 function CheckOutModal({ onClose, onConfirm }) {
   const [scan, setScan] = useState("");
   const [parcel, setParcel] = useState(null);
+  const [pendingCodes, setPendingCodes] = useState([]);
+  const [composing, setComposing] = useState(false);
   const [selected, setSelected] = useState(new Map());
   const [selectionPage, setSelectionPage] = useState(1);
   const [roomPage, setRoomPage] = useState(1);
@@ -82,7 +84,7 @@ function CheckOutModal({ onClose, onConfirm }) {
   const requestId = useRef(0);
   const busyRef = useRef(false);
   const searchingRef = useRef(false);
-  const verified = parcel && !scan.trim();
+  const verified = parcel && !scan.trim() && !pendingCodes.length;
   const disabled = submitting || searching;
   useEffect(() => () => { requestId.current += 1; }, []);
   useEffect(() => { if (!searching && !submitting) scanRef.current?.focus(); }, [searching, submitting]);
@@ -102,12 +104,25 @@ function CheckOutModal({ onClose, onConfirm }) {
     return () => { active = false; };
   }, [parcel, roomPage, roomRefresh]);
 
-  const lookup = async (event) => {
-    event.preventDefault();
-    if (busyRef.current || searchingRef.current || event.nativeEvent?.isComposing) return;
+  const enqueueScan = (event) => {
+    event?.preventDefault();
+    if (busyRef.current || composing || event?.nativeEvent?.isComposing) return;
     const code = scan.trim().toUpperCase();
+    if (!code) return;
+    setPendingCodes((codes) => [...codes, code]); setScan("");
+  };
+  // Keyboard scanners send a burst of characters, often without an Enter suffix.
+  // Wait for the burst to finish; manual typing/paste uses the same quiet-period fallback.
+  useEffect(() => {
+    if (!scan.trim() || composing || submitting || all || confirmAll) return;
+    const timer = setTimeout(() => enqueueScan(), 400);
+    return () => clearTimeout(timer);
+  }, [scan, composing, submitting, all, confirmAll]);
+
+  const lookup = async (code) => {
+    if (busyRef.current || searchingRef.current) return;
     if (!code) { setError("กรอกเลขพัสดุหรือสแกนบาร์โค้ด"); scanRef.current?.focus(); return; }
-    if (selected.has(code)) { setError("เลขพัสดุนี้อยู่ในรายการรอนำออกแล้ว"); setScan(""); scanRef.current?.focus(); return; }
+    if (selected.has(code)) { setError("เลขพัสดุนี้อยู่ในรายการรอนำออกแล้ว"); scanRef.current?.focus(); return; }
     if (selected.size >= 100) { setError("นำออกได้สูงสุด 100 รายการต่อรอบ"); return; }
     const id = ++requestId.current;
     searchingRef.current = true;
@@ -121,7 +136,6 @@ function CheckOutModal({ onClose, onConfirm }) {
         setError("พัสดุนี้ไม่ใช่ห้องเดียวกับรายการรอนำออก กรุณาแยกนำออกคนละรอบ"); return;
       }
       if (!parcel) { setParcel(result); setRoomPage(1); }
-      setScan("");
       setSelected((previous) => new Map([...previous, [result.trackingCode, result]]));
       setSelectionPage(Math.ceil((selected.size + 1) / ROOM_PAGE_SIZE));
     } catch (err) {
@@ -130,8 +144,15 @@ function CheckOutModal({ onClose, onConfirm }) {
       if (id === requestId.current) { searchingRef.current = false; setSearching(false); }
     }
   };
+  // Serialise lookups, while keeping the input available for the next scanner burst.
+  useEffect(() => {
+    if (!pendingCodes.length || searching || searchingRef.current || busyRef.current) return;
+    const code = pendingCodes[0];
+    setPendingCodes((codes) => codes.slice(1));
+    lookup(code);
+  }, [pendingCodes, searching]);
   const submit = async () => {
-    if (busyRef.current || !verified || (!all && !selected.size)) return;
+    if (busyRef.current || searchingRef.current || !verified || (!all && !selected.size)) return;
     if (all && !confirmAll) { setConfirmAll(true); return; }
     busyRef.current = true; setSubmitting(true); setError("");
     try {
@@ -164,10 +185,11 @@ function CheckOutModal({ onClose, onConfirm }) {
     <button type="button" className="desk-button desk-button-primary checkout-submit" disabled={disabled || !verified || !count} onClick={submit}>{submitting ? "กำลังนำออก…" : confirmAll ? `ยืนยันนำออกทั้งหมด (${count})` : "ยืนยันนำออก"}</button>
   </fieldset>;
   return <ModalShell title="นำพัสดุออก" icon={ScanLine} onClose={() => { if (!busyRef.current) onClose(); }} className="checkout-dialog checkout-scan-dialog" footer={footer}>
-    <form onSubmit={lookup} className="checkout-lookup">
-      <LabeledInput inputAction={<button type="submit" disabled={disabled || all || confirmAll} className="desk-button checkout-lookup-button">{searching ? "กำลังตรวจสอบ…" : "เพิ่ม"}</button>} label="สแกนหรือกรอกเลขพัสดุ" value={scan} inputRef={scanRef} disabled={disabled || all || confirmAll} error={error} reserveMessage
+    <form onSubmit={enqueueScan} className="checkout-lookup">
+      <LabeledInput inputAction={<button type="submit" disabled={disabled || all || confirmAll} className="desk-button checkout-lookup-button">{searching ? "กำลังตรวจสอบ…" : "เพิ่ม"}</button>} label="สแกนหรือกรอกเลขพัสดุ" value={scan} inputRef={scanRef} disabled={submitting || all || confirmAll} error={error} reserveMessage
         onChange={(event) => { setScan(event.target.value); setError(""); }}
-        onKeyDown={(event) => { if (event.key === "Enter" && event.nativeEvent.isComposing) event.preventDefault(); }} placeholder="สแกนหรือพิมพ์ แล้วกด Enter" />
+        onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}
+        onKeyDown={(event) => { if (event.key === "Enter" && event.nativeEvent.isComposing) event.preventDefault(); }} placeholder="สแกนหรือพิมพ์เลขพัสดุ" />
     </form>
     {parcel && <section className="checkout-parcel-detail" aria-label="ข้อมูลพัสดุที่ค้นพบ">
       <div className="checkout-recipient"><strong>{parcel.room ? `ห้อง ${parcel.room.buildingCode}${parcel.room.roomNumber}` : "ยังไม่ระบุห้อง"}</strong>{parcel.room && <p>{parcel.residents?.map((resident) => resident.fullName).join(" / ") || roomLabel(parcel)}</p>}</div>
