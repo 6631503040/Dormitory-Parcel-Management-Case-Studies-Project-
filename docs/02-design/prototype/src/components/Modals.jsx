@@ -35,12 +35,15 @@ function ModalShell({ title, icon: Icon, onClose, children, className = "", foot
   );
 }
 
-function LabeledInput({ label, value, onChange, onKeyDown, placeholder, type = "text", autoFocus, error, inputRef, list, disabled = false, reserveMessage = false, feedback = "", labelAction }) {
+function LabeledInput({ label, value, onChange, onKeyDown, placeholder, type = "text", autoFocus, error, inputRef, list, disabled = false, reserveMessage = false, feedback = "", labelAction, inputAction }) {
   const id = useId();
   return (
     <div className="form-field">
       {labelAction ? <div className="form-label-row"><label htmlFor={id}>{label}</label>{labelAction}</div> : <label htmlFor={id}>{label}</label>}
-      <input id={id} ref={inputRef} disabled={disabled} type={type} value={value} onChange={onChange} onKeyDown={onKeyDown} placeholder={placeholder} autoFocus={autoFocus} list={list} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} />
+      <div className={inputAction ? "form-input-action" : undefined}>
+<input id={id} ref={inputRef} disabled={disabled} type={type} value={value} onChange={onChange} onKeyDown={onKeyDown} placeholder={placeholder} autoFocus={autoFocus} list={list} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} />
+        {inputAction}
+      </div>
       {reserveMessage ? (
         <div className="field-message">
           {error ? <p id={`${id}-error`} className="field-error" role="alert">{error}</p> : <p className="search-feedback" role="status">{feedback}</p>}
@@ -63,6 +66,7 @@ function CheckOutModal({ onClose, onConfirm }) {
   const [scan, setScan] = useState("");
   const [parcel, setParcel] = useState(null);
   const [selected, setSelected] = useState(new Map());
+  const [selectionPage, setSelectionPage] = useState(1);
   const [roomPage, setRoomPage] = useState(1);
   const [roomItems, setRoomItems] = useState([]);
   const [roomTotal, setRoomTotal] = useState(0);
@@ -78,9 +82,10 @@ function CheckOutModal({ onClose, onConfirm }) {
   const requestId = useRef(0);
   const busyRef = useRef(false);
   const searchingRef = useRef(false);
-  const verified = parcel && scan.trim().toUpperCase() === parcel.trackingCode;
+  const verified = parcel && !scan.trim();
   const disabled = submitting || searching;
   useEffect(() => () => { requestId.current += 1; }, []);
+  useEffect(() => { if (!searching && !submitting) scanRef.current?.focus(); }, [searching, submitting]);
 
   useEffect(() => {
     if (!parcel?.room) return;
@@ -102,17 +107,23 @@ function CheckOutModal({ onClose, onConfirm }) {
     if (busyRef.current || searchingRef.current || event.nativeEvent?.isComposing) return;
     const code = scan.trim().toUpperCase();
     if (!code) { setError("กรอกเลขพัสดุหรือสแกนบาร์โค้ด"); scanRef.current?.focus(); return; }
+    if (selected.has(code)) { setError("เลขพัสดุนี้อยู่ในรายการรอนำออกแล้ว"); setScan(""); scanRef.current?.focus(); return; }
+    if (selected.size >= 100) { setError("นำออกได้สูงสุด 100 รายการต่อรอบ"); return; }
     const id = ++requestId.current;
     searchingRef.current = true;
-    setSearching(true); setError(""); setParcel(null); setSelected(new Map());
-    setAll(false); setConfirmAll(false); setRoomItems([]); setRoomTotal(0); setRoomPage(1);
+    setSearching(true); setError("");
     try {
       const result = await api.getParcel(code);
       if (id !== requestId.current) return;
       if (result.status !== "pending") { setError("พัสดุนี้นำออกแล้วหรือไม่อยู่ในสถานะรอรับ"); return; }
-      // A Parcel with no room can be handed over too (migration 0007) — it just has no room list.
-      setParcel(result); setScan(result.trackingCode);
-      setSelected(new Map([[result.trackingCode, result]]));
+      // Keep one recipient room per handover. Roomless parcels remain a single-item handover.
+      if (parcel && (!parcel.room || !result.room || parcel.room.id !== result.room.id)) {
+        setError("พัสดุนี้ไม่ใช่ห้องเดียวกับรายการรอนำออก กรุณาแยกนำออกคนละรอบ"); return;
+      }
+      if (!parcel) { setParcel(result); setRoomPage(1); }
+      setScan("");
+      setSelected((previous) => new Map([...previous, [result.trackingCode, result]]));
+      setSelectionPage(Math.ceil((selected.size + 1) / ROOM_PAGE_SIZE));
     } catch (err) {
       if (id === requestId.current) setError(errorMessage(err));
     } finally {
@@ -139,26 +150,43 @@ function CheckOutModal({ onClose, onConfirm }) {
       }
     } finally { busyRef.current = false; setSubmitting(false); }
   };
+  const removeSelected = (code) => {
+    if (disabled || all) return;
+    const next = new Map(selected); next.delete(code); setSelected(next);
+    if (!next.size) { setParcel(null); setRoomItems([]); setRoomTotal(0); setSelectionPage(1); }
+  };
+  const selectionPages = Math.max(1, Math.ceil(selected.size / ROOM_PAGE_SIZE));
+  const visiblePage = Math.min(selectionPage, selectionPages);
   const count = all ? roomTotal : selected.size;
   const footer = parcel && <fieldset disabled={disabled} className="checkout-footer-fields">
-    <div className="checkout-footer-heading"><p role="status">นำออก {count} รายการ{parcel.room ? ` · ห้อง ${parcel.room.buildingCode}${parcel.room.roomNumber}` : ""}</p></div>
+    <div className="checkout-footer-heading"><p role="status">รอนำออก {count} รายการ{parcel.room ? ` · ห้อง ${parcel.room.buildingCode}${parcel.room.roomNumber}` : ""}</p></div>
     {confirmAll && <div className="checkout-confirmation" role="group" aria-label="ยืนยันนำออกทั้งหมด"><p>นำออกทั้งหมด {roomTotal} รายการของห้อง {parcel.room.buildingCode}{parcel.room.roomNumber}?</p><button type="button" className="text-button" onClick={() => setConfirmAll(false)}>กลับไปตรวจสอบ</button></div>}
-    <button type="button" className="desk-button desk-button-primary checkout-submit" disabled={disabled || !verified || !count} onClick={submit}>{submitting ? "กำลังนำออก…" : confirmAll ? `ยืนยันนำออกทั้งหมด (${count})` : count > 1 ? `ยืนยันนำพัสดุออก (${count})` : "ยืนยันนำพัสดุออก"}</button>
+    <button type="button" className="desk-button desk-button-primary checkout-submit" disabled={disabled || !verified || !count} onClick={submit}>{submitting ? "กำลังนำออก…" : confirmAll ? `ยืนยันนำออกทั้งหมด (${count})` : "ยืนยันนำออก"}</button>
   </fieldset>;
   return <ModalShell title="นำพัสดุออก" icon={ScanLine} onClose={() => { if (!busyRef.current) onClose(); }} className="checkout-dialog checkout-scan-dialog" footer={footer}>
     <form onSubmit={lookup} className="checkout-lookup">
-      <LabeledInput label="สแกนหรือกรอกเลขพัสดุ" value={scan} inputRef={scanRef} disabled={disabled || confirmAll} error={error} reserveMessage
+      <LabeledInput inputAction={<button type="submit" disabled={disabled || all || confirmAll} className="desk-button checkout-lookup-button">{searching ? "กำลังตรวจสอบ…" : "เพิ่ม"}</button>} label="สแกนหรือกรอกเลขพัสดุ" value={scan} inputRef={scanRef} disabled={disabled || all || confirmAll} error={error} reserveMessage
         onChange={(event) => { setScan(event.target.value); setError(""); }}
         onKeyDown={(event) => { if (event.key === "Enter" && event.nativeEvent.isComposing) event.preventDefault(); }} placeholder="สแกนหรือพิมพ์ แล้วกด Enter" />
-      <button type="submit" disabled={disabled || confirmAll} className="desk-button checkout-lookup-button">{searching ? "กำลังค้นหา…" : "ค้นหาพัสดุ"}</button>
     </form>
     {parcel && <section className="checkout-parcel-detail" aria-label="ข้อมูลพัสดุที่ค้นพบ">
-      <div className="checkout-detail-heading"><h3>{parcel.trackingCode}</h3><span className="parcel-status parcel-status-pending"><span className="pending-dot" aria-hidden="true" />รอรับ</span></div>
       <div className="checkout-recipient"><strong>{parcel.room ? `ห้อง ${parcel.room.buildingCode}${parcel.room.roomNumber}` : "ยังไม่ระบุห้อง"}</strong>{parcel.room && <p>{parcel.residents?.map((resident) => resident.fullName).join(" / ") || roomLabel(parcel)}</p>}</div>
-      <dl className="checkout-detail-meta"><div><dt>วันที่รับเข้า</dt><dd>{formatThaiDateTime(parcel.checkedInAt)}</dd></div></dl>
-      {!parcel.room && <div className="checkout-condition" role="note"><strong>พัสดุไม่มีเลขห้อง</strong><p>ตรวจสอบชื่อผู้รับกับฉลากพัสดุก่อนส่งมอบ</p></div>}
-      {parcel.note && <div className="checkout-condition"><strong>หมายเหตุ</strong><p>{parcel.note}</p></div>}
-      {parcel.room && <details className="checkout-other-parcels"><summary>พัสดุอื่นของห้องนี้{roomTotal > 0 ? ` (${Math.max(0, roomTotal - 1)})` : ""}</summary>
+      {!parcel.room && <p className="checkout-roomless-note">ตรวจสอบชื่อผู้รับกับฉลากพัสดุก่อนส่งมอบ</p>}
+      <div className="checkout-batch-table-wrap">
+        <table className="checkout-batch-table" aria-label="พัสดุรอนำออก">
+          <thead><tr><th scope="col">เลขพัสดุ</th><th scope="col">สภาพพัสดุ / หมายเหตุ</th><th scope="col"><span className="sr-only">ลบรายการ</span></th></tr></thead>
+          <tbody>{[...selected.values()].slice((visiblePage - 1) * ROOM_PAGE_SIZE, visiblePage * ROOM_PAGE_SIZE).map((item) => <tr key={item.trackingCode}>
+            <td>{item.trackingCode}</td><td>{item.note || (item.room ? "ปกติ" : "ไม่ทราบห้อง")}</td>
+            <td><button type="button" className="icon-button" disabled={disabled || all || confirmAll} aria-label={`ลบ ${item.trackingCode}`} onClick={() => removeSelected(item.trackingCode)}><X size={16} aria-hidden="true" /></button></td>
+          </tr>)}</tbody>
+        </table>
+      </div>
+      {selectionPages > 1 && <nav className="checkout-pagination" aria-label="แบ่งหน้าพัสดุรอนำออก">
+        <button type="button" className="text-button" disabled={disabled || visiblePage === 1} onClick={() => setSelectionPage(visiblePage - 1)}>ก่อนหน้า</button>
+        <span>หน้า {visiblePage} / {selectionPages}</span>
+        <button type="button" className="text-button" disabled={disabled || visiblePage === selectionPages} onClick={() => setSelectionPage(visiblePage + 1)}>ถัดไป</button>
+      </nav>}
+      {parcel.room && <details className="checkout-other-parcels"><summary>พัสดุอื่นของห้องนี้</summary>
         <fieldset disabled={disabled || confirmAll || !verified} className="checkout-room-fields">
           <div className="checkout-list-tools"><span>เลือกเพิ่ม</span><label className="checkout-select-all"><input type="checkbox" checked={all} disabled={roomLoading || !!roomError || roomTotal < 2} onChange={(event) => { setAll(event.target.checked); setConfirmAll(false); }} /><span>เลือกเพิ่มทั้งหมด</span></label></div>
           {roomError && <InlineError message={roomError} />}

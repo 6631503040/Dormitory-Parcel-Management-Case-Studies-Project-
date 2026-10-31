@@ -136,7 +136,7 @@ describe("ParcelHubApp", () => {
     await user.type(screen.getByLabelText(/สแกนหรือกรอกเลขพัสดุ/), "TH1");
     await user.keyboard("{Enter}");
     await screen.findByRole("region", { name: "ข้อมูลพัสดุที่ค้นพบ" });
-    await user.click(screen.getByRole("button", { name: "ยืนยันนำพัสดุออก", exact: true }));
+    await user.click(screen.getByRole("button", { name: "ยืนยันนำออก", exact: true }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(await screen.findByText("นำพัสดุออกแล้ว 1 ชิ้น")).toBeInTheDocument();

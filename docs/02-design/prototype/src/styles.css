@@ -469,3 +469,16 @@ input::placeholder, textarea::placeholder { color: var(--desk-muted); opacity: 1
 .checkin-discard:hover { background: var(--desk-bg); }
 .checkin-close-actions .desk-button { width: 100%; }
 @media (max-width: 400px) { .checkin-close-actions { grid-template-columns: 1fr; gap: 8px; } }
+
+.checkout-batch-table-wrap { overflow-x: auto; margin-top: 16px; }
+.checkout-batch-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+.checkout-batch-table th { color: var(--desk-muted); font-size: 12px; font-weight: 500; padding: 8px; border-bottom: 1px solid var(--desk-border); }
+.checkout-batch-table td { padding: 8px; border-bottom: 1px solid var(--desk-border); vertical-align: middle; overflow-wrap: anywhere; }
+.checkout-batch-table td:first-child { font-weight: 500; }
+.checkout-batch-table td:last-child { width: 44px; }
+.checkout-roomless-note { color: var(--desk-muted); font-size: 13px; }
+
+.form-input-action { display: flex; align-items: stretch; gap: 8px; }
+.form-input-action input { flex: 1; min-width: 0; }
+.form-input-action .checkout-lookup-button { width: auto; min-width: 64px; }
+.checkout-parcel-detail .checkout-recipient { margin-top: 0; }
