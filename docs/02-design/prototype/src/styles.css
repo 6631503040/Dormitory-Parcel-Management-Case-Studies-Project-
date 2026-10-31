@@ -446,3 +446,10 @@ input::placeholder, textarea::placeholder { color: var(--desk-muted); opacity: 1
 .checkin-drafts li { align-items: flex-start; gap: 8px; }
 .checkin-draft-details { display: grid; gap: 4px; flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .checkin-draft-details > span { color: var(--desk-muted); font-size: 13px; }
+
+.checkin-add { color: var(--desk-primary); background: var(--desk-surface); border-color: var(--desk-primary); }
+.checkin-add:hover:not(:disabled) { background: var(--desk-primary-light); }
+.checkin-add:disabled { color: var(--desk-muted); background: var(--desk-bg); border-color: var(--desk-border); }
+.checkin-clear { color: var(--desk-muted); padding-inline: 12px; font-size: 13px; border-radius: 6px; }
+.checkin-clear:hover:not(:disabled) { color: var(--desk-text); background: var(--desk-bg); text-decoration: none; }
+.checkin-clear:disabled { cursor: not-allowed; }

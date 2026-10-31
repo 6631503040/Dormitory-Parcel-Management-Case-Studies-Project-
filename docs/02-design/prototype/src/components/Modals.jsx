@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useRef, useState } from "react";
-import { X, ScanLine, PackagePlus } from "lucide-react";
+import { X, ScanLine, PackagePlus, Plus } from "lucide-react";
 import { C, roomLabel, formatThaiDateTime } from "./shared";
 import RoomCombobox from "./RoomCombobox";
 import { api, ApiError } from "../api/client";
@@ -298,8 +298,8 @@ function CheckInModal({ onClose }) {
         <textarea maxLength={490} id="checkin-damage" className="desk-textarea" rows={2} value={damageReason} disabled={submitting} onChange={(event) => setDamageReason(event.target.value)} placeholder="หมายเหตุ" />
       </div>}
       <div className="checkin-actions">
-        <button type="button" className="desk-button" disabled={!canAdd} onClick={addDraft}>เพิ่มรายการ</button>
-        {hasFields && <button type="button" className="text-button" disabled={submitting} onClick={() => { resetFields(); setError(null); codeRef.current?.focus(); }}>เคลียร์ช่องกรอก</button>}
+        <button type="button" className="desk-button checkin-add" disabled={!canAdd} onClick={addDraft}><Plus size={16} aria-hidden="true" />เพิ่มรายการ</button>
+        {hasFields && <button type="button" className="text-button checkin-clear" disabled={submitting} onClick={() => { resetFields(); setError(null); codeRef.current?.focus(); }}>เคลียร์ช่องกรอก</button>}
       </div>
       <InlineError message={error} />
       {savedCount > 0 && <p role="status">บันทึกเข้าสู่ระบบสำเร็จ {savedCount} รายการ</p>}
