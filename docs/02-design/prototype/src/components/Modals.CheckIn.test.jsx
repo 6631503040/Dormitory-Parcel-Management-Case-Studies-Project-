@@ -55,8 +55,8 @@ describe("CheckInModal", () => {
 
     await user.type(screen.getByLabelText(/เลขพัสดุ/), "TH8827301923");
     await pickRoom(user);
-    await user.click(screen.getByRole("button", { name: "เพิ่มรายการ" }));
-    await user.click(screen.getByRole("button", { name: "บันทึกทั้งหมด" }));
+    await user.click(screen.getByRole("button", { name: "เพิ่มพัสดุอีกชิ้น" }));
+    await user.click(screen.getByRole("button", { name: "บันทึก" }));
 
     await screen.findByText("บันทึกเข้าสู่ระบบสำเร็จ 1 รายการ");
     expect(body).toEqual({ trackingCode: "TH8827301923", roomId: 1 });
@@ -76,8 +76,8 @@ describe("CheckInModal", () => {
     expect(screen.getAllByRole("checkbox")).toHaveLength(1);
     expect(screen.getByText("1101 · สมชาย ใจดี")).toBeInTheDocument();
     await user.type(screen.getByLabelText("รายละเอียดปัญหา (ไม่บังคับ)"), "กล่องเปียก");
-    await user.click(screen.getByRole("button", {name: "เพิ่มรายการ"}));
-    await user.click(screen.getByRole("button", {name: "บันทึกทั้งหมด"}));
+    await user.click(screen.getByRole("button", {name: "เพิ่มพัสดุอีกชิ้น"}));
+    await user.click(screen.getByRole("button", {name: "บันทึก"}));
     await screen.findByText("บันทึกเข้าสู่ระบบสำเร็จ 1 รายการ");
     expect(body).toEqual({trackingCode: "TH100", roomId: 1, note: "ชำรุด: กล่องเปียก"});
   });
@@ -86,7 +86,7 @@ describe("CheckInModal", () => {
     mockRoomSearch();
     const user = userEvent.setup();
     render(<CheckInModal onClose={vi.fn()} />);
-    const submit = screen.getByRole("button", { name: "เพิ่มรายการ" });
+    const submit = screen.getByRole("button", { name: "เพิ่มพัสดุอีกชิ้น" });
     expect(submit).toBeDisabled();
 
     await user.type(screen.getByLabelText(/เลขพัสดุ/), "TH8827301923");
@@ -110,8 +110,8 @@ describe("CheckInModal", () => {
     render(<CheckInModal onClose={vi.fn()} />);
     await user.type(screen.getByLabelText(/เลขพัสดุ/), "TH1");
     await pickRoom(user);
-    await user.click(screen.getByRole("button", { name: "เพิ่มรายการ" }));
-    await user.click(screen.getByRole("button", { name: "บันทึกทั้งหมด" }));
+    await user.click(screen.getByRole("button", { name: "เพิ่มพัสดุอีกชิ้น" }));
+    await user.click(screen.getByRole("button", { name: "บันทึก" }));
 
     expect(await screen.findByText(/TH1.*1101/)).toBeInTheDocument();
     expect(screen.queryByText(/บันทึกแล้วรอบนี้/)).not.toBeInTheDocument();
@@ -127,8 +127,8 @@ describe("CheckInModal", () => {
     render(<CheckInModal onClose={vi.fn()} />);
     await user.type(screen.getByLabelText(/เลขพัสดุ/), "TH2");
     await pickRoom(user);
-    await user.click(screen.getByRole("button", { name: "เพิ่มรายการ" }));
-    await user.click(screen.getByRole("button", { name: "บันทึกทั้งหมด" }));
+    await user.click(screen.getByRole("button", { name: "เพิ่มพัสดุอีกชิ้น" }));
+    await user.click(screen.getByRole("button", { name: "บันทึก" }));
     expect(await screen.findByText("ไม่พบห้องนี้ในทะเบียนผู้พัก กรุณาเลือกห้องจากรายการ")).toBeInTheDocument();
   });
 
@@ -144,14 +144,14 @@ describe("CheckInModal", () => {
     render(<CheckInModal onClose={vi.fn()} />);
 
     await user.type(screen.getByLabelText(/เลขพัสดุ/), "TH3");
-    const submit = screen.getByRole("button", { name: "เพิ่มรายการ" });
+    const submit = screen.getByRole("button", { name: "เพิ่มพัสดุอีกชิ้น" });
     expect(submit).toBeDisabled(); // ticking "พัสดุมีปัญหา" is required, no reason picker needed
 
     await user.click(screen.getByText(/พัสดุมีปัญหา/));
     expect(submit).toBeEnabled();
     await user.type(screen.getByPlaceholderText(/หมายเหตุ/), "label says แนน");
     await user.click(submit);
-    await user.click(screen.getByRole("button", {name: "บันทึกทั้งหมด"}));
+    await user.click(screen.getByRole("button", {name: "บันทึก"}));
 
     await screen.findByText("บันทึกเข้าสู่ระบบสำเร็จ 1 รายการ");
     expect(body).toEqual({ trackingCode: "TH3", unmatchedReason: "other", note: "label says แนน" });
@@ -169,8 +169,8 @@ describe("CheckInModal", () => {
     render(<CheckInModal onClose={vi.fn()} />);
     await user.type(screen.getByLabelText(/เลขพัสดุ/), "TH4");
     await user.click(screen.getByText(/พัสดุมีปัญหา/));
-    await user.click(screen.getByRole("button", { name: "เพิ่มรายการ" }));
-    await user.click(screen.getByRole("button", { name: "บันทึกทั้งหมด" }));
+    await user.click(screen.getByRole("button", { name: "เพิ่มพัสดุอีกชิ้น" }));
+    await user.click(screen.getByRole("button", { name: "บันทึก" }));
 
     await screen.findByText("บันทึกเข้าสู่ระบบสำเร็จ 1 รายการ");
     expect(body).toEqual({ trackingCode: "TH4", unmatchedReason: "other" });
@@ -192,11 +192,11 @@ describe("CheckInModal", () => {
     const user = userEvent.setup(); render(<CheckInModal onClose={vi.fn()} />);
     for (const code of ["TH10", "TH11"]) {
       await user.type(screen.getByLabelText("เลขพัสดุ"), code); await pickRoom(user);
-      await user.click(screen.getByRole("button", {name: "เพิ่มรายการ"}));
+      await user.click(screen.getByRole("button", {name: "เพิ่มพัสดุอีกชิ้น"}));
     }
     expect(bodies).toHaveLength(0);
     expect(screen.getByText("รอบันทึก (2)")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", {name: "บันทึกทั้งหมด"}));
+    await user.click(screen.getByRole("button", {name: "บันทึก"}));
     await screen.findByText("บันทึกเข้าสู่ระบบสำเร็จ 2 รายการ");
     expect(bodies.map((body) => body.trackingCode)).toEqual(["TH10", "TH11"]);
     expect(screen.queryByRole("region", {name: "รายการรอบันทึก"})).not.toBeInTheDocument();
@@ -207,15 +207,15 @@ describe("CheckInModal", () => {
     for (const code of ["TH10", "th10"]) {
       await user.type(screen.getByLabelText("เลขพัสดุ"), code);
       await user.click(screen.getByRole("checkbox", {name: "พัสดุมีปัญหา"}));
-      await user.click(screen.getByRole("button", {name: "เพิ่มรายการ"}));
+      await user.click(screen.getByRole("button", {name: "เพิ่มพัสดุอีกชิ้น"}));
     }
     expect(screen.getByText("เลขพัสดุนี้อยู่ในรายการรอบันทึกแล้ว")).toBeInTheDocument();
     expect(screen.getByText("รอบันทึก (1)")).toBeInTheDocument();
     await user.click(screen.getByRole("button", {name: "ลบ TH10"}));
     // The current complete form can now be saved directly, even with no queued items.
-    expect(screen.getByRole("button", {name: "บันทึกทั้งหมด"})).toBeEnabled();
-    await user.click(screen.getByRole("button", {name: "เคลียร์ช่องกรอก"}));
-    expect(screen.getByRole("button", {name: "บันทึกทั้งหมด"})).toBeDisabled();
+    expect(screen.getByRole("button", {name: "บันทึก"})).toBeEnabled();
+    await user.click(screen.getByRole("button", {name: "ล้างข้อมูลที่กรอก"}));
+    expect(screen.getByRole("button", {name: "บันทึก"})).toBeDisabled();
   });
 
   it("retains only failed drafts and retries without resending successful parcels", async () => {
@@ -229,14 +229,14 @@ describe("CheckInModal", () => {
     for (const code of ["TH10", "TH11"]) {
       await user.type(screen.getByLabelText("เลขพัสดุ"), code);
       await user.click(screen.getByRole("checkbox", {name: "พัสดุมีปัญหา"}));
-      await user.click(screen.getByRole("button", {name: "เพิ่มรายการ"}));
+      await user.click(screen.getByRole("button", {name: "เพิ่มพัสดุอีกชิ้น"}));
     }
-    await user.click(screen.getByRole("button", {name: "บันทึกทั้งหมด"}));
+    await user.click(screen.getByRole("button", {name: "บันทึก"}));
     await screen.findByText(/บันทึกสำเร็จ 1 จาก 2/);
     expect(screen.queryByText("TH10")).not.toBeInTheDocument();
     expect(screen.getByText("TH11")).toBeInTheDocument();
     fail = false;
-    await user.click(screen.getByRole("button", {name: "บันทึกทั้งหมด"}));
+    await user.click(screen.getByRole("button", {name: "บันทึก"}));
     await screen.findByText("บันทึกเข้าสู่ระบบสำเร็จ 2 รายการ");
     expect(calls).toEqual(["TH10", "TH11", "TH11"]);
   });
@@ -245,7 +245,7 @@ describe("CheckInModal", () => {
     const close = vi.fn(); const user = userEvent.setup(); render(<CheckInModal onClose={close} />);
     await user.type(screen.getByLabelText("เลขพัสดุ"), "TH10");
     await user.click(screen.getByRole("checkbox", {name: "พัสดุมีปัญหา"}));
-    await user.click(screen.getByRole("button", {name: "เพิ่มรายการ"}));
+    await user.click(screen.getByRole("button", {name: "เพิ่มพัสดุอีกชิ้น"}));
     await user.click(screen.getByLabelText("ปิด")); expect(close).not.toHaveBeenCalled();
     await user.click(screen.getByRole("button", {name: "กลับไปทำต่อ"}));
     expect(screen.getByText("รอบันทึก (1)")).toBeInTheDocument();
@@ -258,9 +258,9 @@ describe("CheckInModal", () => {
     const user = userEvent.setup(); render(<CheckInModal onClose={vi.fn()} />);
     await user.type(screen.getByLabelText("เลขพัสดุ"), "TH10");
     await user.click(screen.getByRole("checkbox", {name: "พัสดุมีปัญหา"}));
-    await user.click(screen.getByRole("button", {name: "เพิ่มรายการ"}));
+    await user.click(screen.getByRole("button", {name: "เพิ่มพัสดุอีกชิ้น"}));
     await user.type(screen.getByLabelText("เลขพัสดุ"), "TH11");
-    await user.click(screen.getByRole("button", {name: "บันทึกทั้งหมด"}));
+    await user.click(screen.getByRole("button", {name: "บันทึก"}));
     expect(screen.getByText("กรอกเลขพัสดุและเลือกห้องให้ครบ หรือระบุว่าพัสดุมีปัญหา")).toBeInTheDocument();
   });
 
@@ -273,9 +273,9 @@ describe("CheckInModal", () => {
     for (const code of ["TH10", "TH11"]) {
       await user.type(screen.getByLabelText("เลขพัสดุ"), code);
       await user.click(screen.getByRole("checkbox", {name: "พัสดุมีปัญหา"}));
-      await user.click(screen.getByRole("button", {name: "เพิ่มรายการ"}));
+      await user.click(screen.getByRole("button", {name: "เพิ่มพัสดุอีกชิ้น"}));
     }
-    await user.click(screen.getByRole("button", {name: "บันทึกทั้งหมด"}));
+    await user.click(screen.getByRole("button", {name: "บันทึก"}));
     await screen.findByText(/บันทึกสำเร็จ 0 จาก 2/);
     expect(calls).toEqual(["TH10"]);
     expect(screen.getByText("TH10")).toBeInTheDocument();
@@ -287,7 +287,7 @@ describe("CheckInModal", () => {
     for (let index = 1; index <= 9; index += 1) {
       await user.type(screen.getByLabelText("เลขพัสดุ"), `TH${index}`);
       await user.click(screen.getByRole("checkbox", {name: "พัสดุมีปัญหา"}));
-      await user.click(screen.getByRole("button", {name: "เพิ่มรายการ"}));
+      await user.click(screen.getByRole("button", {name: "เพิ่มพัสดุอีกชิ้น"}));
     }
     expect(screen.getByText("หน้า 2 / 2")).toBeInTheDocument();
     expect(screen.queryByText("TH1")).not.toBeInTheDocument();
@@ -307,7 +307,7 @@ describe("CheckInModal", () => {
     }));
     const user = userEvent.setup(); render(<CheckInModal onClose={vi.fn()} />);
     await user.type(screen.getByLabelText("เลขพัสดุ"), "TH10"); await pickRoom(user);
-    await user.click(screen.getByRole("button", {name: "บันทึกทั้งหมด"}));
+    await user.click(screen.getByRole("button", {name: "บันทึก"}));
     await screen.findByText("บันทึกเข้าสู่ระบบสำเร็จ 1 รายการ");
     expect(bodies).toEqual([{trackingCode: "TH10", roomId: 1}]);
   });
@@ -320,10 +320,10 @@ describe("CheckInModal", () => {
     const user = userEvent.setup(); render(<CheckInModal onClose={vi.fn()} />);
     await user.type(screen.getByLabelText("เลขพัสดุ"), "TH10");
     await user.click(screen.getByRole("checkbox", {name: "พัสดุมีปัญหา"}));
-    await user.click(screen.getByRole("button", {name: "เพิ่มรายการ"}));
+    await user.click(screen.getByRole("button", {name: "เพิ่มพัสดุอีกชิ้น"}));
     await user.type(screen.getByLabelText("เลขพัสดุ"), "TH11");
     await user.click(screen.getByRole("checkbox", {name: "พัสดุมีปัญหา"}));
-    await user.click(screen.getByRole("button", {name: "บันทึกทั้งหมด"}));
+    await user.click(screen.getByRole("button", {name: "บันทึก"}));
     await screen.findByText("บันทึกเข้าสู่ระบบสำเร็จ 2 รายการ");
     expect(codes).toEqual(["TH10", "TH11"]);
   });

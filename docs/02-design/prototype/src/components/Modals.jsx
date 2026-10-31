@@ -274,7 +274,7 @@ function CheckInModal({ onClose }) {
     else if (code.trim()) roomRef.current?.focus();
   };
   const editDraft = (draft) => {
-    if (hasFields) { setError("เพิ่มรายการที่กำลังกรอก หรือเคลียร์ช่องกรอกก่อนแก้ไขรายการอื่น"); return; }
+    if (hasFields) { setError("เพิ่มพัสดุที่กำลังกรอก หรือกดล้างข้อมูลที่กรอกก่อนแก้ไขรายการอื่น"); return; }
     setDrafts((list) => list.filter((item) => item !== draft));
     setCode(draft.input.trackingCode); setRoom(draft.room);
     setDamaged(draft.damaged); setDamageReason(draft.damageReason); setError(null);
@@ -291,9 +291,12 @@ function CheckInModal({ onClose }) {
   ) : savedCount > 0 && !drafts.length && !hasFields && !submitting ? (
     <button type="button" className="desk-button desk-button-primary dialog-submit" onClick={requestClose}>เสร็จสิ้น</button>
   ) : (
-    <button type="button" disabled={submitting || (!drafts.length && !canAdd)} onClick={submitAll} className="desk-button desk-button-primary dialog-submit">
-      {submitting ? `กำลังบันทึก ${progress} / ${batchTotal}…` : "บันทึกทั้งหมด"}
-    </button>
+    <div className="checkin-footer-actions">
+      <button type="button" className="desk-button checkin-add" disabled={!canAdd} onClick={addDraft}><Plus size={16} aria-hidden="true" />เพิ่มพัสดุอีกชิ้น</button>
+      <button type="button" disabled={submitting || (!drafts.length && !canAdd)} onClick={submitAll} className="desk-button desk-button-primary dialog-submit">
+        {submitting ? `กำลังบันทึก ${progress} / ${batchTotal}…` : "บันทึก"}
+      </button>
+    </div>
   );
   return (
     <ModalShell title="บันทึกพัสดุเข้า" icon={PackagePlus} onClose={requestClose} footer={footer}>
@@ -311,10 +314,9 @@ function CheckInModal({ onClose }) {
         <label htmlFor="checkin-damage">รายละเอียดปัญหา (ไม่บังคับ)</label>
         <textarea maxLength={490} id="checkin-damage" className="desk-textarea" rows={2} value={damageReason} disabled={submitting} onChange={(event) => setDamageReason(event.target.value)} placeholder="หมายเหตุ" />
       </div>}
-      <div className="checkin-actions">
-        <button type="button" className="desk-button checkin-add" disabled={!canAdd} onClick={addDraft}><Plus size={16} aria-hidden="true" />เพิ่มรายการ</button>
-        {hasFields && <button type="button" className="text-button checkin-clear" disabled={submitting} onClick={() => { resetFields(); setError(null); codeRef.current?.focus(); }}>เคลียร์ช่องกรอก</button>}
-      </div>
+      {hasFields && <div className="checkin-clear-row">
+        <button type="button" className="text-button checkin-clear" disabled={submitting} onClick={() => { resetFields(); setError(null); codeRef.current?.focus(); }}>ล้างข้อมูลที่กรอก</button>
+      </div>}
       <InlineError message={error} />
       {savedCount > 0 && <p role="status">บันทึกเข้าสู่ระบบสำเร็จ {savedCount} รายการ</p>}
       {drafts.length > 0 && <section className="selected-summary" aria-label="รายการรอบันทึก">

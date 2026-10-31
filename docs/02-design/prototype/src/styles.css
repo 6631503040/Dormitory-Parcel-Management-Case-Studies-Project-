@@ -453,3 +453,9 @@ input::placeholder, textarea::placeholder { color: var(--desk-muted); opacity: 1
 .checkin-clear { color: var(--desk-muted); padding-inline: 12px; font-size: 13px; border-radius: 6px; }
 .checkin-clear:hover:not(:disabled) { color: var(--desk-text); background: var(--desk-bg); text-decoration: none; }
 .checkin-clear:disabled { cursor: not-allowed; }
+
+.checkin-footer-actions { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; }
+.checkin-footer-actions .desk-button { width: 100%; margin-top: 0; }
+.checkin-footer-actions .checkin-add svg { flex-shrink: 0; }
+.checkin-clear-row { display: flex; justify-content: flex-end; margin-top: 8px; }
+@media (max-width: 400px) { .checkin-footer-actions { grid-template-columns: 1fr; gap: 8px; } }
