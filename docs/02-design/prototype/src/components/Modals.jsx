@@ -35,11 +35,11 @@ function ModalShell({ title, icon: Icon, onClose, children, className = "", foot
   );
 }
 
-function LabeledInput({ label, value, onChange, onKeyDown, placeholder, type = "text", autoFocus, error, inputRef, list, disabled = false, reserveMessage = false, feedback = "" }) {
+function LabeledInput({ label, value, onChange, onKeyDown, placeholder, type = "text", autoFocus, error, inputRef, list, disabled = false, reserveMessage = false, feedback = "", labelAction }) {
   const id = useId();
   return (
     <div className="form-field">
-      <label htmlFor={id}>{label}</label>
+      {labelAction ? <div className="form-label-row"><label htmlFor={id}>{label}</label>{labelAction}</div> : <label htmlFor={id}>{label}</label>}
       <input id={id} ref={inputRef} disabled={disabled} type={type} value={value} onChange={onChange} onKeyDown={onKeyDown} placeholder={placeholder} autoFocus={autoFocus} list={list} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} />
       {reserveMessage ? (
         <div className="field-message">
@@ -301,6 +301,7 @@ function CheckInModal({ onClose }) {
   return (
     <ModalShell title="บันทึกพัสดุเข้า" icon={PackagePlus} onClose={requestClose} footer={footer}>
       <LabeledInput label="เลขพัสดุ" value={code} inputRef={codeRef} disabled={submitting} autoFocus
+        labelAction={<button type="button" className="text-button checkin-clear" disabled={submitting || !hasFields} onClick={() => { resetFields(); setError(null); codeRef.current?.focus(); }}>ล้างข้อมูลที่กรอก</button>}
         onChange={(event) => { setCode(event.target.value); setError(null); }} onKeyDown={handleCodeKeyDown}
         placeholder="สแกนหรือพิมพ์ แล้วกด Enter" />
       <fieldset disabled={submitting} className="checkout-room-fields">
@@ -313,9 +314,6 @@ function CheckInModal({ onClose }) {
       {damaged && <div className="form-field">
         <label htmlFor="checkin-damage">รายละเอียดปัญหา (ไม่บังคับ)</label>
         <textarea maxLength={490} id="checkin-damage" className="desk-textarea" rows={2} value={damageReason} disabled={submitting} onChange={(event) => setDamageReason(event.target.value)} placeholder="หมายเหตุ" />
-      </div>}
-      {hasFields && <div className="checkin-clear-row">
-        <button type="button" className="text-button checkin-clear" disabled={submitting} onClick={() => { resetFields(); setError(null); codeRef.current?.focus(); }}>ล้างข้อมูลที่กรอก</button>
       </div>}
       <InlineError message={error} />
       {savedCount > 0 && <p role="status">บันทึกเข้าสู่ระบบสำเร็จ {savedCount} รายการ</p>}

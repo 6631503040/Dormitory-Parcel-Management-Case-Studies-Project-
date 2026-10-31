@@ -457,5 +457,7 @@ input::placeholder, textarea::placeholder { color: var(--desk-muted); opacity: 1
 .checkin-footer-actions { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; }
 .checkin-footer-actions .desk-button { width: 100%; margin-top: 0; }
 .checkin-footer-actions .checkin-add svg { flex-shrink: 0; }
-.checkin-clear-row { display: flex; justify-content: flex-end; margin-top: 8px; }
+.form-label-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+.form-field .form-label-row label { margin-bottom: 0; }
+.form-label-row .checkin-clear { flex-shrink: 0; padding-inline: 4px; }
 @media (max-width: 400px) { .checkin-footer-actions { grid-template-columns: 1fr; gap: 8px; } }
