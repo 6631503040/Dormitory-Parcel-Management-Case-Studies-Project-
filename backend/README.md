@@ -46,6 +46,39 @@ touch real data. Without `TEST_DATABASE_URL` they are **skipped**, not passed �
 | `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` | none | optional; Web Push key pair (`go run ./cmd/vapidkeys`, or `/app/vapidkeys` in the image). Empty → resident routes answer `PUSH_NOT_CONFIGURED` and no push worker runs |
 | `VAPID_SUBJECT` | none | required with the keys: `mailto:` or `https://` contact for push-service operators |
 | `PUSH_BATCH_WINDOW_SECONDS` | `60` | Parcels for one room checked in within this window go out as one notification |
+| `WEB_DIR` | none | directory of the built React client; when set the server also serves it at `/` and `/resident/` (same origin as the API). Set to `/app/web` in `docker/app.Dockerfile`; leave empty in development (Vite serves the client) |
+
+## CI and deployment (Render)
+
+`.github/workflows/ci.yml` runs on every pull request and push to `main`: gofmt, `go vet`,
+`go test -race` against a fresh PostgreSQL 16 (so the integration tests and every migration really
+run), the frontend's Vitest suite and build, a build of the production image, and a gitleaks scan.
+
+Production is one Docker web service on Render built from `docker/app.Dockerfile`: the React client
+and the API in one image on one HTTPS origin, so the session cookie and the Resident service worker
+need no CORS. Render settings:
+
+| Setting | Value |
+|---|---|
+| Region | Singapore — the same region as the Render PostgreSQL |
+| Dockerfile path / build context | `docker/app.Dockerfile` / `.` |
+| Branch · Auto-Deploy | `main` · "After CI checks pass" |
+| Health check path | `/healthz` |
+| Environment | `DATABASE_URL` (the database's *Internal* URL), `SESSION_SECRET` (≥ 32 random bytes), `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`. The image already sets `APP_ENV=production`, `COOKIE_SECURE=true`, `WEB_DIR`, `MIGRATIONS_DIR`; Render sets `PORT` |
+
+Migrations apply on start. The free plan has no shell, so demo data is seeded from a developer PC
+against the database's *External* URL, with a strong password instead of the documented default:
+
+```bash
+cd backend
+APP_ENV=development DATABASE_URL='<External Database URL>' SESSION_SECRET='<any 32+ chars>'   SEED_PASSWORD='<strong password>' MIGRATIONS_DIR=../db/migrations go run ./cmd/seed -parcels 200
+```
+
+Free-plan limits that matter here: the service sleeps after 15 idle minutes (first request then
+takes about a minute), and the free database expires 30 days after creation with no backups — take
+a `pg_dump` of anything worth keeping (e.g. UAT evidence). Access logs must be kept 90 days in real
+operation (`rule.md`, Computer Crime Act §26), which the free database cannot do; it is a demo
+environment only.
 
 ## API contract
 

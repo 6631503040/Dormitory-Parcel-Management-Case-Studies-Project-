@@ -40,6 +40,10 @@ type Deps struct {
 	// the real browser push services are accepted (see push.DefaultEndpointAllowed).
 	PushPublicKey       string
 	PushEndpointAllowed func(endpoint string) bool
+
+	// WebDir is the built React client to serve at / and /resident/ (see web.go). Empty in
+	// development, where Vite serves the client.
+	WebDir string
 }
 
 type handlers struct{ Deps }
@@ -54,9 +58,8 @@ func NewRouter(d Deps) *gin.Engine {
 		log.Printf("invalid TRUSTED_PROXIES: %v", err)
 	}
 	r.Use(gin.Recovery(), requestLogger(), securityHeaders(), requestLimits(), requireJSONBody())
-	r.NoRoute(func(c *gin.Context) { fail(c, apperr.New(apperr.NotFound, nil)) })
-
 	h := &handlers{d}
+	r.NoRoute(h.noRoute)
 
 	r.GET("/healthz", h.health)
 

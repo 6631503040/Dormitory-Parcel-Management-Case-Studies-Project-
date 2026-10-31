@@ -78,6 +78,7 @@ func main() {
 			Ping:           pool.Ping,
 
 			PushPublicKey: pushPublicKey,
+			WebDir:        cfg.WebDir,
 		}),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       15 * time.Second,

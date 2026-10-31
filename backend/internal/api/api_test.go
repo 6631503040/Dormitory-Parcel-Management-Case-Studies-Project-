@@ -61,6 +61,11 @@ func newEnvWithDeps(t *testing.T, mutate func(*api.Deps)) *env {
 	if err != nil {
 		t.Fatalf("connect: %v", err)
 	}
+	// pg_trgm must live in public: created from inside a test schema (as 0001_init would do on a
+	// fresh database, e.g. in CI) it would vanish with that schema and break every later test.
+	if _, err := admin.Exec(ctx, `CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public`); err != nil {
+		t.Fatalf("create extension: %v", err)
+	}
 	schema := fmt.Sprintf("test_%d", time.Now().UnixNano())
 	if _, err := admin.Exec(ctx, `CREATE SCHEMA `+schema); err != nil {
 		t.Fatalf("create schema: %v", err)
