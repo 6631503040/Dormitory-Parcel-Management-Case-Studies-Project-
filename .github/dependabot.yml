@@ -1,5 +1,9 @@
 # Weekly dependency updates, grouped so the team reviews at most one PR per ecosystem per week.
 # Each PR runs CI; merge it only when green.
+#
+# Major upgrades (React 19, Vite 8, a new Node or Go release) are left out: they change behaviour,
+# need migration work and re-testing against the Test Plan, so the team schedules them
+# deliberately instead of receiving them as automatic PRs. Security and patch updates still flow.
 version: 2
 updates:
   - package-ecosystem: gomod
@@ -11,13 +15,27 @@ updates:
   - package-ecosystem: npm
     directory: /docs/02-design/prototype
     schedule: { interval: weekly }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
-      npm: { patterns: ["*"], update-types: [minor, patch] }
+      npm: { patterns: ["*"] }
 
+  # Base images follow the toolchains: Node stays on the 22 LTS line, Go on the release in
+  # backend/go.mod (CI builds with that version, so the image must not drift ahead of it).
   - package-ecosystem: docker
     directory: /docker
     schedule: { interval: weekly }
+    ignore:
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
+      - dependency-name: golang
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    groups:
+      docker: { patterns: ["*"] }
 
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
+    groups:
+      actions: { patterns: ["*"] }
