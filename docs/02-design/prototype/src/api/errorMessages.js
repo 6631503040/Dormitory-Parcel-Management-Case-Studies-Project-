@@ -3,9 +3,14 @@
 import { formatThaiDateTime } from "../components/shared";
 
 const MESSAGES = {
-  VALIDATION_ERROR: () => "ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่",
+  VALIDATION_ERROR: (p) =>
+    p?.field === "trackingCode" && p?.reason === "invalid_format"
+      ? "เลขพัสดุใช้ได้เฉพาะตัวอักษรภาษาอังกฤษ ตัวเลข และเครื่องหมาย เช่น - _ . โดยไม่มีช่องว่างและไม่มี / \\ ? # %"
+      : "ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่",
   UNAUTHENTICATED: () => "เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่",
   INVALID_CREDENTIALS: () => "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
+  TOO_MANY_LOGIN_ATTEMPTS: (p) =>
+    `ใส่รหัสผ่านผิดหลายครั้งเกินไป กรุณารอ ${Math.max(1, Math.ceil((p?.retryAfterSeconds ?? 900) / 60))} นาทีแล้วลองใหม่`,
   FORBIDDEN: () => "คุณไม่มีสิทธิ์ทำรายการนี้",
   NOT_FOUND: () => "ไม่พบข้อมูลที่ต้องการ",
   UNSUPPORTED_MEDIA_TYPE: () => "เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่",

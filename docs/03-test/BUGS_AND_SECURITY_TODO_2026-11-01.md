@@ -7,14 +7,38 @@
 
 ---
 
+## ผลการแก้ไข (Fix Results) — 1 พฤศจิกายน 2026
+
+แก้บน branch `fix/qa-review-2026-11-01` ทุกข้อมี regression test ที่ **ไม่ผ่านก่อนแก้ และผ่านหลังแก้** (`backend/internal/api/qa_review_test.go`, `Modals.CheckOut.test.jsx`, `errorMessages.test.js`) และทดสอบซ้ำแบบ end-to-end บน Docker image production (`docker/app.Dockerfile`, `APP_ENV=production`)
+
+| ID | ผลก่อนแก้ (ทำซ้ำได้) | ผลหลังแก้ | สิ่งที่แก้ |
+|---|---|---|---|
+| QA-01 | cookie ที่คัดลอกไว้ใช้ได้หลัง logout (`200`) | ได้ `401`; session อื่นของคนเดิมและของคนอื่นยังใช้ได้ | token รูปแบบ `v2` มี session ID สุ่ม; logout บันทึก ID ลงตารางใหม่ `revoked_sessions` (migration 0008) และทุก request ตรวจตารางนี้ |
+| QA-02 | รหัสผิด 25 ครั้งได้ `401` ทุกครั้ง | ครั้งที่ 6 ได้ `429 TOO_MANY_LOGIN_ATTEMPTS` พร้อม `Retry-After`; ทุกครั้งยังบันทึกใน `access_logs`; บัญชีอื่นไม่ถูกกระทบ | limiter ในตัวแอป: 5 ครั้งต่อ (username, IP) ใน 15 นาที; login สำเร็จล้างตัวนับ; หน้าเว็บบอกเวลาที่ต้องรอ |
+| QA-03 | `REVIEW/SLASH` รับเข้าได้ `201` แต่เปิดดูได้ `404` | ตอนรับเข้าได้ `400 invalid_format` | ห้าม `/ \ ? # %` และรหัสที่เป็นจุดล้วน (`.` `..`); หน้าเว็บบอกว่าอักขระไหนใช้ไม่ได้; ฐานข้อมูลบน Render ไม่มีรหัสเดิมที่มีอักขระเหล่านี้ (0 รายการ) |
+| QA-04 | `page=9223372036854775807` ได้ `500` ทั้ง 3 endpoint | ได้ `400 page too_large`; รับหน้าสูงสุด 100,000 | ตรวจขอบเขต `page` ใน `parsePaging` ซึ่งทั้ง 3 endpoint ใช้ร่วมกัน |
+| QA-05 | พิมพ์ช้า 450 ms/ตัว ระบบค้นหาทีละอักษรแล้วล้างช่อง | ข้อความคงอยู่จนกด Enter และขึ้นคำแนะนำ "พิมพ์ครบแล้วกด Enter เพื่อค้นหา"; สแกนเนอร์และการวางรหัสยังส่งอัตโนมัติ | ส่งอัตโนมัติเฉพาะเมื่อทุกตัวอักษรห่างกันไม่เกิน 50 ms (แบบเครื่องสแกน) หรือเป็นการวาง |
+| QA-06 | `npm audit` พบ 10 แพ็กเกจ (critical 3) | `npm audit` = **0** (รวม dev) | Vite 5.4 → 6.4.5, Vitest และ @vitest/ui 2.1.9 → 4.1.12, @vitejs/plugin-react 4.7.0; สร้าง lockfile ใหม่ (npm 10.8.2 มีบั๊ก `edgesOut` ตอนอัปเกรด จึงสร้างด้วย npm 11 และยืนยันว่า `npm ci` ของ npm 10 ใช้ได้) |
+| QA-07 | govulncheck พบ 18 advisory ที่มี call trace | **0** advisory ที่ถูกเรียกใช้; เหลือ 1 รายการระดับ module (GO-2026-5932 `x/crypto/openpgp` ซึ่งโปรเจกต์ไม่ได้ import และยังไม่มีรุ่นแก้) | Go 1.26.5 → 1.26.10 (`go.mod`; CI ใช้ `go-version-file`, Docker ใช้ `golang:1.26-alpine` ซึ่งเป็น patch ล่าสุด), `x/net` 0.62.0, `quic-go` 0.59.1, `x/crypto` 0.58.0 |
+
+**ผลทดสอบหลังแก้:** Go 44 tests ผ่าน (integration กับ PostgreSQL จริง ไม่มี skip, `go vet` ผ่าน), Vitest 124 tests ผ่าน, production build และ Docker image build ผ่าน
+
+**ยังไม่ได้ทำ / ต้องทำต่อ:**
+- ตั้ง `TRUSTED_PROXIES=10.0.0.0/8` บน Render ตอนนี้ทุก request บน Render ถูกบันทึกเป็น IP ของ proxy (`10.x`) ทำให้ limiter ของ QA-02 นับรวมทุกเครื่องต่อ username และ `access_logs.ip_address` ไม่ใช่ IP จริง
+- ไม่ได้รัน `-race` ในเครื่องนี้ (ไม่มี cgo) CI รันให้
+- QA-05 ทดสอบด้วย Vitest + user-event (หน่วง 450 ms) ยังไม่ได้รัน Playwright บน Chromium จริงซ้ำ และยังไม่ได้ทดสอบกับเครื่องสแกนจริง (TC07–TC09)
+- session ที่ออกก่อน deploy (รูปแบบ `v1`) จะใช้ไม่ได้หลัง deploy Staff ต้อง login ใหม่หนึ่งครั้ง
+
+---
+
 ## สรุปภาพรวม (Executive Summary)
 
 | ระดับความสำคัญ | จำนวน | ยืนยันพฤติกรรมด้วยการทดสอบ | คำเตือนจากเครื่องมือ | สถานะ |
 |---|:---:|:---:|:---:|---|
-| 🔴 **High / P1** | 3 | 2 | 1 | รอแก้ไขหรือประเมินก่อนปล่อยรุ่น |
-| 🟡 **Medium / P2** | 4 | 3 | 1 | รอแก้ไขหรือประเมินในรอบพัฒนาถัดไป |
+| 🔴 **High / P1** | 3 | 2 | 1 | แก้แล้ว |
+| 🟡 **Medium / P2** | 4 | 3 | 1 | แก้แล้ว |
 | 🟢 **Low / Improvement** | 0 | 0 | 0 | ไม่ได้เพิ่มรายการที่ยังไม่มีหลักฐาน |
-| **รวมทั้งหมด** | **7** | **5** | **2** | **ยังไม่ปิดรายการใด** |
+| **รวมทั้งหมด** | **7** | **5** | **2** | **แก้แล้วทั้ง 7 รายการ (ดูผลการแก้ไขด้านบน)** |
 
 - **P1/P2 เป็นลำดับงานที่เสนอให้ทีมพัฒนา** ไม่ใช่คะแนน CVSS หรือการรับรองว่าโจมตี production ได้
 - คำเตือน dependency **2 กลุ่ม** ไม่ใช่ช่องโหว่ 2 รหัส: ฝั่ง npm รายงานแพ็กเกจ 10 รายการ ส่วน Go พบ advisory ไม่ซ้ำ 18 รหัสที่มี call trace เชื่อมกับแอป
@@ -29,7 +53,7 @@
 
 ### [QA-01] Session เดิมยังใช้งานได้หลังออกจากระบบ (Session Revocation)
 
-* **สถานะ:** ยืนยันพฤติกรรมแล้ว — รอแก้ไข เป็นข้อจำกัดเดิมที่มีบันทึกไว้
+* **สถานะ:** ✅ แก้แล้ว (1 พ.ย. 2026) — `TestQA01LogoutRevokesCopiedSession`
 * **ไฟล์ที่เกี่ยวข้อง:**
   * `backend/internal/api/auth_handlers.go` — ฟังก์ชัน `logout` บรรทัด 81 และ `clearSession` บรรทัด 95
   * `backend/internal/auth/auth.go` — ฟังก์ชัน `Issue` บรรทัด 60 และการตรวจ signed token
@@ -48,16 +72,17 @@
   ใช้ session ID แบบสุ่มที่มีสถานะฝั่งเซิร์ฟเวอร์ และ revoke เมื่อ logout หรือออกแบบ token identifier พร้อม revocation ที่มีอายุครอบคลุม token กำหนดนโยบายเมื่อเปลี่ยนรหัสผ่านหรือปิดบัญชีด้วย
 * **หลักฐาน:** [go-review-findings.log](evidence/go-review-findings.log) — `TestReviewLogoutMustRevokeCopiedSession`
 * **Checklist:**
-  - [ ] เลือกแนวทางเก็บและเพิกถอน session ที่ทีมดูแลต่อได้
-  - [ ] เพิ่มการเพิกถอนฝั่งเซิร์ฟเวอร์เมื่อ logout
-  - [ ] ตรวจว่า cookie เก่าได้ `401` หลัง logout
-  - [ ] ตรวจว่า session ใหม่ยังใช้ได้ และ session ของผู้อื่นไม่ถูกยกเลิกโดยไม่ตั้งใจ
+  - [x] เลือกแนวทางเก็บและเพิกถอน session ที่ทีมดูแลต่อได้: session ID สุ่มใน token + ตาราง `revoked_sessions` ที่ลบแถวหมดอายุเอง
+  - [x] เพิ่มการเพิกถอนฝั่งเซิร์ฟเวอร์เมื่อ logout
+  - [x] ตรวจว่า cookie เก่าได้ `401` หลัง logout
+  - [x] ตรวจว่า session ใหม่ยังใช้ได้ และ session ของผู้อื่นไม่ถูกยกเลิกโดยไม่ตั้งใจ
+  - นโยบายเมื่อปิดบัญชี: ตัดทุก session ทันที (มีอยู่เดิม) ส่วนการเปลี่ยนรหัสผ่านยังไม่มี endpoint ในระบบ
 
 ---
 
 ### [QA-02] ไม่มีการจำกัดการล็อกอินผิดซ้ำในตัวแอป (Login Rate Limiting)
 
-* **สถานะ:** ยืนยันพฤติกรรมแล้ว — รอแก้ไขหรือยืนยันมาตรการภายนอก เป็นข้อจำกัดเดิมที่มีบันทึกไว้
+* **สถานะ:** ✅ แก้แล้ว (1 พ.ย. 2026) — `TestQA02LoginThrottlesRepeatedFailures` แต่ยังต้องตั้ง `TRUSTED_PROXIES` บน Render
 * **ไฟล์ที่เกี่ยวข้อง:**
   * `backend/internal/api/auth_handlers.go` — ฟังก์ชัน `login` บรรทัด 24
   * `backend/internal/api/router.go` — Route `/auth/login` บรรทัด 67
@@ -74,16 +99,17 @@
   จำกัดความถี่ตามบัญชีและ IP ร่วมกัน เพิ่มช่วงหน่วงและบันทึกเหตุการณ์ ระวังไม่ใช้การล็อกถาวรที่ผู้อื่นใช้ปิดกั้นเจ้าของบัญชีได้ง่าย หากใช้ limiter ภายนอก ต้องตรวจว่าไม่สามารถข้ามไปเรียก backend โดยตรงได้
 * **หลักฐาน:** [go-review-findings.log](evidence/go-review-findings.log) — `TestReviewStaffLoginShouldThrottleRepeatedFailures`
 * **Checklist:**
-  - [ ] ตรวจมาตรการ limiter ของ production และช่องทางเข้า backend
-  - [ ] กำหนดจำนวนครั้ง ช่วงเวลา และการคืนสิทธิ์ให้ชัดเจน
-  - [ ] เพิ่มหรือยืนยัน limiter ที่ครอบคลุมทุกช่องทาง
-  - [ ] ทดสอบกรณีเกินเกณฑ์ หมดช่วงพัก และผู้ใช้ปกติที่ไม่ควรถูกกระทบ
+  - [x] ตรวจมาตรการ limiter ของ production และช่องทางเข้า backend: Render ไม่มี limiter และไม่ได้ตั้ง `TRUSTED_PROXIES` (`access_logs` บน Render มีแต่ IP `10.x` ของ proxy)
+  - [x] กำหนดจำนวนครั้ง ช่วงเวลา และการคืนสิทธิ์ให้ชัดเจน: 5 ครั้งใน 15 นาทีต่อ (username, IP); คืนสิทธิ์เมื่อครั้งที่ผิดเก่าสุดครบ 15 นาที หรือเมื่อ login สำเร็จ; ไม่ล็อกถาวร
+  - [x] เพิ่ม limiter ที่ครอบคลุมทุกช่องทาง: limiter อยู่ในแอป จึงครอบคลุมทั้งการเรียกผ่านเว็บและการเรียก API ตรง
+  - [x] ทดสอบกรณีเกินเกณฑ์และผู้ใช้ปกติที่ไม่ควรถูกกระทบ (integration test); การคืนสิทธิ์เมื่อครบเวลาเป็นตรรกะช่วงเวลาเลื่อน (`recent()`)
+  - [ ] ตั้ง `TRUSTED_PROXIES=10.0.0.0/8` บน Render
 
 ---
 
 ### [QA-07] Go Toolchain และ Dependency มี Advisory ที่ต้องประเมิน
 
-* **สถานะ:** เครื่องมือรายงาน — รอประเมินการใช้งานจริงและอัปเดต ยังไม่ได้สาธิต exploit
+* **สถานะ:** ✅ แก้แล้ว (1 พ.ย. 2026) — govulncheck เหลือ 0 advisory ที่ถูกเรียกใช้
 * **ไฟล์ที่เกี่ยวข้อง:**
   * `backend/go.mod` และ `backend/go.sum`
   * `docker/backend.Dockerfile` และ `docker/app.Dockerfile` — สำหรับตรวจความสอดคล้องของ toolchain ก่อน deploy
@@ -111,11 +137,11 @@
   ประเมินอัปเดต Go, `x/net` และ `quic-go` ให้พ้น affected range พร้อมปรับ minimum version, Docker image และ workflow ให้สอดคล้องกัน จากนั้นตรวจ artifact ที่จะปล่อยและรันชุดทดสอบเดิมซ้ำ
 * **หลักฐาน:** [govulncheck.json](evidence/govulncheck.json) และ [สรุป Advisory พร้อม Trace](evidence/govulncheck-summary.json)
 * **Checklist:**
-  - [ ] ประเมิน advisory ทั้ง 18 รหัสเทียบกับรูปแบบ deploy จริง
-  - [ ] เลือกรุ่นที่แก้แล้วและเข้ากันได้กับ dependency อื่น
-  - [ ] อัปเดต toolchain และ dependency โดยให้ผู้พัฒนาเป็นผู้ดำเนินการ
-  - [ ] รัน `govulncheck`, `go vet`, race tests, integration tests และ browser tests ซ้ำ
-  - [ ] ไม่ปิดรายการจนกว่าจะไม่มี finding ที่เกี่ยวข้อง หรือมีเหตุผลยอมรับความเสี่ยงพร้อมผู้รับผิดชอบ
+  - [x] ประเมิน advisory ทั้ง 18 รหัส: ไม่ต้องแยกประเมิน เพราะอัปเดตจนพ้น affected range ทั้งหมด
+  - [x] เลือกรุ่นที่แก้แล้วและเข้ากันได้กับ dependency อื่น: Go 1.26.10, x/net 0.62.0, quic-go 0.59.1
+  - [x] อัปเดต toolchain และ dependency
+  - [x] รัน `govulncheck`, `go vet` และ integration tests ซ้ำ (race tests รันใน CI)
+  - [x] เหลือ GO-2026-5932 ระดับ module เท่านั้น (`x/crypto/openpgp` ไม่ได้ import และยังไม่มีรุ่นแก้) จึงยอมรับความเสี่ยงข้อนี้
 
 ---
 
@@ -123,7 +149,7 @@
 
 ### [QA-03] บันทึกเลขพัสดุที่มี Slash ได้ แต่เปิดรายละเอียดไม่ได้
 
-* **สถานะ:** ยืนยันพฤติกรรมแล้ว — รอแก้ไข
+* **สถานะ:** ✅ แก้แล้ว (1 พ.ย. 2026) — `TestQA03TrackingCodeMustBeRetrievable`
 * **ไฟล์ที่เกี่ยวข้อง:**
   * `backend/internal/api/parcel_handlers.go` — `trackingCodePattern` บรรทัด 29
   * `backend/internal/api/router.go` — Route `/parcels/:trackingCode` บรรทัด 90
@@ -142,16 +168,16 @@
   กำหนดชุดอักขระตามรูปแบบบาร์โค้ดที่รองรับ และตรวจ client กับ API ให้ตรงกัน หรือใช้ stable parcel ID/query parameter สำหรับ lookup พร้อมจัดการข้อมูลเดิมที่ได้รับผลกระทบ
 * **หลักฐาน:** [go-review-findings.log](evidence/go-review-findings.log) — `TestReviewAcceptedTrackingCodeMustBeRetrievable`
 * **Checklist:**
-  - [ ] ตกลงชุดอักขระที่รองรับและปรับ validation/route ให้สอดคล้องกัน
-  - [ ] ตรวจข้อมูลเดิมที่มีอักขระดังกล่าวก่อนเปลี่ยนกติกา
-  - [ ] เพิ่มกรณี `/`, `.`, `..`, `%`, `?`, `#` ตามนโยบายที่เลือก
-  - [ ] ยืนยันว่ารหัสที่บันทึกสำเร็จค้นหา เปิดประวัติ และแก้ไขได้
+  - [x] ตกลงชุดอักขระที่รองรับ: ASCII ที่พิมพ์ได้และไม่มีช่องว่าง ยกเว้น `/ \ ? # %` และรหัสที่เป็นจุดล้วน ใช้กติกาเดียวกันตอนรับเข้า แก้ไข นำออก และเปิดดู
+  - [x] ตรวจข้อมูลเดิมที่มีอักขระดังกล่าวก่อนเปลี่ยนกติกา: ฐานข้อมูลบน Render มี 0 รายการ
+  - [x] เพิ่มกรณี `/`, `\`, `.`, `..`, `%`, `?`, `#`
+  - [x] ยืนยันว่ารหัสที่มีเครื่องหมายอื่น (`-` `_` `.` `+`) บันทึกแล้วเปิดดูได้
 
 ---
 
 ### [QA-04] ค่าหน้าตารางขนาดใหญ่ทำให้ API ตอบ Internal Server Error
 
-* **สถานะ:** ยืนยันพฤติกรรมแล้ว — รอแก้ไข
+* **สถานะ:** ✅ แก้แล้ว (1 พ.ย. 2026) — `TestQA04HugePageIsAValidationError`
 * **ไฟล์ที่เกี่ยวข้อง:**
   * `backend/internal/api/parcel_handlers.go` — `parsePaging` บรรทัด 47
   * `backend/internal/store/parcels.go` บรรทัด 641
@@ -171,16 +197,16 @@
   กำหนดขอบเขต `page` และตรวจ overflow ก่อนคำนวณ OFFSET ให้ใช้กติกาเดียวกันทุก endpoint พิจารณา cursor pagination หากปริมาณข้อมูลเพิ่มขึ้น ไม่แก้เพียงซ่อน SQL error เป็นผลลัพธ์ว่าง
 * **หลักฐาน:** [go-review-findings.log](evidence/go-review-findings.log) — `TestReviewLargePageMustNotReturnInternalError`
 * **Checklist:**
-  - [ ] เพิ่มการตรวจขอบเขตและ integer overflow
-  - [ ] ใช้กติกาเดียวกันในทั้งสาม endpoint
-  - [ ] ทดสอบ page ปกติ ศูนย์ ติดลบ ค่าขอบเขต และค่าสูงสุด
-  - [ ] ยืนยันว่า pagination ปกติยังถูกต้องและค่าที่ไม่รองรับไม่ทำให้ `5xx`
+  - [x] เพิ่มการตรวจขอบเขตและ integer overflow: `page` สูงสุด 100,000 (คูณ pageSize 100 แล้วยังห่างจาก overflow มาก)
+  - [x] ใช้กติกาเดียวกันในทั้งสาม endpoint (`parsePaging`)
+  - [x] ทดสอบ page ปกติ ศูนย์ ติดลบ ค่าขอบเขต และค่าสูงสุด
+  - [x] ยืนยันว่า pagination ปกติยังถูกต้อง (`TestSearchAndPagination` ผ่าน) และค่าที่ไม่รองรับไม่ทำให้เกิด `5xx`
 
 ---
 
 ### [QA-05] พิมพ์เลขพัสดุช้าแล้วระบบค้นหาและล้างทีละอักษร
 
-* **สถานะ:** ยืนยันพฤติกรรมแล้วผ่าน Chromium จริง — รอแก้ไข
+* **สถานะ:** ✅ แก้แล้ว (1 พ.ย. 2026) — ทดสอบด้วย Vitest แต่ยังไม่ได้รัน Playwright บน Chromium ซ้ำ
 * **ไฟล์ที่เกี่ยวข้อง:**
   * `docs/02-design/prototype/src/components/Modals.jsx` — `enqueueScan` บรรทัด 109 และ timer บรรทัด 115
 * **สาเหตุ:**
@@ -197,16 +223,17 @@
   แยก scanner burst จากการพิมพ์มือโดยพิจารณาความเร็ว keystroke และรูปแบบรหัส เก็บค่าที่พิมพ์ไว้จนตรวจพบรายการหรือผู้ใช้ยืนยัน ให้ Enter เป็นทางเลือกของการกรอกมือ โดยยังรักษาการสแกนต่อเนื่องที่ไม่ต้องคลิก
 * **หลักฐาน:** [playwright-review-findings.log](evidence/playwright-review-findings.log), [ภาพ Dialog](evidence/manual-input-dialog.png) และภาพเต็ม/trace ใน [playwright-findings](evidence/playwright-findings/)
 * **Checklist:**
-  - [ ] แยกเงื่อนไขสแกนออกจากการพิมพ์มือ
-  - [ ] ไม่ล้างอักษรเมื่อผู้ใช้หยุดกลางรหัส
-  - [ ] ทดสอบ scanner burst, paste, การพิมพ์ช้า และการหยุดกลางรหัส
-  - [ ] ยืนยันว่าเพิ่มเฉพาะรหัสครบ ไม่เพิ่มซ้ำ และยังสแกนหลายรายการต่อเนื่องได้
+  - [x] แยกเงื่อนไขสแกนออกจากการพิมพ์มือ: ส่งอัตโนมัติเฉพาะเมื่อทุกตัวอักษรห่างกันไม่เกิน 50 ms หรือเป็นการวาง
+  - [x] ไม่ล้างอักษรเมื่อผู้ใช้หยุดกลางรหัส: คงข้อความไว้และบอกให้กด Enter
+  - [x] ทดสอบ scanner burst, paste, การพิมพ์ช้า (450 ms) และการหยุดกลางรหัสด้วย Vitest
+  - [x] ยืนยันว่าเพิ่มเฉพาะรหัสครบ ไม่เพิ่มซ้ำ และยังสแกนหลายรายการต่อเนื่องได้ (test เดิมผ่านทั้งหมด)
+  - [ ] รัน Playwright บน Chromium และทดสอบกับเครื่องสแกนจริง
 
 ---
 
 ### [QA-06] npm Audit พบ Advisory ในเครื่องมือพัฒนา
 
-* **สถานะ:** เครื่องมือรายงาน — รอประเมินและอัปเดต ยังไม่ได้สาธิต exploit
+* **สถานะ:** ✅ แก้แล้ว (1 พ.ย. 2026) — `npm audit` = 0
 * **ไฟล์ที่เกี่ยวข้อง:**
   * `docs/02-design/prototype/package.json`
   * `docs/02-design/prototype/package-lock.json`
@@ -241,11 +268,11 @@
   ประเมินอัปเดต Vitest/Vite และ plugin ที่เกี่ยวข้องเป็นชุดที่เข้ากันได้ อัปเดต transitive dependency ที่ทำได้โดยไม่เปลี่ยนพฤติกรรมก่อน ห้ามใช้ `npm audit fix --force` โดยไม่ตรวจผล ระหว่างรอให้จำกัดการเข้าถึง dev server และ Vitest UI เฉพาะผู้ที่จำเป็น
 * **หลักฐาน:** [npm-audit.json](evidence/npm-audit.json), [npm-runtime-audit.json](evidence/npm-runtime-audit.json) และ [dependency-versions.json](evidence/dependency-versions.json)
 * **Checklist:**
-  - [ ] ประเมิน advisory ตาม OS และวิธีเปิดใช้เครื่องมือจริง
-  - [ ] เลือกรุ่นที่แก้แล้วและตรวจ compatibility ของ Vite/Vitest/plugin
-  - [ ] อัปเดต lockfile โดยผู้พัฒนา และไม่เปิด dev server ให้ผู้ไม่เกี่ยวข้องเข้าถึง
-  - [ ] รัน audit, Vitest, Playwright และ build หลังอัปเดต
-  - [ ] หากยังมีคำเตือน ให้บันทึกเหตุผลและผู้รับความเสี่ยงรายรายการ
+  - [x] ประเมิน advisory: ไม่ต้องแยกประเมิน เพราะอัปเดตจนไม่เหลือ
+  - [x] เลือกรุ่นที่แก้แล้วและตรวจ compatibility: Vite 6.4.5 + Vitest 4.1.12 + plugin-react 4.7.0
+  - [x] อัปเดต lockfile; ข้อควรระวัง: `npm run dev` ยังเปิดที่ `0.0.0.0` เพื่อให้มือถือในวง LAN เดียวกันเข้าได้ อย่ารันบนเครือข่ายสาธารณะ
+  - [x] รัน audit, Vitest และ build หลังอัปเดต (ยังไม่ได้รัน Playwright)
+  - [x] ไม่มีคำเตือนเหลือ
 
 ---
 
@@ -295,4 +322,6 @@
 
 สคริปต์ย่อยและแต่ละกรณีถูกใช้ตรวจจริงแล้ว ตัวเรียกรวม `run-review.sh` ผ่านการตรวจ syntax แต่ไม่ได้รันทั้งชุดซ้ำอีกครั้งเพียงเพื่อตรวจตัวเรียกรวม
 
-**ข้อสรุปการส่งมอบ:** รายงานนี้ส่งต่อผลตรวจและแนวทางแก้ไขเท่านั้น สถานะทั้ง 7 รายการยังเปิดอยู่ ไม่มีการแก้บั๊กในตัวแอปหรือเผยแพร่ชุดทดสอบขึ้น GitHub
+**ข้อสรุปการส่งมอบ (ฉบับเดิม):** รายงานนี้ส่งต่อผลตรวจและแนวทางแก้ไขเท่านั้น ไม่มีการแก้บั๊กในตัวแอปหรือเผยแพร่ชุดทดสอบขึ้น GitHub
+
+**อัปเดต 1 พ.ย. 2026:** แก้ครบทั้ง 7 รายการแล้ว ดูหัวข้อ "ผลการแก้ไข" ด้านบน

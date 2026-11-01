@@ -95,7 +95,8 @@ New feature requests go through advisor review — flag them as scope creep, don
 ## Data model (see docs/02-design/design-spec.md §4 for full field lists)
 
 Tables: `buildings`, `rooms`, `residents` (the official directory), `staff`,
-`parcels`, `parcel_events` (audit trail).
+`parcels`, `parcel_events` (audit trail), `access_logs` (login attempts), `revoked_sessions`
+(logged-out session IDs, migration 0008).
 Resident notifications (Epic E3, Web Push — `docs/02-design/web-push-notification.md`):
 `resident_otp_challenges`, `push_subscriptions`, `push_notifications` (outbox). The LINE tables
 (`line_links`, `line_otp_challenges`, migration 0004) remain in the schema but no code uses them.

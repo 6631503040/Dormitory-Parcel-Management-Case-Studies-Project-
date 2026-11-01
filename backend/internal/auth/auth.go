@@ -3,6 +3,7 @@ package auth
 
 import (
 	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -46,11 +47,20 @@ func BurnPasswordCheck(password string) {
 	CheckPassword(dummyHash, password)
 }
 
-// Signer issues stateless session tokens: "v1.<staffID>.<expiryUnix>.<hex hmac-sha256>".
+// Signer issues signed session tokens: "v2.<staffID>.<expiryUnix>.<sessionID>.<hex hmac-sha256>".
 // The token carries identity only; role and active status are always re-read from the database.
+// The random session ID is what logout revokes server-side (revoked_sessions), so a copy of the
+// cookie stops working at logout instead of at expiry.
 type Signer struct {
 	secret []byte
 	ttl    time.Duration
+}
+
+// Session is what a valid token proves.
+type Session struct {
+	StaffID   int64
+	ID        string // random, unique per login
+	ExpiresAt time.Time
 }
 
 func NewSigner(secret []byte, ttl time.Duration) Signer { return Signer{secret: secret, ttl: ttl} }
@@ -58,29 +68,33 @@ func NewSigner(secret []byte, ttl time.Duration) Signer { return Signer{secret: 
 func (s Signer) TTL() time.Duration { return s.ttl }
 
 func (s Signer) Issue(staffID int64, now time.Time) string {
-	payload := fmt.Sprintf("v1.%d.%d", staffID, now.Add(s.ttl).Unix())
+	id := make([]byte, 16)
+	if _, err := rand.Read(id); err != nil {
+		panic(fmt.Sprintf("session id: %v", err)) // crypto/rand never fails on supported platforms
+	}
+	payload := fmt.Sprintf("v2.%d.%d.%s", staffID, now.Add(s.ttl).Unix(), hex.EncodeToString(id))
 	return payload + "." + s.mac(payload)
 }
 
-func (s Signer) Verify(token string, now time.Time) (int64, bool) {
+func (s Signer) Verify(token string, now time.Time) (Session, bool) {
 	i := strings.LastIndexByte(token, '.')
 	if i < 0 {
-		return 0, false
+		return Session{}, false
 	}
 	payload, sig := token[:i], token[i+1:]
 	if !hmac.Equal([]byte(sig), []byte(s.mac(payload))) {
-		return 0, false
+		return Session{}, false
 	}
 	parts := strings.Split(payload, ".")
-	if len(parts) != 3 || parts[0] != "v1" {
-		return 0, false
+	if len(parts) != 4 || parts[0] != "v2" || len(parts[3]) != 32 {
+		return Session{}, false
 	}
 	id, err1 := strconv.ParseInt(parts[1], 10, 64)
 	exp, err2 := strconv.ParseInt(parts[2], 10, 64)
 	if err1 != nil || err2 != nil || now.Unix() >= exp {
-		return 0, false
+		return Session{}, false
 	}
-	return id, true
+	return Session{StaffID: id, ID: parts[3], ExpiresAt: time.Unix(exp, 0)}, true
 }
 
 func (s Signer) mac(payload string) string {
