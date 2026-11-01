@@ -27,8 +27,12 @@ need almost no retraining.
 
 ## Status
 
-**Pre-implementation.** No application code exists yet (Milestones 1–2: analysis, SRS,
-UX/UI design). Repo layout is documented in `PROJECT_STRUCTURE.md`. The authoritative
+**Implementation started (2026-09-21, frontend wired to the API 2026-09-22).** The Go/Gin API and
+PostgreSQL schema exist (`backend/`, `db/migrations/`, `docker/`). The React client
+(`docs/02-design/prototype/`) now calls that API directly (`src/api/client.js`) instead of
+localStorage — it is still visually/structurally a prototype (modals instead of the design-spec's
+dedicated screens, Thai UI), but its data is real. It has its own test suite (Vitest +
+Testing Library + MSW). Repo layout is documented in `PROJECT_STRUCTURE.md`. The authoritative
 documents are:
 
 - `Project Proposal_Dormitory Parcel Management System.docx` (repo root) — full proposal (scope, goals, risks, timeline, ethics)
@@ -60,6 +64,12 @@ beyond this set without flagging it (Technical Risk mitigation).
 
 Plus: read-only Resident/Room Directory reference, and an audit trail on every check-in/check-out.
 
+Plus (Epic E3, **advisor sign-off pending** — scope change): the **Resident notification page**
+`/resident/` — a separate PWA where a Resident registers their phone with a desk OTP, sees their
+room's Pending Parcels (the page refreshes itself while open), and gets a Web Push notification on
+Check-In. It **replaces LINE**, which the team dropped on 2026-10-21; the LINE code was removed on
+2026-10-27. Design: `docs/02-design/web-push-notification.md`.
+
 **Out of scope:** handwriting OCR, mobile app (web only), direct courier API integration.
 New feature requests go through advisor review — flag them as scope creep, don't just build them.
 
@@ -86,6 +96,9 @@ New feature requests go through advisor review — flag them as scope creep, don
 
 Tables: `buildings`, `rooms`, `residents` (the official directory), `staff`,
 `parcels`, `parcel_events` (audit trail).
+Resident notifications (Epic E3, Web Push — `docs/02-design/web-push-notification.md`):
+`resident_otp_challenges`, `push_subscriptions`, `push_notifications` (outbox). The LINE tables
+(`line_links`, `line_otp_challenges`, migration 0004) remain in the schema but no code uses them.
 Enums: `staff_role`, `parcel_status` (`pending` / `picked_up` / `archived`),
 `parcel_event_type`.
 
@@ -93,7 +106,7 @@ Enums: `staff_role`, `parcel_status` (`pending` / `picked_up` / `archived`),
 
 Current phase. All requirements work lives under `docs/01-requirements/`:
 
-- `backlog.md` — product backlog, one row per requirement (`FR-*`, `NFR-*`, `CON-*`). Never renumber an ID; deprecate instead.
+- `product_backlog.md` — product backlog, one row per requirement (`FR-*`, `NFR-*`, `CON-*`). Never renumber an ID; deprecate instead.
 - `01-spec/{YYYYMMDD}-{no}-{topic}.md` — one detailed spec per requirement (story, Given/When/Then acceptance criteria, data, screens, compliance, traceability). Use `01-spec/_template.md`.
 - Scope gate: anything outside Check-In / Check-Out / Search / Dashboard / Directory / audit trail goes to the backlog's **scope-creep parking lot**, not into an active requirement.
 - Every requirement touching resident data, a logged action, or an "I agree"/handover confirmation must cite the `rule.md` clause it satisfies.
@@ -110,7 +123,7 @@ Specialist agents in `.claude/agents/` — invoke the matching one for its domai
 | Agent | Domain |
 |-------|--------|
 | `requirement-writer` | Turn intent into `FR/NFR/CON` requirements + user stories + backlog entries (Milestone 1 / SRS) |
-| `backlog-auditor` | Audit `backlog.md` for well-formedness, traceability, scope creep, compliance coverage |
+| `backlog-auditor` | Audit `product_backlog.md` for well-formedness, traceability, scope creep, compliance coverage |
 | `frontend-react` | React + Tailwind staff UI; enforces the "looks like the spreadsheet" constraint |
 | `backend-go` | Go/Gin API: check-in/out handlers, room validation, search, dashboard, RBAC, audit |
 | `db-postgres` | Schema, migrations, indexing, query performance |
@@ -120,9 +133,27 @@ Specialist agents in `.claude/agents/` — invoke the matching one for its domai
 
 ## Commands
 
-No build/test/lint commands yet — scaffolding hasn't started. Add them here once the
-frontend (`npm` / Vite) and backend (`go`) projects exist, and move the corresponding
-folders from "planned" to "current" in `PROJECT_STRUCTURE.md`.
+Backend + database (details in `backend/README.md`):
+
+```bash
+cd docker && cp .env.example .env            # first time; then edit the secrets
+docker compose up -d db                      # PostgreSQL on 127.0.0.1:5432
+docker compose up -d --build backend         # API on :8080 (applies db/migrations on start)
+cd ../backend
+go run ./cmd/seed -parcels 1000 -reset       # synthetic data (dev only; needs DATABASE_URL, SESSION_SECRET)
+go test ./...                                # integration tests need TEST_DATABASE_URL, else they skip
+```
+
+Frontend prototype (now calls the real API; needs the backend running via the steps above):
+
+```bash
+cd docs/02-design/prototype
+npm run dev        # http://localhost:5173 — /api is proxied to the backend (see vite.config.js)
+npm run build
+npm test           # Vitest + Testing Library + MSW (mocked network, no backend needed)
+```
+
+No lint command yet. Add the real frontend's commands here once it exists.
 
 The `.docx` proposal is binary; read its text with:
 `unzip -p "Project Proposal_Dormitory Parcel Management System.docx" word/document.xml | sed 's/<[^>]*>/ /g'`

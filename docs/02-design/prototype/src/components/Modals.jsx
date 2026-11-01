@@ -1,281 +1,289 @@
-import React, { useEffect, useState } from "react";
-import { X, Check, ScanLine, PackagePlus } from "lucide-react";
-import { C, bodyFont, displayFont, roomLabel } from "./shared";
+import React, { useEffect, useId, useRef, useState } from "react";
+import { X, ScanLine, PackagePlus } from "lucide-react";
+import { C, roomLabel, formatThaiDateTime } from "./shared";
+import RoomCombobox from "./RoomCombobox";
+import { api, ApiError } from "../api/client";
+import { errorMessage } from "../api/errorMessages";
 
-function ModalShell({ title, icon: Icon, onClose, children }) {
+function ModalShell({ title, icon: Icon, onClose, children, className = "", footer }) {
+  const titleId = useId();
+  const dialogRef = useRef(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+  useEffect(() => {
+    const opener = document.activeElement;
+    const node = dialogRef.current;
+    node.showModal();
+    node.querySelector("input")?.focus();
+    return () => { node.close(); opener?.focus(); };
+  }, []);
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full max-w-md rounded-2xl shadow-2xl overflow-hidden" style={{ background: C.card }}>
-        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: C.border }}>
-          <div className="flex items-center gap-2.5">
-            <Icon size={18} style={{ color: C.primary }} />
-            <h3 className="font-semibold" style={{ ...displayFont, color: C.text }}>{title}</h3>
-          </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100">
-            <X size={18} style={{ color: C.textMuted }} />
-          </button>
-        </div>
-        <div className="p-5">{children}</div>
+    <dialog ref={dialogRef} aria-labelledby={titleId} className={`desk-dialog ${className}`}
+      onCancel={(event) => { event.preventDefault(); closeRef.current(); }}
+      onClick={(event) => {
+        if (event.target !== event.currentTarget) return;
+        const bounds = event.currentTarget.getBoundingClientRect();
+        if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) closeRef.current();
+      }}>
+      <div className="dialog-header">
+        <div className="flex items-center gap-2.5"><Icon size={18} aria-hidden="true" /><h2 id={titleId}>{title}</h2></div>
+        <button type="button" onClick={onClose} className="icon-button" aria-label="ปิด"><X size={18} style={{ color: C.textMuted }} /></button>
       </div>
-    </div>
+      <div className="dialog-content">{children}</div>
+      {footer && <div className="dialog-footer">{footer}</div>}
+    </dialog>
   );
 }
 
-function LabeledInput({ label, value, onChange, onKeyDown, placeholder, type = "text", autoFocus }) {
+function LabeledInput({ label, value, onChange, onKeyDown, placeholder, type = "text", autoFocus, error, inputRef, list, disabled = false, reserveMessage = false, feedback = "" }) {
+  const id = useId();
   return (
-    <div className="mb-4">
-      <label className="block text-sm font-semibold mb-2" style={{ ...bodyFont, color: C.textMuted }}>{label}</label>
-      <input type={type} value={value} onChange={onChange} onKeyDown={onKeyDown} placeholder={placeholder} autoFocus={autoFocus} className="w-full px-4 py-3.5 rounded-xl border-2 text-lg outline-none" style={{ ...bodyFont, borderColor: C.border, color: C.text }} />
+    <div className="form-field">
+      <label htmlFor={id}>{label}</label>
+      <input id={id} ref={inputRef} disabled={disabled} type={type} value={value} onChange={onChange} onKeyDown={onKeyDown} placeholder={placeholder} autoFocus={autoFocus} list={list} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} />
+      {reserveMessage ? (
+        <div className="field-message">
+          {error ? <p id={`${id}-error`} className="field-error" role="alert">{error}</p> : <p className="search-feedback" role="status">{feedback}</p>}
+        </div>
+      ) : (error && <p id={`${id}-error`} className="field-error" role="alert">{error}</p>)}
     </div>
   );
 }
 
-function CheckOutModal({ parcels, onClose, onConfirm }) {
+function InlineError({ message }) {
+  if (!message) return null;
+  return <p className="field-error" role="alert">{message}</p>;
+}
+
+// --- Check-Out ------------------------------------------------------------------------------
+
+const ROOM_PAGE_SIZE = 8;
+
+function CheckOutModal({ onClose, onConfirm }) {
   const [scan, setScan] = useState("");
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [notFound, setNotFound] = useState(false);
-  const [confirming, setConfirming] = useState(false);
-
-  const pending = parcels.filter((p) => p.status === "in");
-  const q = scan.trim().toLowerCase();
-  const matches = q
-    ? pending.filter(
-        (p) => p.code.toLowerCase().includes(q) || p.name.toLowerCase().includes(q) || p.room.toLowerCase().includes(q)
-      )
-    : pending;
-
-  const selectedParcels = pending.filter((p) => selectedIds.includes(p.id));
-  const allMatchesSelected = matches.length > 0 && matches.every((p) => selectedIds.includes(p.id));
-
-  const toggleSelect = (id) => {
-    setSelectedIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
-  };
-
-  const toggleSelectAllMatches = () => {
-    if (allMatchesSelected) {
-      const matchIds = matches.map((p) => p.id);
-      setSelectedIds((ids) => ids.filter((id) => !matchIds.includes(id)));
-    } else {
-      setSelectedIds((ids) => Array.from(new Set([...ids, ...matches.map((p) => p.id)])));
-    }
-  };
+  const [parcel, setParcel] = useState(null);
+  const [selected, setSelected] = useState(new Map());
+  const [roomPage, setRoomPage] = useState(1);
+  const [roomItems, setRoomItems] = useState([]);
+  const [roomTotal, setRoomTotal] = useState(0);
+  const [roomLoading, setRoomLoading] = useState(false);
+  const [roomRefresh, setRoomRefresh] = useState(0);
+  const [all, setAll] = useState(false);
+  const [confirmAll, setConfirmAll] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [roomError, setRoomError] = useState("");
+  const scanRef = useRef(null);
+  const requestId = useRef(0);
+  const busyRef = useRef(false);
+  const searchingRef = useRef(false);
+  const verified = parcel && scan.trim().toUpperCase() === parcel.trackingCode;
+  const disabled = submitting || searching;
+  useEffect(() => () => { requestId.current += 1; }, []);
 
   useEffect(() => {
-    const code = scan.trim().toLowerCase();
-    if (!code) {
-      setNotFound(false);
-      return;
-    }
-    const exact = pending.find((p) => p.code.toLowerCase() === code);
-    if (exact) {
-      setSelectedIds((ids) => (ids.includes(exact.id) ? ids : [...ids, exact.id]));
-      setScan("");
-      setNotFound(false);
-    }
-  }, [scan]);
+    if (!parcel?.room) return;
+    let active = true;
+    setRoomLoading(true); setRoomError("");
+    api.listParcels({ roomId: parcel.room.id, status: "pending", page: roomPage, pageSize: ROOM_PAGE_SIZE })
+      .then((result) => {
+        if (!active) return;
+        setRoomItems(result.items); setRoomTotal(result.total); setRoomLoading(false);
+      }).catch((err) => {
+        if (!active || err.name === "AbortError") return;
+        setRoomLoading(false); setRoomError(errorMessage(err));
+      });
+    return () => { active = false; };
+  }, [parcel, roomPage, roomRefresh]);
 
-  const handleScanKeyDown = (e) => {
-    if (e.key !== "Enter") return;
-    const code = scan.trim().toLowerCase();
-    if (!code) return;
-    const exact = pending.find((p) => p.code.toLowerCase() === code);
-    setNotFound(!exact);
+  const lookup = async (event) => {
+    event.preventDefault();
+    if (busyRef.current || searchingRef.current || event.nativeEvent?.isComposing) return;
+    const code = scan.trim().toUpperCase();
+    if (!code) { setError("กรอกเลขพัสดุหรือสแกนบาร์โค้ด"); scanRef.current?.focus(); return; }
+    const id = ++requestId.current;
+    searchingRef.current = true;
+    setSearching(true); setError(""); setParcel(null); setSelected(new Map());
+    setAll(false); setConfirmAll(false); setRoomItems([]); setRoomTotal(0); setRoomPage(1);
+    try {
+      const result = await api.getParcel(code);
+      if (id !== requestId.current) return;
+      if (result.status !== "pending") { setError("พัสดุนี้นำออกแล้วหรือไม่อยู่ในสถานะรอรับ"); return; }
+      // A Parcel with no room can be handed over too (migration 0007) — it just has no room list.
+      setParcel(result); setScan(result.trackingCode);
+      setSelected(new Map([[result.trackingCode, result]]));
+    } catch (err) {
+      if (id === requestId.current) setError(errorMessage(err));
+    } finally {
+      if (id === requestId.current) { searchingRef.current = false; setSearching(false); }
+    }
   };
-
-  if (confirming) {
-    return (
-      <ModalShell title="ยืนยันนำพัสดุออก" icon={ScanLine} onClose={onClose}>
-        <p className="text-xs font-medium mb-3 flex items-center gap-1.5" style={{ ...bodyFont, color: C.success }}>
-          <Check size={13} strokeWidth={3} />
-          กรุณายืนยันรายการก่อนนำพัสดุออก ({selectedParcels.length} ชิ้น)
-        </p>
-        <div className="max-h-64 overflow-y-auto -mx-1 px-1 space-y-2 mb-4">
-          {selectedParcels.map((p) => (
-            <div key={p.id} className="rounded-xl p-3.5" style={{ background: C.bg }}>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="font-semibold" style={{ ...bodyFont, color: C.text }}>{roomLabel(p)}</span>
-                <span style={{ ...bodyFont, color: C.textMuted }}>x{p.qty}</span>
-              </div>
-              <p className="text-xs" style={{ ...bodyFont, color: C.textMuted }}>{p.code}{p.line && p.line !== "-" ? ` · ${p.line}` : ""}</p>
-            </div>
-          ))}
-        </div>
-        <div className="flex gap-2.5">
-          <button onClick={() => setConfirming(false)} className="flex-1 py-2.5 rounded-xl text-sm font-medium border" style={{ ...bodyFont, borderColor: C.border, color: C.text }}>ย้อนกลับ</button>
-          <button onClick={() => onConfirm(selectedParcels)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ ...bodyFont, background: C.primary }}>ยืนยันนำออก ({selectedParcels.length})</button>
-        </div>
-      </ModalShell>
-    );
-  }
-
-  return (
-    <ModalShell title="สแกนพัสดุออก" icon={ScanLine} onClose={onClose}>
-      <label className="block text-xs font-medium mb-2" style={{ ...bodyFont, color: C.textMuted }}>สแกน หรือ พิมพ์เลขพัสดุ / ชื่อ / เลขห้อง</label>
-      <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border mb-1" style={{ borderColor: notFound ? C.warning : C.border }}>
-        <ScanLine size={16} style={{ color: C.textMuted }} />
-        <input autoFocus value={scan} onChange={(e) => setScan(e.target.value)} onKeyDown={handleScanKeyDown} placeholder="เช่น TH8827301923 หรือเลขห้อง 101/2" className="w-full outline-none text-sm bg-transparent" style={bodyFont} />
-      </div>
-      {notFound ? (
-        <p className="text-xs mb-3" style={{ ...bodyFont, color: C.warning }}>ไม่พบเลขพัสดุนี้ในรายการที่รอนำออก</p>
-      ) : (
-        <p className="text-xs mb-3" style={{ ...bodyFont, color: C.textMuted }}>สแกนได้ต่อเนื่องหลายชิ้น หรือพิมพ์เลขห้องเพื่อเลือกพัสดุของผู้รับคนเดียวกันทั้งหมด</p>
-      )}
-
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-xs font-medium" style={{ ...bodyFont, color: C.textMuted }}>รายการที่รอนำออก ({matches.length})</p>
-        {matches.length > 1 && (
-          <button onClick={toggleSelectAllMatches} className="text-xs font-semibold" style={{ ...bodyFont, color: C.primaryDark }}>
-            {allMatchesSelected ? "ยกเลิกเลือกทั้งหมด" : `เลือกทั้งหมดที่พบ (${matches.length})`}
-          </button>
-        )}
-      </div>
-
-      <div className="max-h-56 overflow-y-auto -mx-1 px-1 space-y-1.5 mb-4">
-        {matches.length === 0 && <p className="text-sm py-6 text-center" style={{ ...bodyFont, color: C.textMuted }}>ไม่พบพัสดุที่ตรงกับคำค้นหา</p>}
-        {matches.map((p) => {
-          const checked = selectedIds.includes(p.id);
-          return (
-            <button key={p.id} onClick={() => toggleSelect(p.id)} className="w-full flex items-center gap-3 text-left px-3.5 py-3 rounded-xl border transition-colors" style={{ borderColor: checked ? C.primary : C.border, background: checked ? C.primaryLight : "transparent" }}>
-              <div className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0" style={{ borderColor: checked ? C.primary : C.border, background: checked ? C.primary : "transparent" }}>
-                {checked && <Check size={12} color="#fff" strokeWidth={3} />}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold truncate" style={{ color: C.text }}>{roomLabel(p)}</p>
-                <p className="text-xs mt-0.5 truncate" style={{ color: C.textMuted }}>{p.code}</p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      <button disabled={selectedIds.length === 0} onClick={() => setConfirming(true)} className="w-full py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40" style={{ ...bodyFont, background: C.primary }}>
-        ดำเนินการต่อ{selectedIds.length > 0 ? ` (เลือกแล้ว ${selectedIds.length} ชิ้น)` : ""}
-      </button>
-    </ModalShell>
-  );
+  const submit = async () => {
+    if (busyRef.current || !verified || (!all && !selected.size)) return;
+    if (all && !confirmAll) { setConfirmAll(true); return; }
+    busyRef.current = true; setSubmitting(true); setError("");
+    try {
+      const result = all
+        ? await api.checkOutAll(parcel.room.id, roomTotal)
+        : await api.checkOut(Array.from(selected.keys()));
+      onConfirm(result.parcels);
+    } catch (err) {
+      setError(errorMessage(err)); setConfirmAll(false);
+      if (err instanceof ApiError && ["PENDING_COUNT_CHANGED", "NO_PENDING_PARCELS"].includes(err.code)) {
+        setAll(false); setRoomRefresh((value) => value + 1);
+      }
+      if (err instanceof ApiError && (err.code === "PARCEL_NOT_PENDING" || err.code === "PARCEL_NOT_FOUND")) {
+        const stale = new Set(err.params?.trackingCodes || []);
+        setSelected((previous) => new Map([...previous].filter(([code]) => !stale.has(code))));
+      }
+    } finally { busyRef.current = false; setSubmitting(false); }
+  };
+  const count = all ? roomTotal : selected.size;
+  const footer = parcel && <fieldset disabled={disabled} className="checkout-footer-fields">
+    <div className="checkout-footer-heading"><p role="status">นำออก {count} รายการ{parcel.room ? ` · ห้อง ${parcel.room.buildingCode}${parcel.room.roomNumber}` : ""}</p></div>
+    {confirmAll && <div className="checkout-confirmation" role="group" aria-label="ยืนยันนำออกทั้งหมด"><p>นำออกทั้งหมด {roomTotal} รายการของห้อง {parcel.room.buildingCode}{parcel.room.roomNumber}?</p><button type="button" className="text-button" onClick={() => setConfirmAll(false)}>กลับไปตรวจสอบ</button></div>}
+    <button type="button" className="desk-button desk-button-primary checkout-submit" disabled={disabled || !verified || !count} onClick={submit}>{submitting ? "กำลังนำออก…" : confirmAll ? `ยืนยันนำออกทั้งหมด (${count})` : count > 1 ? `ยืนยันนำพัสดุออก (${count})` : "ยืนยันนำพัสดุออก"}</button>
+  </fieldset>;
+  return <ModalShell title="นำพัสดุออก" icon={ScanLine} onClose={() => { if (!busyRef.current) onClose(); }} className="checkout-dialog checkout-scan-dialog" footer={footer}>
+    <form onSubmit={lookup} className="checkout-lookup">
+      <LabeledInput label="สแกนหรือกรอกเลขพัสดุ" value={scan} inputRef={scanRef} disabled={disabled || confirmAll} error={error} reserveMessage
+        onChange={(event) => { setScan(event.target.value); setError(""); }}
+        onKeyDown={(event) => { if (event.key === "Enter" && event.nativeEvent.isComposing) event.preventDefault(); }} placeholder="สแกนหรือพิมพ์ แล้วกด Enter" />
+      <button type="submit" disabled={disabled || confirmAll} className="desk-button checkout-lookup-button">{searching ? "กำลังค้นหา…" : "ค้นหาพัสดุ"}</button>
+    </form>
+    {parcel && <section className="checkout-parcel-detail" aria-label="ข้อมูลพัสดุที่ค้นพบ">
+      <div className="checkout-detail-heading"><h3>{parcel.trackingCode}</h3><span className="parcel-status parcel-status-pending"><span className="pending-dot" aria-hidden="true" />รอรับ</span></div>
+      <div className="checkout-recipient"><strong>{parcel.room ? `ห้อง ${parcel.room.buildingCode}${parcel.room.roomNumber}` : "ยังไม่ระบุห้อง"}</strong>{parcel.room && <p>{parcel.residents?.map((resident) => resident.fullName).join(" / ") || roomLabel(parcel)}</p>}</div>
+      <dl className="checkout-detail-meta"><div><dt>วันที่รับเข้า</dt><dd>{formatThaiDateTime(parcel.checkedInAt)}</dd></div></dl>
+      {!parcel.room && <div className="checkout-condition" role="note"><strong>พัสดุไม่มีเลขห้อง</strong><p>ตรวจสอบชื่อผู้รับกับฉลากพัสดุก่อนส่งมอบ</p></div>}
+      {parcel.note && <div className="checkout-condition"><strong>หมายเหตุ</strong><p>{parcel.note}</p></div>}
+      {parcel.room && <details className="checkout-other-parcels"><summary>พัสดุอื่นของห้องนี้{roomTotal > 0 ? ` (${Math.max(0, roomTotal - 1)})` : ""}</summary>
+        <fieldset disabled={disabled || confirmAll || !verified} className="checkout-room-fields">
+          <div className="checkout-list-tools"><span>เลือกเพิ่ม</span><label className="checkout-select-all"><input type="checkbox" checked={all} disabled={roomLoading || !!roomError || roomTotal < 2} onChange={(event) => { setAll(event.target.checked); setConfirmAll(false); }} /><span>เลือกเพิ่มทั้งหมด</span></label></div>
+          {roomError && <InlineError message={roomError} />}
+          {roomLoading ? <p role="status">กำลังค้นหา…</p> : <div className="checkout-parcel-list">{roomItems.filter((item) => item.trackingCode !== parcel.trackingCode).map((item) => <label key={item.trackingCode} className="checkout-selection-row" data-selected={all || selected.has(item.trackingCode)}><input type="checkbox" disabled={all || (!selected.has(item.trackingCode) && selected.size >= 100)} checked={all || selected.has(item.trackingCode)} onChange={() => setSelected((previous) => { const next = new Map(previous); if (next.has(item.trackingCode)) next.delete(item.trackingCode); else next.set(item.trackingCode, item); return next; })} /><span><strong>{item.trackingCode}</strong><span className="checkout-row-qty">{formatThaiDateTime(item.checkedInAt)}</span></span></label>)}</div>}
+          {roomTotal > ROOM_PAGE_SIZE && <div className="checkout-pagination"><button type="button" className="text-button" disabled={roomLoading || roomPage === 1} onClick={() => setRoomPage((page) => page - 1)}>ก่อนหน้า</button><span role="status">หน้า {roomPage} / {Math.ceil(roomTotal / ROOM_PAGE_SIZE)}</span><button type="button" className="text-button" disabled={roomLoading || roomPage >= Math.ceil(roomTotal / ROOM_PAGE_SIZE)} onClick={() => setRoomPage((page) => page + 1)}>ถัดไป</button></div>}
+        </fieldset>
+      </details>}
+    </section>}
+  </ModalShell>;
 }
 
-function CheckInModal({ parcels, onClose, onSave }) {
-  const [batch, setBatch] = useState([]);
-  const [form, setForm] = useState({ code: "", room: "", damaged: false, damageReason: "" });
-  const [duplicateWarning, setDuplicateWarning] = useState(false);
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+// --- Check-In --------------------------------------------------------------------------------
 
-  const canAdd = form.code.trim() && form.room.trim() && (!form.damaged || form.damageReason.trim());
+// A problem parcel (no usable room) is still recorded with a reason internally — the backend
+// requires one of the four enum values — but staff no longer pick which one; a plain tick is
+// enough, so every one of these is filed as "other" and left for a supervisor to re-classify if
+// ever needed (matches the removal of the reason-based filter tabs on the dashboard).
+const UNMATCHED_REASON_DEFAULT = "other";
 
-  const isDuplicateCode = (code) => {
-    const c = code.trim().toLowerCase();
-    if (!c) return false;
-    const inBatch = batch.some((item) => item.code.toLowerCase() === c);
-    const inSystem = parcels.some((p) => p.code.toLowerCase() === c);
-    return inBatch || inSystem;
+function CheckInModal({ onClose }) {
+  const [code, setCode] = useState("");
+  const [room, setRoom] = useState(null);
+  const [damaged, setDamaged] = useState(false);
+  const [damageReason, setDamageReason] = useState("");
+  const unmatched = damaged && !room;
+  const submittingRef = useRef(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  const [checkedIn, setCheckedIn] = useState([]); // this session's running list, newest first
+  const codeRef = useRef(null);
+  const roomRef = useRef(null);
+  const focusAfterSave = useRef(false);
+  useEffect(() => {
+    if (!submitting && focusAfterSave.current) { focusAfterSave.current = false; codeRef.current?.focus(); }
+  }, [submitting]);
+
+  const resetFields = () => {
+    setCode("");
+    setRoom(null);
+    setDamaged(false); setDamageReason("");
   };
 
-  const addToBatch = () => {
-    if (!canAdd) return;
-    if (isDuplicateCode(form.code)) {
-      setDuplicateWarning(true);
+  const canSubmit = code.trim() !== "" && (unmatched || room) && !submitting;
+
+  const submit = async () => {
+    if (!canSubmit || submittingRef.current) return;
+    const trimmed = code.trim();
+    const input = unmatched
+      ? { trackingCode: trimmed, unmatchedReason: UNMATCHED_REASON_DEFAULT, note: damageReason.trim() || undefined }
+      : { trackingCode: trimmed, roomId: room.id, ...(damaged ? { note: `ชำรุด: ${damageReason.trim() || "ไม่ได้ระบุเหตุผล"}` } : {}) };
+    submittingRef.current = true;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const parcel = await api.checkIn(input);
+      setCheckedIn((list) => [parcel, ...list]);
+      resetFields();
+      submittingRef.current = false;
+      setSubmitting(false);
+      focusAfterSave.current = true;
       return;
+    } catch (err) {
+      setError(errorMessage(err));
     }
-    setBatch((b) => [
-      ...b,
-      {
-        code: form.code.trim(),
-        room: form.room.trim(),
-        damaged: form.damaged,
-        damageReason: form.damaged ? form.damageReason.trim() : "",
-      },
-    ]);
-    setForm((f) => ({ ...f, code: "", damaged: false, damageReason: "" }));
-    setDuplicateWarning(false);
-  };
-
-  const removeFromBatch = (idx) => {
-    setBatch((b) => b.filter((_, i) => i !== idx));
-  };
-
-  const handleCodeChange = (e) => {
-    setForm((f) => ({ ...f, code: e.target.value }));
-    setDuplicateWarning(false);
+    submittingRef.current = false;
+    setSubmitting(false);
   };
 
   const handleCodeKeyDown = (e) => {
-    if (e.key === "Enter") addToBatch();
-  };
-
-  const saveAll = () => {
-    if (isDuplicateCode(form.code) && form.code.trim()) {
-      setDuplicateWarning(true);
+    if (e.key !== "Enter" || e.nativeEvent?.isComposing || submittingRef.current) return;
+    e.preventDefault();
+    if (!code.trim()) return;
+    if (unmatched) {
+      submit();
       return;
     }
-    const all = canAdd
-      ? [
-          ...batch,
-          {
-            code: form.code.trim(),
-            room: form.room.trim(),
-            damaged: form.damaged,
-            damageReason: form.damaged ? form.damageReason.trim() : "",
-          },
-        ]
-      : batch;
-    if (all.length === 0) return;
-    onSave(all);
+    roomRef.current?.focus();
   };
 
-  const totalCount = batch.length + (canAdd ? 1 : 0);
+  const footer = (
+    <button type="button" disabled={!canSubmit} onClick={submit} className="desk-button desk-button-primary dialog-submit">
+      {submitting ? "กำลังบันทึก…" : "บันทึก"}
+    </button>
+  );
 
   return (
-    <ModalShell title="บันทึกพัสดุเข้า" icon={PackagePlus} onClose={onClose}>
-      <LabeledInput label="เลขห้อง" value={form.room} onChange={set("room")} placeholder="เช่น 101/2" autoFocus />
-      <LabeledInput label="เลขพัสดุ (สแกนต่อเนื่องได้เลย)" value={form.code} onChange={handleCodeChange} onKeyDown={handleCodeKeyDown} placeholder="เช่น TH8827301923" />
-      {duplicateWarning ? (
-        <p className="text-xs -mt-2 mb-4 font-medium" style={{ ...bodyFont, color: C.warning }}>เลขพัสดุนี้ถูกสแกนไปแล้ว กรุณาตรวจสอบก่อนบันทึกซ้ำ</p>
-      ) : (
-        <p className="text-xs -mt-2 mb-4" style={{ ...bodyFont, color: C.textMuted }}>สแกนหรือพิมพ์แล้วกด Enter พัสดุจะถูกเพิ่มลงรายการทันที ไม่ต้องกดปุ่มเพิ่ม</p>
-      )}
+    <ModalShell title="บันทึกพัสดุเข้า" icon={PackagePlus} onClose={() => { if (!submittingRef.current) onClose(); }} footer={footer}>
+      <LabeledInput
+        label="เลขพัสดุ"
+        value={code}
+        inputRef={codeRef}
+        disabled={submitting}
+        autoFocus
+        onChange={(e) => { setCode(e.target.value); setError(null); }}
+        onKeyDown={handleCodeKeyDown}
+        placeholder="สแกนหรือพิมพ์ แล้วกด Enter"
+      />
 
-      <button onClick={() => setForm((f) => ({ ...f, damaged: !f.damaged, damageReason: f.damaged ? "" : f.damageReason }))} className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 mb-3 text-left" style={{ borderColor: form.damaged ? C.warning : C.border, background: form.damaged ? C.warningLight : "transparent" }}>
-        <div className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0" style={{ borderColor: form.damaged ? C.warning : C.border, background: form.damaged ? C.warning : "transparent" }}>
-          {form.damaged && <Check size={13} color="#fff" strokeWidth={3} />}
-        </div>
-        <span className="text-sm font-semibold" style={{ ...bodyFont, color: form.damaged ? C.warning : C.text }}>พัสดุมีปัญหา / ชำรุด (เช่น ไม่มีเลขห้อง กล่องเสียหาย ชื่อซ้ำ)</span>
-      </button>
+      <InlineError message={error} />
 
-      {form.damaged && (
-        <div className="mb-4">
-          <textarea value={form.damageReason} onChange={set("damageReason")} placeholder="ระบุเหตุผล เช่น กล่องบุบ, ไม่มีเลขห้องนี้ในระบบ, ชื่อซ้ำกับห้องอื่น" rows={2} className="w-full px-4 py-3 rounded-xl border-2 text-sm outline-none resize-none" style={{ ...bodyFont, borderColor: C.warning, color: C.text }} />
-        </div>
-      )}
+      <fieldset disabled={submitting} className="checkout-room-fields"><RoomCombobox ref={roomRef} label={damaged ? "เลขห้อง (ถ้าทราบ)" : "เลขห้อง (เลือกจากรายชื่อผู้พัก)"} value={room} onChange={setRoom} /></fieldset>
+      <label className="intake-condition">
+        <input type="checkbox" checked={damaged} disabled={submitting} onChange={(event) => { setDamaged(event.target.checked); setError(null); }} />
+        <span>พัสดุมีปัญหา</span>
+      </label>
+      {damaged && <div className="form-field">
+        <label htmlFor="checkin-damage">รายละเอียดปัญหา (ไม่บังคับ)</label>
+        <textarea maxLength={490} id="checkin-damage" className="desk-textarea" rows={2} value={damageReason} disabled={submitting} onChange={(event) => setDamageReason(event.target.value)} placeholder="หมายเหตุ" />
+      </div>}
 
-      {batch.length > 0 && (
-        <div className="mb-4">
-          <p className="text-sm font-semibold mb-2" style={{ ...bodyFont, color: C.textMuted }}>รายการที่กำลังจะบันทึก ({batch.length})</p>
-          <div className="max-h-40 overflow-y-auto -mx-1 px-1 space-y-1.5">
-            {batch.map((item, i) => (
-              <div key={i} className="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl" style={{ background: item.damaged ? C.warningLight : C.bg }}>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-semibold truncate" style={{ color: C.text }}>ห้อง {item.room}</p>
-                    {item.damaged && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: C.warning, color: "#fff" }}>ชำรุด</span>}
-                  </div>
-                  <p className="text-xs truncate" style={{ color: C.textMuted }}>{item.code}</p>
-                </div>
-                <button onClick={() => removeFromBatch(i)} className="p-1 rounded-lg hover:bg-gray-200 flex-shrink-0">
-                  <X size={14} style={{ color: C.textMuted }} />
-                </button>
-              </div>
+      {checkedIn.length > 0 && (
+        <div className="selected-summary">
+          <p>บันทึกแล้วรอบนี้ ({checkedIn.length})</p>
+          <ul>
+            {checkedIn.map((p) => (
+              <li key={p.trackingCode}>
+                <span className={p.room ? undefined : "condition-note"}>{roomLabel(p)}</span>
+                <span className="checkout-row-qty">{p.trackingCode}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
-
-      <button disabled={totalCount === 0} onClick={saveAll} className="w-full mt-1 py-3.5 rounded-xl text-base font-semibold text-white disabled:opacity-40" style={{ ...bodyFont, background: C.primary }}>
-        บันทึกพัสดุเข้าทั้งหมด{totalCount > 0 ? ` (${totalCount} ชิ้น)` : ""}
-      </button>
     </ModalShell>
   );
 }
 
-export { ModalShell, CheckOutModal, CheckInModal, LabeledInput };
+export { ModalShell, CheckOutModal, CheckInModal, InlineError, LabeledInput };

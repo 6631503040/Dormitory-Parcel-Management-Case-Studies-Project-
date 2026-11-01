@@ -1,0 +1,33 @@
+/* Resident PWA (/resident/): phone-first, one column, same design tokens as the Staff desk. */
+.resident-page { min-height: 100dvh; padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; }
+.resident-shell { width: 100%; max-width: 440px; }
+.resident-brand { display: flex; align-items: center; gap: 10px; color: var(--desk-primary); margin: 8px 0 20px; }
+.resident-brand span { font-size: 18px; font-weight: 700; color: var(--desk-text); }
+.resident-card { background: var(--desk-surface); border: 1px solid var(--desk-border); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+.resident-card h1 { margin: 0 0 6px; font-size: 22px; line-height: 1.35; font-weight: 600; }
+.resident-card h2 { margin: 0 0 8px; font-size: 16px; font-weight: 600; }
+.resident-muted { color: var(--desk-muted); font-size: 13px; }
+.resident-steps { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.resident-steps li { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--desk-muted); }
+.resident-steps b { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--desk-primary-light); color: var(--desk-primary); font-size: 12px; flex-shrink: 0; }
+.resident-steps li[aria-current="step"] { color: var(--desk-text); font-weight: 500; }
+.resident-steps li[aria-current="step"] b { background: var(--desk-primary); color: var(--desk-surface); }
+.resident-consent { background: var(--desk-bg); border-radius: 8px; padding: 12px 14px; margin: 4px 0 16px; }
+.resident-consent ul { margin: 0 0 10px; padding-left: 18px; list-style: disc; font-size: 13px; color: var(--desk-muted); display: grid; gap: 4px; }
+.resident-check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; min-height: 44px; }
+.resident-check input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--desk-primary); flex-shrink: 0; }
+.resident-block { width: 100%; }
+.resident-secondary { border-color: var(--desk-control-border); background: var(--desk-surface); color: var(--desk-primary); }
+.resident-code input { font-size: 28px; letter-spacing: .35em; text-align: center; font-variant-numeric: tabular-nums; }
+.resident-room { font-size: 30px; font-weight: 700; letter-spacing: .02em; color: var(--desk-primary); font-variant-numeric: tabular-nums; }
+.resident-count { display: flex; align-items: baseline; gap: 8px; margin: 4px 0 12px; }
+.resident-count strong { font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
+.resident-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--desk-border); }
+.resident-list li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--desk-border); font-size: 13px; }
+.resident-list code { font-family: "Roboto Mono", "SF Mono", Consolas, monospace; font-size: 13px; }
+.resident-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--desk-success); background: var(--desk-success-light); border-radius: 4px; padding: 3px 8px; }
+.resident-notice { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; background: var(--desk-primary-light); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; }
+.resident-notice-warning { background: var(--desk-warning-light); color: var(--desk-warning); }
+.resident-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.resident-link { min-height: 44px; color: var(--desk-primary); font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
+.resident-danger { min-height: 44px; color: var(--desk-warning); font-size: 13px; }
