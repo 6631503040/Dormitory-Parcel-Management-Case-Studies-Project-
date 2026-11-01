@@ -25,18 +25,18 @@ function setup(items = [parcel], total = items.length) {
   return { user: userEvent.setup(), lookup, onConfirm };
 }
 async function find(user) {
-  await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "th100{Enter}");
+  await user.type(screen.getByLabelText("เลขพัสดุ"), "th100{Enter}");
   await screen.findByRole("region", {name: "ข้อมูลพัสดุที่ค้นพบ"});
 }
 
 describe("scanner-first CheckOutModal", () => {
-  it("does not search while typing and shows only lookup before a scan is submitted", async () => {
+  it("waits for the scanner burst to finish and supports immediate Enter submission", async () => {
     const {user, lookup} = setup();
     expect(screen.queryByRole("button", {name: "ยืนยันนำออก"})).not.toBeInTheDocument();
-    await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "TH100");
+    await user.type(screen.getByLabelText("เลขพัสดุ"), "TH100");
     await new Promise(resolve => setTimeout(resolve, 250));
     expect(lookup).not.toHaveBeenCalled();
-    await user.click(screen.getByRole("button", {name: "เพิ่ม"}));
+    await user.keyboard("{Enter}");
     await screen.findByRole("region", {name: "ข้อมูลพัสดุที่ค้นพบ"});
     expect(lookup).toHaveBeenCalledWith("TH100");
   });
@@ -54,22 +54,22 @@ describe("scanner-first CheckOutModal", () => {
   });
   it("blocks confirmation after staff edit the verified code", async () => {
     const {user} = setup(); await find(user);
-    await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "X");
+    await user.type(screen.getByLabelText("เลขพัสดุ"), "X");
     expect(screen.getByRole("button", {name: "ยืนยันนำออก"})).toBeDisabled();
   });
   it("has no separate scanner button — the scanner types straight into the tracking field", () => {
     setup();
     expect(screen.queryByRole("button", {name: "เตรียมสแกน"})).not.toBeInTheDocument();
-    expect(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ")).toHaveFocus();
+    expect(screen.getByLabelText("เลขพัสดุ")).toHaveFocus();
   });
   it("shows API not-found and picked-up errors without allowing checkout", async () => {
     const {user} = setup();
     server.use(http.get("/api/v1/parcels/:code", () => HttpResponse.json({code: "PARCEL_NOT_FOUND"}, {status: 404})));
-    await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "missing{Enter}");
+    await user.type(screen.getByLabelText("เลขพัสดุ"), "missing{Enter}");
     await screen.findByRole("alert");
     expect(screen.queryByRole("button", {name: "ยืนยันนำออก"})).not.toBeInTheDocument();
     server.use(http.get("/api/v1/parcels/:code", () => HttpResponse.json({...parcel, status: "picked_up"})));
-    await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "TH100{Enter}");
+    await user.type(screen.getByLabelText("เลขพัสดุ"), "TH100{Enter}");
     await screen.findByText("พัสดุนี้นำออกแล้วหรือไม่อยู่ในสถานะรอรับ");
   });
   it("checks out a parcel that has no room, without asking for one", async () => {
@@ -82,7 +82,7 @@ describe("scanner-first CheckOutModal", () => {
         sent = await request.json(); return HttpResponse.json({parcels: [{...roomless, status: "picked_up"}]});
       })
     );
-    await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "TH100{Enter}");
+    await user.type(screen.getByLabelText("เลขพัสดุ"), "TH100{Enter}");
     await screen.findByRole("region", {name: "ข้อมูลพัสดุที่ค้นพบ"});
     expect(screen.getByText("ยังไม่ระบุห้อง")).toBeInTheDocument();
     expect(screen.getByText("ตรวจสอบชื่อผู้รับกับฉลากพัสดุก่อนส่งมอบ")).toBeInTheDocument();
@@ -117,7 +117,7 @@ describe("scanner-first CheckOutModal", () => {
       sent = await request.json(); return HttpResponse.json({parcels: [parcel]});
     }));
     await find(user); await user.click(screen.getByText(/พัสดุอื่นของห้องนี้/));
-    await user.click(await screen.findByRole("checkbox", {name: "เลือกเพิ่มทั้งหมด"}));
+    await user.click(await screen.findByRole("checkbox", {name: "เลือกทั้งหมดของห้อง"}));
     await user.click(screen.getByRole("button", {name: "ยืนยันนำออก"}));
     expect(onConfirm).not.toHaveBeenCalled();
     expect(screen.getByText("นำออกทั้งหมด 20 รายการของห้อง 1101?")).toBeInTheDocument();
@@ -132,7 +132,7 @@ describe("scanner-first CheckOutModal", () => {
         calls.push(await request.json()); return HttpResponse.json({parcels: [parcel]});
       }));
     await find(user);
-    const input = screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ");
+    const input = screen.getByLabelText("เลขพัสดุ");
     await waitFor(() => expect(input).toHaveFocus()); expect(input).toHaveValue("");
     await user.type(input, "TH101{Enter}");
     await screen.findByRole("button", {name: "ลบ TH101"});
@@ -145,7 +145,7 @@ describe("scanner-first CheckOutModal", () => {
 
   it("rejects duplicate, other-room and picked-up scans without losing the existing selection", async () => {
     const {user, lookup} = setup(); await find(user);
-    const input = screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ");
+    const input = screen.getByLabelText("เลขพัสดุ");
     await user.type(input, "TH100{Enter}");
     await screen.findByText("เลขพัสดุนี้อยู่ในรายการรอนำออกแล้ว");
     expect(lookup).toHaveBeenCalledTimes(1);
@@ -166,7 +166,7 @@ describe("scanner-first CheckOutModal", () => {
     await user.click(screen.getByRole("button", {name: "ลบ TH100"}));
     expect(screen.queryByRole("region", {name: "ข้อมูลพัสดุที่ค้นพบ"})).not.toBeInTheDocument();
     server.use(http.get("/api/v1/parcels/:code", () => HttpResponse.json({...parcel, trackingCode: "TH200", room: {...room, id: 2}})));
-    await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), "TH200{Enter}");
+    await user.type(screen.getByLabelText("เลขพัสดุ"), "TH200{Enter}");
     await screen.findByRole("button", {name: "ลบ TH200"});
   });
 
@@ -177,7 +177,7 @@ describe("scanner-first CheckOutModal", () => {
         sent = await request.json(); return HttpResponse.json({parcels: [parcel]});
       }));
     for (let index = 1; index <= 9; index += 1) {
-      await user.type(screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ"), `TH${index}{Enter}`);
+      await user.type(screen.getByLabelText("เลขพัสดุ"), `TH${index}{Enter}`);
       await screen.findByRole("button", {name: `ลบ TH${index}`, exact: true});
     }
     const table = screen.getByRole("table", {name: "พัสดุรอนำออก"});
@@ -193,7 +193,7 @@ describe("scanner-first CheckOutModal", () => {
   it("automatically adds consecutive scanner bursts without Enter or clicking Add", async () => {
     const {user, onConfirm} = setup();
     server.use(http.get("/api/v1/parcels/:code", ({params}) => HttpResponse.json({...parcel, trackingCode: params.code})));
-    const input = screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ");
+    const input = screen.getByLabelText("เลขพัสดุ");
     await user.type(input, "TH100");
     await screen.findByRole("button", {name: "ลบ TH100"});
     expect(input).toHaveValue(""); expect(input).toHaveFocus();
@@ -211,7 +211,7 @@ describe("scanner-first CheckOutModal", () => {
       codes.push(params.code); if (params.code === "TH100") await gate;
       return HttpResponse.json({...parcel, trackingCode: params.code});
     }));
-    const input = screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ");
+    const input = screen.getByLabelText("เลขพัสดุ");
     await user.type(input, "TH100");
     await waitFor(() => expect(codes).toEqual(["TH100"]));
     expect(input).toBeEnabled();
@@ -224,13 +224,54 @@ describe("scanner-first CheckOutModal", () => {
   });
 
   it("waits for IME composition to finish before automatic lookup", async () => {
-    const {lookup} = setup(); const input = screen.getByLabelText("สแกนหรือกรอกเลขพัสดุ");
+    const {lookup} = setup(); const input = screen.getByLabelText("เลขพัสดุ");
     fireEvent.compositionStart(input); fireEvent.change(input, {target: {value: "TH100"}});
     await new Promise((resolve) => setTimeout(resolve, 450));
     expect(lookup).not.toHaveBeenCalled();
     fireEvent.compositionEnd(input);
     await screen.findByRole("button", {name: "ลบ TH100"});
     expect(lookup).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the scan surface minimal and hides unrelated room options for a single parcel", async () => {
+    const {user} = setup();
+    expect(screen.queryByRole("button", {name: "เพิ่ม", exact: true})).not.toBeInTheDocument();
+    await find(user);
+    expect(screen.queryByText("ปกติ")).not.toBeInTheDocument();
+    expect(screen.queryByText("พัสดุอื่นของห้องนี้")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", {name: "ลบ TH100"})).toHaveTextContent("ลบ");
+  });
+
+  it("keeps damage notes readable without a separate repeated condition column", async () => {
+    const {user} = setup();
+    server.use(http.get("/api/v1/parcels/:code", () => HttpResponse.json({...parcel, note: "ชำรุด: กล่องเปียก"})));
+    await find(user);
+    const table = screen.getByRole("table", {name: "พัสดุรอนำออก"});
+    expect(within(table).getByText("ชำรุด: กล่องเปียก")).toBeInTheDocument();
+    expect(within(table).getAllByRole("columnheader")).toHaveLength(2);
+  });
+
+  it("shows the actual room-wide handover items across pages when selecting the entire room", async () => {
+    const items = Array.from({length: 9}, (_, i) => makeParcel({trackingCode: `TH${100 + i}`, room}));
+    const {user} = setup(items.slice(0, 8), 9);
+    server.use(http.get("/api/v1/parcels", ({request}) => {
+      const page = Number(new URL(request.url).searchParams.get("page"));
+      return HttpResponse.json({items: items.slice((page - 1) * 8, page * 8), total: 9, page, pageSize: 8});
+    }));
+    await find(user);
+    await user.click(screen.getByText("พัสดุอื่นของห้องนี้"));
+    await user.click(await screen.findByRole("checkbox", {name: "เลือกทั้งหมดของห้อง"}));
+    const table = screen.getByRole("table", {name: "พัสดุรอนำออก"});
+    await waitFor(() => expect(within(table).getAllByRole("row")).toHaveLength(9));
+    expect(within(table).getByText("TH107")).toBeInTheDocument();
+    const pager = screen.getByRole("navigation", {name: "แบ่งหน้าพัสดุรอนำออก"});
+    await user.click(within(pager).getByRole("button", {name: "ถัดไป"}));
+    await waitFor(() => expect(within(table).getByText("TH108")).toBeInTheDocument());
+    expect(within(table).queryByText("TH100")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("status").some((node) => node.textContent === "รอนำออก 9 รายการ")).toBe(true);
+    await user.click(screen.getByRole("checkbox", {name: "เลือกทั้งหมดของห้อง"}));
+    expect(within(table).getByText("TH100")).toBeInTheDocument();
+    expect(within(table).queryByText("TH108")).not.toBeInTheDocument();
   });
 
 });

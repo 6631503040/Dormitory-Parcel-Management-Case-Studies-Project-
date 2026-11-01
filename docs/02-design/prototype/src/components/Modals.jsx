@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import { X, ScanLine, PackagePlus, Plus } from "lucide-react";
-import { C, roomLabel, formatThaiDateTime } from "./shared";
+import { C, roomLabel } from "./shared";
 import RoomCombobox from "./RoomCombobox";
 import { api, ApiError } from "../api/client";
 import { errorMessage } from "../api/errorMessages";
@@ -35,15 +35,12 @@ function ModalShell({ title, icon: Icon, onClose, children, className = "", foot
   );
 }
 
-function LabeledInput({ label, value, onChange, onKeyDown, placeholder, type = "text", autoFocus, error, inputRef, list, disabled = false, reserveMessage = false, feedback = "", labelAction, inputAction, onCompositionStart, onCompositionEnd }) {
+function LabeledInput({ label, value, onChange, onKeyDown, placeholder, type = "text", autoFocus, error, inputRef, list, disabled = false, reserveMessage = false, feedback = "", labelAction, onCompositionStart, onCompositionEnd }) {
   const id = useId();
   return (
     <div className="form-field">
       {labelAction ? <div className="form-label-row"><label htmlFor={id}>{label}</label>{labelAction}</div> : <label htmlFor={id}>{label}</label>}
-      <div className={inputAction ? "form-input-action" : undefined}>
-<input onCompositionStart={onCompositionStart} onCompositionEnd={onCompositionEnd} id={id} ref={inputRef} disabled={disabled} type={type} value={value} onChange={onChange} onKeyDown={onKeyDown} placeholder={placeholder} autoFocus={autoFocus} list={list} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} />
-        {inputAction}
-      </div>
+      <input onCompositionStart={onCompositionStart} onCompositionEnd={onCompositionEnd} id={id} ref={inputRef} disabled={disabled} type={type} value={value} onChange={onChange} onKeyDown={onKeyDown} placeholder={placeholder} autoFocus={autoFocus} list={list} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} />
       {reserveMessage ? (
         <div className="field-message">
           {error ? <p id={`${id}-error`} className="field-error" role="alert">{error}</p> : <p className="search-feedback" role="status">{feedback}</p>}
@@ -152,7 +149,7 @@ function CheckOutModal({ onClose, onConfirm }) {
     lookup(code);
   }, [pendingCodes, searching]);
   const submit = async () => {
-    if (busyRef.current || searchingRef.current || !verified || (!all && !selected.size)) return;
+    if (busyRef.current || searchingRef.current || !verified || (!all && !selected.size) || (all && (roomLoading || roomError))) return;
     if (all && !confirmAll) { setConfirmAll(true); return; }
     busyRef.current = true; setSubmitting(true); setError("");
     try {
@@ -179,41 +176,49 @@ function CheckOutModal({ onClose, onConfirm }) {
   const selectionPages = Math.max(1, Math.ceil(selected.size / ROOM_PAGE_SIZE));
   const visiblePage = Math.min(selectionPage, selectionPages);
   const count = all ? roomTotal : selected.size;
+  const tablePages = all ? Math.max(1, Math.ceil(roomTotal / ROOM_PAGE_SIZE)) : selectionPages;
+  const tablePage = all ? roomPage : visiblePage;
+  const tableItems = all ? roomItems : [...selected.values()].slice((visiblePage - 1) * ROOM_PAGE_SIZE, visiblePage * ROOM_PAGE_SIZE);
+  const changeTablePage = (page) => { if (all) setRoomPage(page); else setSelectionPage(page); };
+  const showRoomOptions = parcel?.room && (all || roomTotal > selected.size || roomError);
   const footer = parcel && <fieldset disabled={disabled} className="checkout-footer-fields">
-    <div className="checkout-footer-heading"><p role="status">รอนำออก {count} รายการ{parcel.room ? ` · ห้อง ${parcel.room.buildingCode}${parcel.room.roomNumber}` : ""}</p></div>
     {confirmAll && <div className="checkout-confirmation" role="group" aria-label="ยืนยันนำออกทั้งหมด"><p>นำออกทั้งหมด {roomTotal} รายการของห้อง {parcel.room.buildingCode}{parcel.room.roomNumber}?</p><button type="button" className="text-button" onClick={() => setConfirmAll(false)}>กลับไปตรวจสอบ</button></div>}
-    <button type="button" className="desk-button desk-button-primary checkout-submit" disabled={disabled || !verified || !count} onClick={submit}>{submitting ? "กำลังนำออก…" : confirmAll ? `ยืนยันนำออกทั้งหมด (${count})` : "ยืนยันนำออก"}</button>
+    <div className="checkout-submit-row">
+      <p role="status">รอนำออก <strong>{count}</strong> รายการ</p>
+      <button type="button" className="desk-button desk-button-primary checkout-submit" disabled={disabled || !verified || !count || (all && (roomLoading || !!roomError))} onClick={submit}>{submitting ? "กำลังนำออก…" : confirmAll ? `ยืนยันนำออกทั้งหมด (${count})` : "ยืนยันนำออก"}</button>
+    </div>
   </fieldset>;
   return <ModalShell title="นำพัสดุออก" icon={ScanLine} onClose={() => { if (!busyRef.current) onClose(); }} className="checkout-dialog checkout-scan-dialog" footer={footer}>
     <form onSubmit={enqueueScan} className="checkout-lookup">
-      <LabeledInput inputAction={<button type="submit" disabled={disabled || all || confirmAll} className="desk-button checkout-lookup-button">{searching ? "กำลังตรวจสอบ…" : "เพิ่ม"}</button>} label="สแกนหรือกรอกเลขพัสดุ" value={scan} inputRef={scanRef} disabled={submitting || all || confirmAll} error={error} reserveMessage
+      <LabeledInput label="เลขพัสดุ" value={scan} inputRef={scanRef} disabled={submitting || all || confirmAll} error={error} reserveMessage
+        feedback={searching || pendingCodes.length ? "กำลังตรวจสอบพัสดุ…" : ""}
         onChange={(event) => { setScan(event.target.value); setError(""); }}
         onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}
         onKeyDown={(event) => { if (event.key === "Enter" && event.nativeEvent.isComposing) event.preventDefault(); }} placeholder="สแกนหรือพิมพ์เลขพัสดุ" />
     </form>
     {parcel && <section className="checkout-parcel-detail" aria-label="ข้อมูลพัสดุที่ค้นพบ">
-      <div className="checkout-recipient"><strong>{parcel.room ? `ห้อง ${parcel.room.buildingCode}${parcel.room.roomNumber}` : "ยังไม่ระบุห้อง"}</strong>{parcel.room && <p>{parcel.residents?.map((resident) => resident.fullName).join(" / ") || roomLabel(parcel)}</p>}</div>
+      <div className="checkout-recipient"><strong>{parcel.room ? `ห้อง ${parcel.room.buildingCode}${parcel.room.roomNumber}` : "ยังไม่ระบุห้อง"}</strong>{parcel.room && <span>{parcel.residents?.map((resident) => resident.fullName).join(" / ") || roomLabel(parcel)}</span>}</div>
       {!parcel.room && <p className="checkout-roomless-note">ตรวจสอบชื่อผู้รับกับฉลากพัสดุก่อนส่งมอบ</p>}
-      <div className="checkout-batch-table-wrap">
+      <div className="checkout-batch-table-wrap" aria-busy={all && roomLoading}>
         <table className="checkout-batch-table" aria-label="พัสดุรอนำออก">
-          <thead><tr><th scope="col">เลขพัสดุ</th><th scope="col">สภาพพัสดุ / หมายเหตุ</th><th scope="col"><span className="sr-only">ลบรายการ</span></th></tr></thead>
-          <tbody>{[...selected.values()].slice((visiblePage - 1) * ROOM_PAGE_SIZE, visiblePage * ROOM_PAGE_SIZE).map((item) => <tr key={item.trackingCode}>
-            <td>{item.trackingCode}</td><td>{item.note || (item.room ? "ปกติ" : "ไม่ทราบห้อง")}</td>
-            <td><button type="button" className="icon-button" disabled={disabled || all || confirmAll} aria-label={`ลบ ${item.trackingCode}`} onClick={() => removeSelected(item.trackingCode)}><X size={16} aria-hidden="true" /></button></td>
+          <thead><tr><th scope="col">พัสดุรอนำออก</th><th scope="col"><span className="sr-only">การจัดการ</span></th></tr></thead>
+          <tbody>{all && roomLoading ? <tr><td colSpan={2}>กำลังโหลดรายการ…</td></tr> : all && roomError ? <tr><td colSpan={2}><InlineError message={roomError} /></td></tr> : tableItems.map((item) => <tr key={item.trackingCode}>
+            <td><span className="checkout-tracking-code">{item.trackingCode}</span>{item.note && <p className="checkout-parcel-note" data-damaged={item.note.startsWith("ชำรุด:")}>{item.note}</p>}</td>
+            <td>{!all && <button type="button" className="checkout-remove" disabled={disabled || confirmAll} aria-label={`ลบ ${item.trackingCode}`} onClick={() => removeSelected(item.trackingCode)}>ลบ</button>}</td>
           </tr>)}</tbody>
         </table>
       </div>
-      {selectionPages > 1 && <nav className="checkout-pagination" aria-label="แบ่งหน้าพัสดุรอนำออก">
-        <button type="button" className="text-button" disabled={disabled || visiblePage === 1} onClick={() => setSelectionPage(visiblePage - 1)}>ก่อนหน้า</button>
-        <span>หน้า {visiblePage} / {selectionPages}</span>
-        <button type="button" className="text-button" disabled={disabled || visiblePage === selectionPages} onClick={() => setSelectionPage(visiblePage + 1)}>ถัดไป</button>
+      {tablePages > 1 && <nav className="checkout-pagination" aria-label="แบ่งหน้าพัสดุรอนำออก">
+        <button type="button" className="text-button" disabled={disabled || (all && roomLoading) || tablePage === 1} onClick={() => changeTablePage(tablePage - 1)}>ก่อนหน้า</button>
+        <span>หน้า {tablePage} / {tablePages}</span>
+        <button type="button" className="text-button" disabled={disabled || (all && roomLoading) || tablePage === tablePages} onClick={() => changeTablePage(tablePage + 1)}>ถัดไป</button>
       </nav>}
-      {parcel.room && <details className="checkout-other-parcels"><summary>พัสดุอื่นของห้องนี้</summary>
+      {showRoomOptions && <details className="checkout-other-parcels"><summary>พัสดุอื่นของห้องนี้</summary>
         <fieldset disabled={disabled || confirmAll || !verified} className="checkout-room-fields">
-          <div className="checkout-list-tools"><span>เลือกเพิ่ม</span><label className="checkout-select-all"><input type="checkbox" checked={all} disabled={roomLoading || !!roomError || roomTotal < 2} onChange={(event) => { setAll(event.target.checked); setConfirmAll(false); }} /><span>เลือกเพิ่มทั้งหมด</span></label></div>
-          {roomError && <InlineError message={roomError} />}
-          {roomLoading ? <p role="status">กำลังค้นหา…</p> : <div className="checkout-parcel-list">{roomItems.filter((item) => item.trackingCode !== parcel.trackingCode).map((item) => <label key={item.trackingCode} className="checkout-selection-row" data-selected={all || selected.has(item.trackingCode)}><input type="checkbox" disabled={all || (!selected.has(item.trackingCode) && selected.size >= 100)} checked={all || selected.has(item.trackingCode)} onChange={() => setSelected((previous) => { const next = new Map(previous); if (next.has(item.trackingCode)) next.delete(item.trackingCode); else next.set(item.trackingCode, item); return next; })} /><span><strong>{item.trackingCode}</strong><span className="checkout-row-qty">{formatThaiDateTime(item.checkedInAt)}</span></span></label>)}</div>}
-          {roomTotal > ROOM_PAGE_SIZE && <div className="checkout-pagination"><button type="button" className="text-button" disabled={roomLoading || roomPage === 1} onClick={() => setRoomPage((page) => page - 1)}>ก่อนหน้า</button><span role="status">หน้า {roomPage} / {Math.ceil(roomTotal / ROOM_PAGE_SIZE)}</span><button type="button" className="text-button" disabled={roomLoading || roomPage >= Math.ceil(roomTotal / ROOM_PAGE_SIZE)} onClick={() => setRoomPage((page) => page + 1)}>ถัดไป</button></div>}
+          <label className="checkout-select-all"><input type="checkbox" checked={all} disabled={roomLoading || !!roomError || roomTotal < 2} onChange={(event) => { setAll(event.target.checked); setConfirmAll(false); setRoomPage(1); }} /><span>เลือกทั้งหมดของห้อง</span></label>
+          {roomError && <div><InlineError message={roomError} /><button type="button" className="text-button" onClick={() => setRoomRefresh((value) => value + 1)}>ลองโหลดใหม่</button></div>}
+          {!all && (roomLoading ? <p role="status">กำลังโหลดรายการ…</p> : <div className="checkout-parcel-list">{roomItems.filter((item) => !selected.has(item.trackingCode)).map((item) => <label key={item.trackingCode} className="checkout-selection-row"><input type="checkbox" disabled={selected.size >= 100} checked={false} onChange={() => setSelected((previous) => new Map([...previous, [item.trackingCode, item]]))} /><span><strong>{item.trackingCode}</strong>{item.note && <span className="checkout-row-qty">{item.note}</span>}</span></label>)}</div>)}
+          {!all && roomTotal > ROOM_PAGE_SIZE && <div className="checkout-pagination"><button type="button" className="text-button" disabled={roomLoading || roomPage === 1} onClick={() => setRoomPage((page) => page - 1)}>ก่อนหน้า</button><span role="status">หน้า {roomPage} / {Math.ceil(roomTotal / ROOM_PAGE_SIZE)}</span><button type="button" className="text-button" disabled={roomLoading || roomPage >= Math.ceil(roomTotal / ROOM_PAGE_SIZE)} onClick={() => setRoomPage((page) => page + 1)}>ถัดไป</button></div>}
         </fieldset>
       </details>}
     </section>}
