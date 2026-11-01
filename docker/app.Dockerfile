@@ -23,7 +23,7 @@ RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/server ./cmd/serve
  && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/createadmin ./cmd/createadmin \
  && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/vapidkeys ./cmd/vapidkeys
 
-FROM alpine:3.21
+FROM alpine:3.24
 RUN adduser -D -u 10001 app
 WORKDIR /app
 COPY --from=api /out/server /out/seed /out/createadmin /out/vapidkeys /app/
