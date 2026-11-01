@@ -86,6 +86,24 @@ func (s *Store) TouchLastLogin(ctx context.Context, id int64) error {
 	return err
 }
 
+// RevokeSession makes a logged-out session unusable until it would have expired (QA-01), and drops
+// revocations whose tokens have expired since — those can no longer be presented anyway.
+func (s *Store) RevokeSession(ctx context.Context, sessionID string, staffID int64, expiresAt time.Time) error {
+	if _, err := s.pool.Exec(ctx,
+		`INSERT INTO revoked_sessions (session_id, staff_id, expires_at) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`,
+		sessionID, staffID, expiresAt); err != nil {
+		return err
+	}
+	_, err := s.pool.Exec(ctx, `DELETE FROM revoked_sessions WHERE expires_at < now()`)
+	return err
+}
+
+func (s *Store) SessionRevoked(ctx context.Context, sessionID string) (bool, error) {
+	var revoked bool
+	err := s.pool.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM revoked_sessions WHERE session_id = $1)`, sessionID).Scan(&revoked)
+	return revoked, err
+}
+
 // RecordAccess appends one login attempt to access_logs (Computer Crime Act §26).
 func (s *Store) RecordAccess(ctx context.Context, staffID *int64, username, outcome, ip string) error {
 	_, err := s.pool.Exec(ctx,

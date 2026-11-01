@@ -58,6 +58,10 @@ function InlineError({ message }) {
 // --- Check-Out ------------------------------------------------------------------------------
 
 const ROOM_PAGE_SIZE = 8;
+// A keyboard-emulating scanner sends a code's characters a few milliseconds apart; people type
+// 100 ms+ apart. Only a burst this fast (or a paste) is sent automatically after a quiet period.
+const SCANNER_KEY_GAP_MS = 50;
+const SCAN_QUIET_MS = 400;
 
 function CheckOutModal({ onClose, onConfirm }) {
   const [scan, setScan] = useState("");
@@ -81,6 +85,9 @@ function CheckOutModal({ onClose, onConfirm }) {
   const requestId = useRef(0);
   const busyRef = useRef(false);
   const searchingRef = useRef(false);
+  // burst: null until a second character shows how fast this entry is arriving.
+  const entryRef = useRef({ last: 0, burst: null });
+  const [typedByHand, setTypedByHand] = useState(false);
   const verified = parcel && !scan.trim() && !pendingCodes.length;
   const disabled = submitting || searching;
   useEffect(() => () => { requestId.current += 1; }, []);
@@ -108,11 +115,23 @@ function CheckOutModal({ onClose, onConfirm }) {
     if (!code) return;
     setPendingCodes((codes) => [...codes, code]); setScan("");
   };
-  // Keyboard scanners send a burst of characters, often without an Enter suffix.
-  // Wait for the burst to finish; manual typing/paste uses the same quiet-period fallback.
+  // Keyboard scanners send a burst of characters, often without an Enter suffix: once the burst
+  // has finished, look it up without Enter. Hand-typed text is never sent or cleared on a pause
+  // (QA-05) — Staff press Enter when the code is complete.
+  const changeScan = (event) => {
+    const value = event.target.value;
+    const now = performance.now();
+    const entry = entryRef.current;
+    if (!scan) entry.burst = value.length > 1 ? true : null; // new entry: a paste is complete at once
+    else if (now - entry.last > SCANNER_KEY_GAP_MS) entry.burst = false;
+    else if (entry.burst === null) entry.burst = true;
+    entry.last = now;
+    setTypedByHand(!!value.trim() && entry.burst === false);
+    setScan(value); setError("");
+  };
   useEffect(() => {
-    if (!scan.trim() || composing || submitting || all || confirmAll) return;
-    const timer = setTimeout(() => enqueueScan(), 400);
+    if (!scan.trim() || entryRef.current.burst !== true || composing || submitting || all || confirmAll) return;
+    const timer = setTimeout(() => enqueueScan(), SCAN_QUIET_MS);
     return () => clearTimeout(timer);
   }, [scan, composing, submitting, all, confirmAll]);
 
@@ -191,8 +210,8 @@ function CheckOutModal({ onClose, onConfirm }) {
   return <ModalShell title="นำพัสดุออก" icon={ScanLine} onClose={() => { if (!busyRef.current) onClose(); }} className="checkout-dialog checkout-scan-dialog" footer={footer}>
     <form onSubmit={enqueueScan} className="checkout-lookup">
       <LabeledInput label="เลขพัสดุ" value={scan} inputRef={scanRef} disabled={submitting || all || confirmAll} error={error} reserveMessage
-        feedback={searching || pendingCodes.length ? "กำลังตรวจสอบพัสดุ…" : ""}
-        onChange={(event) => { setScan(event.target.value); setError(""); }}
+        feedback={searching || pendingCodes.length ? "กำลังตรวจสอบพัสดุ…" : typedByHand && scan.trim() ? "พิมพ์ครบแล้วกด Enter เพื่อค้นหา" : ""}
+        onChange={changeScan}
         onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}
         onKeyDown={(event) => { if (event.key === "Enter" && event.nativeEvent.isComposing) event.preventDefault(); }} placeholder="สแกนหรือพิมพ์เลขพัสดุ" />
     </form>

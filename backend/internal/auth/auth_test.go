@@ -31,15 +31,21 @@ func TestSessionTokens(t *testing.T) {
 	s := NewSigner([]byte(strings.Repeat("k", 32)), time.Hour)
 	tok := s.Issue(42, now)
 
-	if id, ok := s.Verify(tok, now.Add(59*time.Minute)); !ok || id != 42 {
-		t.Errorf("valid token rejected: id=%d ok=%v", id, ok)
+	sess, ok := s.Verify(tok, now.Add(59*time.Minute))
+	if !ok || sess.StaffID != 42 || len(sess.ID) != 32 || !sess.ExpiresAt.Equal(now.Add(time.Hour)) {
+		t.Errorf("valid token rejected: %+v ok=%v", sess, ok)
+	}
+	// Two logins in the same second still get different session IDs, so revoking one never
+	// revokes the other.
+	if again, _ := s.Verify(s.Issue(42, now), now); again.ID == sess.ID {
+		t.Error("two sessions share an ID")
 	}
 	if _, ok := s.Verify(tok, now.Add(time.Hour)); ok {
 		t.Error("expired token accepted")
 	}
 
 	// Tampering with the identity or the signature must fail.
-	if _, ok := s.Verify(strings.Replace(tok, "v1.42.", "v1.1.", 1), now); ok {
+	if _, ok := s.Verify(strings.Replace(tok, "v2.42.", "v2.1.", 1), now); ok {
 		t.Error("token for a different staff id accepted")
 	}
 	if _, ok := s.Verify(tok[:len(tok)-1]+"0", now); ok && !strings.HasSuffix(tok, "0") {
@@ -49,7 +55,7 @@ func TestSessionTokens(t *testing.T) {
 	if _, ok := other.Verify(tok, now); ok {
 		t.Error("token signed with another secret accepted")
 	}
-	for _, junk := range []string{"", "v1", "v1.1.2", "a.b.c.d", "v2.42.9999999999.abc"} {
+	for _, junk := range []string{"", "v1", "v1.1.2", "a.b.c.d", "v2.42.9999999999.abc", "v1.42.9999999999.abc"} {
 		if _, ok := s.Verify(junk, now); ok {
 			t.Errorf("junk token %q accepted", junk)
 		}

@@ -186,9 +186,16 @@ Every error is `{"code": "...", "params": {...}}` with no user-facing text — t
 
 ## Known gaps (not done yet)
 
-- **No login rate limiting / lockout.** Put a limiter in front (reverse proxy) or add one before go-live.
-- **Sessions are stateless signed cookies** — logout clears the cookie but can't revoke a stolen one
-  before it expires (default 8 h). A `sessions` table would allow server-side revocation.
+- **Login throttling is in memory** (QA-02): 5 wrong passwords for one username from one client IP
+  within 15 minutes → `429 TOO_MANY_LOGIN_ATTEMPTS` with `Retry-After`, until the oldest failure is
+  15 minutes old; a successful login resets the count. Fine for the single API instance; several
+  instances would each keep their own count. Behind Render's proxy every client shows up as the
+  proxy's `10.x` address unless `TRUSTED_PROXIES` is set (e.g. `10.0.0.0/8`), which also makes
+  `access_logs.ip_address` useless — set it on Render.
+- **Logout revokes only that session** (QA-01): the token's random session ID goes into
+  `revoked_sessions` (migration 0008) and every request checks it. Disabling an account cuts off all
+  its sessions immediately (`is_active` is re-read per request); there is no password-change
+  endpoint yet, so "revoke every session on password change" isn't implemented.
 - **`access_logs` records logins only**, not other API traffic; there is no retention job (nothing
   deletes rows, so the ≥ 90-day rule is met by keeping everything).
 - **Parcel archiving** (`status = 'archived'`) exists in the schema but no job moves Parcels there.
