@@ -190,6 +190,11 @@ export default function ResidentsPage({ onImported }) {
                 <li>ย้ายห้อง: {preview.movedCount.toLocaleString()} คน</li>
                 <li>ย้ายออก: {preview.movedOutCount.toLocaleString()} คน</li>
                 <li>ห้องใหม่ที่จะสร้าง: {preview.newRoomCount.toLocaleString()} ห้อง</li>
+                {preview.pushDevicesRevoked > 0 && (
+                  <li style={{ color: C.warning }}>
+                    ยกเลิกการแจ้งเตือนบนมือถือ: {preview.pushDevicesRevoked.toLocaleString()} เครื่อง (ห้องที่มีคนย้ายออก — ผู้พักที่ยังอยู่ในห้องนั้นต้องลงทะเบียนใหม่ที่เคาน์เตอร์)
+                  </li>
+                )}
                 {preview.errorCount > 0 && <li style={{ color: C.warning }}>แถวที่ผิดพลาด: {preview.errorCount.toLocaleString()} แถว</li>}
               </ul>
 

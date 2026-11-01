@@ -13,7 +13,7 @@ function summary(overrides = {}) {
     rows: 2, unchanged: 1, addedCount: 1, movedCount: 0, movedOutCount: 1, newRoomCount: 1, errorCount: 0,
     added: [{ fullName: "New Person", roomNumber: "1103" }], moved: [],
     movedOut: [{ fullName: "ณัฐพล สุขใจ", roomNumber: "2101", pendingParcels: 2 }],
-    newRooms: ["1103"], errors: [], ...overrides,
+    newRooms: ["1103"], errors: [], pushDevicesRevoked: 1, ...overrides,
   };
 }
 
@@ -52,6 +52,7 @@ describe("ResidentsPage", () => {
     expect(await screen.findByText("ย้ายออก: 1 คน")).toBeInTheDocument();
     expect(previewBody).toEqual({ csv: CSV });
     expect(applyBody).toBeUndefined();
+    expect(screen.getByText(/ยกเลิกการแจ้งเตือนบนมือถือ: 1 เครื่อง/)).toBeInTheDocument();
     await user.click(screen.getByText("ย้ายออก (1)"));
     expect(screen.getByText(/ยังมีพัสดุรอรับ 2 ชิ้น/)).toBeInTheDocument();
 

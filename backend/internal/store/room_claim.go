@@ -33,7 +33,7 @@ func (s *Store) ResolveRoomExact(ctx context.Context, raw string) (*ResolvedRoom
 	rows, err := s.pool.Query(ctx, `
 SELECT r.id, r.room_number, b.code
 FROM rooms r JOIN buildings b ON b.id = r.building_id
-WHERE r.room_number = $1 OR (b.code || r.room_number) ILIKE $1
+WHERE r.room_number = $1 OR lower(b.code || r.room_number) = lower($1)
 LIMIT 2`, q)
 	if err != nil {
 		return nil, err

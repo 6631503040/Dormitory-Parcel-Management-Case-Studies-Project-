@@ -83,6 +83,46 @@ func TestResidentImportPreviewThenApply(t *testing.T) {
 	}
 }
 
+// Push registrations belong to a room, so every room someone leaves loses them: the leaver's phone
+// must not keep seeing the next occupant's Parcels.
+func TestResidentImportRevokesPushInVacatedRooms(t *testing.T) {
+	e := newPushEnv(t)
+	stay := e.register("1101", e.roomB1101, "/sub/stay")
+	movedFrom := e.register("1102", e.roomB1102, "/sub/moved")
+	movedOut := e.register("2101", e.roomB2101, "/sub/out")
+
+	// Warin moves 1102 → 1101; ณัฐพล (2101) moves out; สมชาย stays in 1101.
+	csv := "room_number,full_name,phone\n1101,สมชาย ใจดี,0812345678\n1101,Warin Kittipong,\n"
+	boss := e.login("boss")
+	var pre store.ImportSummary
+	boss.post("/api/v1/admin/residents/import/preview", map[string]string{"csv": csv}).decode(t, &pre)
+	if pre.PushDevicesRevoked != 2 {
+		t.Fatalf("preview pushDevicesRevoked = %d, want 2", pre.PushDevicesRevoked)
+	}
+	if n := e.queryInt(`SELECT count(*) FROM push_subscriptions WHERE unsubscribed_at IS NOT NULL`); n != 0 {
+		t.Fatalf("preview revoked subscriptions")
+	}
+
+	e.login("op1").checkIn("TH-QUEUED", e.roomB2101) // queued for the leaver's phone
+	if r := boss.post("/api/v1/admin/residents/import", map[string]string{"csv": csv}); r.Status != 200 {
+		t.Fatalf("apply: %d %s", r.Status, r.Body)
+	}
+
+	for _, tok := range []string{movedFrom, movedOut} {
+		wantCode(t, e.bearer("GET", "/api/v1/resident/me", tok, nil), 401, apperr.Unauthenticated)
+	}
+	if r := e.bearer("GET", "/api/v1/resident/me", stay, nil); r.Status != 200 {
+		t.Errorf("device in an unvacated room was revoked: %d", r.Status)
+	}
+	bossID := e.queryInt(`SELECT id FROM staff WHERE username = 'boss'`)
+	if n := e.queryInt(`SELECT count(*) FROM push_subscriptions WHERE unsubscribed_reason = 'staff' AND unsubscribed_by_staff_id = $1`, bossID); n != 2 {
+		t.Errorf("revocations attributed to the importing Admin = %d, want 2", n)
+	}
+	if n := e.runWorker(); n != 0 || len(e.fake.messages()) != 0 {
+		t.Errorf("queued notification for a vacated room was still sent")
+	}
+}
+
 func TestResidentImportRejectsBadFile(t *testing.T) {
 	e := newEnv(t)
 	boss := e.login("boss")

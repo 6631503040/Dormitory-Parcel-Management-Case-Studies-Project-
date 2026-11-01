@@ -75,6 +75,11 @@ type ImportSummary struct {
 	MovedOut      []ResidentChange `json:"movedOut"`
 	NewRooms      []string         `json:"newRooms"`
 	Errors        []ImportIssue    `json:"errors"`
+
+	// Push devices registered to a room someone moves out of. Registrations belong to the room, not
+	// to one Resident, so they are all revoked: a leaver's phone must not keep seeing the room's
+	// Parcels (PDPA purpose limitation). Residents who stay re-register at the desk.
+	PushDevicesRevoked int64 `json:"pushDevicesRevoked"`
 }
 
 func normalizeName(s string) string { return strings.Join(strings.Fields(s), " ") }
@@ -197,6 +202,7 @@ type importPlan struct {
 	inserts      []ImportRow
 	moves        []residentMove // also carries phone-only updates (roomKey == "")
 	moveOuts     []int64
+	vacated      []string // room keys someone moves out of (moved or moved out)
 }
 
 func phonePtr(p string) *string {
@@ -327,6 +333,7 @@ func planImport(ctx context.Context, q querier, rows []ImportRow, issues []Impor
 			sum.MovedCount++
 			addList(&sum.Moved, ResidentChange{FullName: row.FullName, RoomNumber: row.key(), FromRoomNumber: a.roomKey, PendingParcels: a.pending})
 			p.moves = append(p.moves, residentMove{id: a.id, roomKey: row.key(), phone: phonePtr(row.Phone), phoneSet: !samePhone(a.phone, row.Phone)})
+			p.vacated = append(p.vacated, a.roomKey)
 		} else {
 			sum.AddedCount++
 			addList(&sum.Added, ResidentChange{FullName: row.FullName, RoomNumber: row.key()})
@@ -351,6 +358,16 @@ func planImport(ctx context.Context, q querier, rows []ImportRow, issues []Impor
 			sum.MovedOutCount++
 			addList(&sum.MovedOut, ResidentChange{FullName: a.name, RoomNumber: a.roomKey, PendingParcels: a.pending})
 			p.moveOuts = append(p.moveOuts, a.id)
+			p.vacated = append(p.vacated, a.roomKey)
+		}
+	}
+
+	if len(p.vacated) > 0 {
+		if err := q.QueryRow(ctx, `
+			SELECT count(*) FROM push_subscriptions ps JOIN rooms r ON r.id = ps.room_id JOIN buildings b ON b.id = r.building_id
+			WHERE b.code || r.room_number = ANY($1) AND ps.unsubscribed_at IS NULL AND ps.expires_at > now()`,
+			p.vacated).Scan(&sum.PushDevicesRevoked); err != nil {
+			return nil, err
 		}
 	}
 	return p, nil
@@ -419,6 +436,13 @@ func (s *Store) ApplyResidentImport(ctx context.Context, staffID int64, data str
 	}
 	if len(p.moveOuts) > 0 {
 		batch.Queue(`UPDATE residents SET is_active = false, updated_at = now() WHERE id = ANY($1)`, p.moveOuts)
+	}
+	if len(p.vacated) > 0 {
+		const vacatedSubs = `SELECT ps.id FROM push_subscriptions ps JOIN rooms r ON r.id = ps.room_id JOIN buildings b ON b.id = r.building_id
+			WHERE b.code || r.room_number = ANY($1) AND ps.unsubscribed_at IS NULL`
+		batch.Queue(`UPDATE push_notifications SET status = 'cancelled' WHERE status = 'queued' AND subscription_id IN (`+vacatedSubs+`)`, p.vacated)
+		batch.Queue(`UPDATE push_subscriptions SET unsubscribed_at = now(), unsubscribed_reason = 'staff', unsubscribed_by_staff_id = $2
+			WHERE id IN (`+vacatedSubs+`)`, p.vacated, staffID)
 	}
 	sum := p.summary
 	batch.Queue(`INSERT INTO resident_imports (staff_id, row_count, added, moved, moved_out, rooms_created) VALUES ($1, $2, $3, $4, $5, $6)`,
