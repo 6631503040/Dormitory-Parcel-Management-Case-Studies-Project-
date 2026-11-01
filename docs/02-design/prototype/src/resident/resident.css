@@ -119,8 +119,7 @@ html:has(.resident-page) { scroll-padding-top: 76px; scroll-padding-bottom: 104p
 .resident-device dt { color: var(--desk-muted); }
 .resident-device dd { margin: 0; font-weight: 500; text-align: right; }
 .resident-on { display: inline-flex; align-items: center; gap: 6px; color: var(--desk-success); }
-.resident-device-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--desk-border); }
-.resident-test { font-size: var(--desk-type-bodyMedium); }
+.resident-device-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 4px 16px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--desk-border); }
 .resident-confirm-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
 .resident-confirm-actions > * { flex: 1 1 200px; min-height: 44px; margin: 0; }
 .resident-danger { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--desk-warning); font-size: var(--desk-type-bodyMedium); text-decoration: underline; text-underline-offset: 4px; }
