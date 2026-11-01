@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import LoginPage from "./LoginPage";
 import DashboardPage from "./DashboardPage";
 import ArchivePage from "./ArchivePage";
+import StaffPage from "./StaffPage";
+import ResidentsPage from "./ResidentsPage";
 import TopNav from "./TopNav";
 import ParcelHistoryModal from "./ParcelHistoryModal";
 import { Banner, C, bodyFont, useFonts } from "./shared";
@@ -114,6 +116,10 @@ export default function ParcelHubApp() {
             onOpenCheckIn={() => setModal("checkin")}
             onOpenHistory={(p) => setHistoryCode(p.trackingCode)}
           />
+        ) : page === "residents" && staff.role === "admin" ? (
+          <ResidentsPage onImported={(r) => showBanner(`อัปเดตรายชื่อผู้พักแล้ว: เพิ่ม ${r.addedCount} · ย้ายห้อง ${r.movedCount} · ย้ายออก ${r.movedOutCount}`)} />
+        ) : page === "staff" && staff.role === "admin" ? (
+          <StaffPage onCreated={(s) => showBanner(`ลงทะเบียนบัญชี ${s.username} แล้ว`)} />
         ) : (
           <ArchivePage key={refreshKey} onOpenHistory={(p) => setHistoryCode(p.trackingCode)} />
         )}

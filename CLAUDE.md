@@ -64,6 +64,11 @@ beyond this set without flagging it (Technical Risk mitigation).
 
 Plus: read-only Resident/Room Directory reference, and an audit trail on every check-in/check-out.
 
+Plus (Admin only, **advisor sign-off pending** — added 2026-11-01, backlog US-28/US-29): Staff account
+registration (`/admin/staff`, first Admin via `backend/cmd/createadmin`) and Resident directory
+update by CSV upload (`/admin/residents/import`, full-list sync; moved-out Residents are deactivated,
+never deleted). Staff still see the directory read-only.
+
 Plus (Epic E3, **advisor sign-off pending** — scope change): the **Resident notification page**
 `/resident/` — a separate PWA where a Resident registers their phone with a desk OTP, sees their
 room's Pending Parcels (the page refreshes itself while open), and gets a Web Push notification on
@@ -99,6 +104,8 @@ Tables: `buildings`, `rooms`, `residents` (the official directory), `staff`,
 Resident notifications (Epic E3, Web Push — `docs/02-design/web-push-notification.md`):
 `resident_otp_challenges`, `push_subscriptions`, `push_notifications` (outbox). The LINE tables
 (`line_links`, `line_otp_challenges`, migration 0004) remain in the schema but no code uses them.
+Admin tools (US-28/US-29): `staff.created_by` (who registered an account, migration 0008) and
+`resident_imports` (log of each applied directory CSV import, migration 0009).
 Enums: `staff_role`, `parcel_status` (`pending` / `picked_up` / `archived`),
 `parcel_event_type`.
 

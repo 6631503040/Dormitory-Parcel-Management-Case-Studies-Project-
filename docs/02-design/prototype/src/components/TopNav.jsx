@@ -14,6 +14,8 @@ export default function TopNav({ page, setPage, onLogout, onOpenResidentOtp, sta
         <nav className="desk-navigation" aria-label="หน้าหลัก">
           <NavItem id="dashboard" label="หน้าหลัก" page={page} setPage={setPage} />
           <NavItem id="archive" label="ประวัติ" page={page} setPage={setPage} />
+          {staff.role === "admin" && <NavItem id="residents" label="จัดการผู้พัก" page={page} setPage={setPage} />}
+          {staff.role === "admin" && <NavItem id="staff" label="ลงทะเบียนผู้ใช้" page={page} setPage={setPage} />}
         </nav>
         <div className="desk-account">
           <button onClick={onOpenResidentOtp} className="icon-button" title="รหัสลงทะเบียนรับแจ้งเตือน" aria-label="รหัสลงทะเบียนรับแจ้งเตือน">

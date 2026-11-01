@@ -143,6 +143,9 @@ icon+label items down to 768px.
 
 Primary destinations, left to right: **Dashboard · Check-In · Check-Out · Search · Directory**
 
+Admin-only destinations (role `admin`; hidden for `operator`, and the API refuses them with 403
+regardless): **จัดการผู้พัก (Directory Import) · ลงทะเบียนผู้ใช้ (Staff Accounts)** — added 2026-11-01, see §9.
+
 ### Screen List
 
 | Screen | Route/Path | Purpose | Key Components |
@@ -154,6 +157,8 @@ Primary destinations, left to right: **Dashboard · Check-In · Check-Out · Sea
 | Search & Lookup | `/search` | Find any parcel | Single search input (room number / tracking code / resident name), segmented result table, pagination, row → Parcel Detail |
 | Parcel Detail | `/parcels/:trackingCode` | Inspect one parcel + its history | Parcel summary card, status chip, Parcel History timeline (staff + timestamp per event) |
 | Directory | `/directory` | Read-only resident/room reference | Search/filter input, paginated table (Room, Building, Resident, Nickname), no edit actions in v1 |
+| Directory Import *(admin)* | `/admin/residents` | Replace the directory with the dormitory's current resident list | Column-format table + rules, Download template, Download current list (CSV), file picker, preview (unchanged / added / moved / moved out / new rooms / error lines, pending-Parcel warnings), Confirm + Cancel |
+| Staff Accounts *(admin)* | `/admin/staff` | Register Staff and Admin logins | Form (username, full name, password ×2, role Staff/Admin), Register button, paginated accounts table (username, name, role, last sign-in) |
 | Not Found | `*` | Fallback for unknown routes | Message + link back to Dashboard |
 | Resident Notification | `/resident/` (separate PWA entry) | Resident checks whether a Parcel has arrived and gets a phone notification on Check-In | Register (Room Number + consent) → enter desk code → status: room, Pending count, Pending list (Tracking Code + Check-In time), "last updated", Refresh, turn notifications off. Refreshes itself while open (on push, on return to foreground, every 30 s) |
 
@@ -204,6 +209,7 @@ Store: **PostgreSQL**. Backend: **Go + Gin** (see §7 note re: proposal text).
 | Parcel | `parcels` | `id` | `tracking_code` is the unique natural/business key |
 | Parcel history event | `parcel_events` | `id` | Append-only audit trail (chain of custody) |
 | Access log | `access_logs` | `id` | Append-only log of every sign-in attempt (Computer Crime Act §26, `rule.md`); retained ≥ 90 days |
+| Directory import log | `resident_imports` | `id` | Append-only: who applied each resident CSV import, when, and its counts (migration `0009`) |
 
 ### Field Naming Convention
 
@@ -264,6 +270,7 @@ Store: **PostgreSQL**. Backend: **Go + Gin** (see §7 note re: proposal text).
 | role | staff_role | Y | `operator` | RBAC; `admin` may access Directory management (post-v1) |
 | is_active | boolean | Y | true | Disabled accounts cannot sign in |
 | last_login_at | timestamptz | N | null | |
+| created_by | bigint | N | null | FK → staff.id; the Admin who registered the account (null for seed rows and the first Admin from `cmd/createadmin`). Migration `0008` |
 | created_at | timestamptz | Y | now() | |
 | updated_at | timestamptz | Y | now() | |
 
@@ -304,6 +311,23 @@ Indexes (Performance Risk — Med/High):
 | occurred_at | timestamptz | Y | now() | |
 | detail | jsonb | N | null | Note text for `note_added` |
 | — | — | — | — | INDEX(parcel_id, occurred_at); append-only, no UPDATE/DELETE |
+
+#### resident_imports
+| Field | Type | Required | Default | Notes |
+|-------|------|----------|---------|-------|
+| id | bigint | Y | identity | PK |
+| staff_id | bigint | Y | — | FK → staff.id; the Admin who confirmed the import |
+| row_count | integer | Y | — | Data rows in the file |
+| added | integer | Y | — | Residents created |
+| moved | integer | Y | — | Residents whose room changed |
+| moved_out | integer | Y | — | Residents set `is_active = false` (never deleted) |
+| rooms_created | integer | Y | — | Rooms the file introduced |
+| created_at | timestamptz | Y | now() | Append-only, no UPDATE/DELETE |
+
+Directory CSV format (import and export): header `room_number,full_name,phone`; `room_number` =
+building code + 3-digit room (`1101`, `10205`); UTF-8 (export adds a BOM for Excel). The file is the
+complete current list — same name + room = unchanged, same name in one other room = moved, new name
+= added, missing = moved out.
 
 ---
 
@@ -434,3 +458,4 @@ No hardcoded colors, strings, spacing values, or field names exist to migrate ye
 | 2026-10-27 | §3, §4 | Parcel Detail gains an **Edit** action ("แก้ไข") for Pending Parcels that have a room: Tracking Code, Room Number (directory-validated combobox) and note. New event type `edited` (migration `0006`), whose `detail.changes` holds each changed field's `from`/`to`. Picked Up Parcels stay read-only; unmatched ones keep Assign Room. | Backlog US-26 — Staff must be able to correct a keying mistake after Check-In without losing the chain of custody. Part of Check-In (correction), not new scope. |
 | 2026-10-27 | §3 | Dashboard's stat cards became a **summary board**: พัสดุเข้า (Checked In) / พัสดุออก (Picked Up) / รอรับในระบบ (Pending) with a period filter **วัน / สัปดาห์ / เดือน** (week = Mon–Sun) and previous / next / back-to-current navigation. Received and picked up count within the period; Pending is the balance at the end of the period (now, for the current one) and notes how many unmatched Parcels it includes. API: `GET /dashboard?period=`. | Requested by the team; this is the locked "Daily Status Dashboard" feature (date selector + 3 stat cards) extended to week/month views — no new scope. |
 | 2026-10-27 | §4 | Dropped CHECK `parcels_roomless_is_pending` (migration `0007`): a Parcel with no room (unmatched) **can be checked out** directly. It keeps `unmatched_reason` and note; the Check-Out modal shows "ยังไม่ระบุห้อง" plus a reminder to check the recipient's name against the label, and no room list. Room Number is still never free text, and a Parcel still needs a room *or* a reason. | Team decision — at the desk the Resident is present with the Parcel, so forcing a room assignment first only delays the handover. Chain of custody is kept by the `checked_out` event. |
+| 2026-11-01 | §3, §4 | Added two **admin-only** screens and nav items: **Staff Accounts** (register Staff/Admin logins; `staff.created_by`, migration `0008`; first Admin via `backend/cmd/createadmin`) and **Directory Import** (replace the resident directory from a CSV of the full current list — preview, then confirm; moved-out Residents set `is_active = false`; table `resident_imports`, migration `0009`). The Directory stays read-only for `operator`. No change to existing screens, tokens or copy beyond the two nav items. | Accounts and the directory could only come from the dev seed tool, so the system could not be handed over to a real dormitory. Backlog US-28 / US-29. Scope change — **advisor sign-off pending**; not covered by Test Plan v1.7. |

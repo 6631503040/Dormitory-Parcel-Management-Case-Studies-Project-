@@ -94,6 +94,29 @@ export const api = {
   residentOtp: (roomId) => request(`/rooms/${roomId}/resident-otp`),
   roomPushSubscriptions: (roomId) => request(`/rooms/${roomId}/push-subscriptions`),
   revokeRoomPushSubscriptions: (roomId) => request(`/rooms/${roomId}/push-subscriptions`, { method: "DELETE" }),
+
+  // Staff accounts — Admin only; the API answers FORBIDDEN to anyone else.
+  listStaff: (params, signal) => request(`/admin/staff${toQueryString(params)}`, { signal }),
+  createStaff: (input) => request("/admin/staff", { method: "POST", body: input }),
+
+  // Resident directory import — Admin only. `csv` is the file's text; preview writes nothing.
+  previewResidentImport: (csv) => request("/admin/residents/import/preview", { method: "POST", body: { csv } }),
+  applyResidentImport: (csv) => request("/admin/residents/import", { method: "POST", body: { csv } }),
+  // The one non-JSON response on this API: the current directory as a CSV file (a Blob).
+  exportResidents: async () => {
+    let res;
+    try {
+      res = await fetch(`${BASE}/admin/residents/export`, { credentials: "include" });
+    } catch {
+      throw new ApiError("NETWORK_ERROR", {}, 0);
+    }
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      if (res.status === 401) onUnauthenticated?.();
+      throw new ApiError(data?.code || "INTERNAL_ERROR", data?.params, res.status);
+    }
+    return res.blob();
+  },
 };
 
 // Resident PWA (/resident/). No Staff session: register with a desk OTP, then use the device token.

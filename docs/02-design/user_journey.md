@@ -18,3 +18,13 @@
 | 2. Provides information to staff | States their room number/name so staff can search for it |
 | 3. Waits while staff search and retrieve the parcel | Waits at the counter |
 | 4. Receives the parcel | Checks the parcel and receives it from staff |
+
+## 3. Journey — Admin: Setting up and keeping the directory current
+
+| Step | Action |
+|---|---|
+| 1. System is installed at the dormitory | The team runs `createadmin` once and hands the first Admin login to the dormitory manager in person |
+| 2. Register the desk team | Admin opens **ลงทะเบียนผู้ใช้** and creates one login per Staff member (role Staff), or another Admin |
+| 3. Load the resident list | Admin opens **จัดการผู้พัก**, downloads the template (or the current list), fills in `room_number,full_name,phone` in Excel and saves it as **CSV UTF-8** |
+| 4. Check before saving | Admin uploads the file and reads the preview: added / moved / moved out / new rooms, any error lines, and a warning for Residents who still have Pending parcels |
+| 5. Confirm | Admin confirms; Check-In now validates against the new list. Repeat steps 3-5 whenever Residents move in, change rooms or move out |

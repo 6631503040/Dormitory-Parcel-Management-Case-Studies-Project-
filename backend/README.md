@@ -16,6 +16,14 @@ docker compose exec backend /app/seed -parcels 1000 -reset   # synthetic demo da
 Seeded logins (development only): `admin` (role admin), `somsri`, `prasert` (role operator),
 password `parcel1234` (override with `SEED_PASSWORD`). `seed` refuses to run when `APP_ENV=production`.
 
+**Installing at a dormitory (no seed):** create the first Admin once, then that Admin registers
+everyone else in the app (menu ลงทะเบียนผู้ใช้):
+
+```bash
+docker compose run --rm backend /app/createadmin -username manager -fullname "ผู้จัดการหอพัก"
+# prompts for the password (8+ characters); or pass it as -e CREATEADMIN_PASSWORD=...
+```
+
 Without Docker for the API itself: start only the database (`docker compose up -d db`), export
 `DATABASE_URL`, `SESSION_SECRET` (≥ 32 chars) and `MIGRATIONS_DIR=../db/migrations`, then
 `go run ./cmd/server`.
@@ -102,6 +110,11 @@ State-changing requests must send `Content-Type: application/json`. Every list i
 | `PATCH /parcels/:trackingCode/room` `{roomId}` | signed in | Resolve an unmatched Parcel |
 | `GET /dashboard?date=YYYY-MM-DD&period=day\|week\|month` | signed in | `{date, period, from, to, checkedIn, pickedUp, pending, unmatchedPending, recentCheckIns}` for the day / week (Mon–Sun) / calendar month containing `date`, in Asia/Bangkok (`period` defaults to `day`; `to` is inclusive). `checkedIn`/`pickedUp` count within the period; `pending` is what was still waiting at its end; `unmatchedPending` is a current count |
 | `GET /admin/access-logs` | `admin` only | Login attempts (Computer Crime Act §26) |
+| `GET /admin/staff` | `admin` only | Staff accounts, newest first: `{id, username, fullName, role, isActive, lastLoginAt, createdAt}` (never password data) |
+| `GET /admin/residents/export` | `admin` only | Active directory as CSV (`room_number,full_name,phone`, UTF-8 with BOM for Excel) — the same format the import takes. Contains phone numbers |
+| `POST /admin/residents/import/preview` `{csv}` | `admin` only | Dry run of a directory import → `{rows, unchanged, addedCount, movedCount, movedOutCount, newRoomCount, errorCount, added[], moved[], movedOut[], newRooms[], errors[{line, field, reason}]}` (lists capped at 100; counts exact; never echoes phone numbers). Writes nothing |
+| `POST /admin/residents/import` `{csv}` | `admin` only | Apply it in one transaction. The file is the **full current list**: same name + same room = unchanged, same name in one other room = moved, new name = added, active Resident not in the file = moved out (`is_active = false`, never deleted). `room_number` = building code + 3-digit room (`1101`, `10205`); missing rooms/buildings are created. Any error line → 422 `RESIDENT_IMPORT_INVALID`, nothing applied. Logged in `resident_imports` |
+| `POST /admin/staff` `{username, fullName, password, role}` | `admin` only | Register an account. `role` = `operator` (Staff) or `admin`; username 3–32 of `a-z 0-9 . _ -` (lower-cased); password 8–72 bytes, bcrypt-hashed. Records the registering Admin in `staff.created_by`. 409 `USERNAME_TAKEN` |
 | `GET /healthz` | anyone | Liveness + DB ping |
 | `GET /resident/push/config` | anyone | Web Push: `{vapidPublicKey, consentVersion}` |
 | `POST /resident/otp` `{roomNumber, consentVersion, consentAccepted}` | anyone | US-24 step 1: claim a room → `{claimToken, expiresAt, roomNumber, buildingCode}` (no code) |
@@ -154,6 +167,8 @@ Every error is `{"code": "...", "params": {...}}` with no user-facing text — t
 | `PARCEL_HAS_ROOM` | 409 | Assign-room on a Parcel that already has one |
 | `UNSUPPORTED_MEDIA_TYPE` | 415 | Body is not `application/json` |
 | `ROOM_NOT_IN_DIRECTORY` / `RESIDENT_NOT_IN_ROOM` | 422 | Room id not in the directory · recipient doesn't live there |
+| `RESIDENT_IMPORT_INVALID` | 422 | Directory import refused because the file has error lines (`params.errorCount`); preview lists them |
+| `USERNAME_TAKEN` | 409 | Registering a Staff account with a username that already exists (`params.username`) |
 | `AMBIGUOUS_ROOM` | 422 | A resident-typed room claim matched more than one room (e.g. `101` exists in two buildings) |
 | `PUSH_NOT_CONFIGURED` | 503 | No VAPID keys — resident push routes are deliberately inert |
 | `NO_PENDING_RESIDENT_OTP` | 404 | No open registration request for that room right now |
