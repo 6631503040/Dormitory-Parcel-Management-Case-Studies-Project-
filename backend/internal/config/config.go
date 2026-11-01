@@ -20,6 +20,7 @@ type Config struct {
 	SessionTTL     time.Duration
 	CookieSecure   bool     // set true whenever the app is served over HTTPS
 	TrustedProxies []string // reverse proxies allowed to set X-Forwarded-For
+	WebDir         string   // built React client to serve on the same origin; empty = API only
 
 	// Web Push / VAPID (US-23). Optional: with no keys the resident PWA routes answer
 	// PUSH_NOT_CONFIGURED and no push worker runs. Generate a pair with `go run ./cmd/vapidkeys`.
@@ -39,6 +40,7 @@ func Load() (Config, error) {
 		SessionSecret: []byte(os.Getenv("SESSION_SECRET")),
 		SessionTTL:    8 * time.Hour,
 		CookieSecure:  getenv("COOKIE_SECURE", "false") == "true",
+		WebDir:        os.Getenv("WEB_DIR"),
 
 		VAPIDPublicKey:   os.Getenv("VAPID_PUBLIC_KEY"),
 		VAPIDPrivateKey:  os.Getenv("VAPID_PRIVATE_KEY"),

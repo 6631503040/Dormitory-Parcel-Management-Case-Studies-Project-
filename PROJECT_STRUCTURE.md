@@ -17,6 +17,8 @@ Case Studies Project/
 ├── PROJECT_STRUCTURE.md       # This file — the repo map
 ├── README.md                  # Repo readme (stub — needs rewriting)
 ├── rule.md                    # Legal/compliance rules (PDPA, Computer Crime Act §26, Electronic Transactions Act)
+├── .github/                   # CI (workflows/ci.yml: Go tests on a real PostgreSQL, Vitest + build, image build, secret scan) · dependabot.yml
+├── .dockerignore              # Keeps node_modules, dist, .env and documents out of every Docker build
 ├── Project Proposal_Dormitory Parcel Management System.docx   # Original proposal (source of truth for scope/goals/risks)
 │
 ├── backend/                   # Go + Gin REST API (module `dpms/backend`) — see backend/README.md
@@ -26,7 +28,7 @@ Case Studies Project/
 │   └── internal/              #   apperr (error codes) · config · db (pool + migrator) · auth · store (all SQL) · api (routes, handlers, integration tests) · push (Web Push crypto, stdlib only) · notify (push outbox worker)
 ├── db/
 │   └── migrations/            # PostgreSQL schema, applied in filename order (0001 = design-spec §4; 0002+ = documented extensions)
-├── docker/                    # docker-compose.yml (db + backend), backend.Dockerfile, .env.example (copy to .env, gitignored)
+├── docker/                    # docker-compose.yml (db + backend), backend.Dockerfile (dev, API only), app.Dockerfile (production: client + API in one image, deployed on Render), .env.example (copy to .env, gitignored)
 │
 ├── docs/                      # Numbered documentation, one folder per project phase/artifact
 │   ├── 01-requirements/       # Milestone 1 — requirements & SRS
@@ -52,6 +54,9 @@ Case Studies Project/
 │   │           ├── constants/     #   unmatchedReasons.js (mirrors the DB enum)
 │   │           ├── test/          #   Vitest setup, MSW server, fixtures shared by *.test.jsx files
 │   │           └── components/    #   ParcelHubApp, Dashboard, Login, TopNav, Modals, Archive, RoomCombobox, UnmatchedQueue, ParcelHistoryModal, …
+│   ├── 03-test/               # Test phase — UAT instruments (the Test Plan itself is docs/Test-Plan.docx)
+│   │   ├── README.md          #   What belongs here
+│   │   └── uat-forms.gs       #   Apps Script: creates the SUS/TAM questionnaires, task record and consent Google Forms
 │   └── 05-log/                # Dated working log + meeting notes + audit reports
 │       ├── README.md          #   Naming: {YYYYMMDD}-log.md, {YYYYMMDD}-backlog-audit.md, {YYYYMMDD}-{topic}.md
 │       ├── {YYYYMMDD}-log.md
@@ -70,8 +75,9 @@ Case Studies Project/
 > been decided. Until it is, treat `CLAUDE.md` + `design-spec.md` + `docs/01-requirements/`
 > + root `rule.md` as canonical and the `02-design/*.md` set as course-deliverable inputs.
 
-`docs/` folders `03-*` and `04-*` are reserved by the course's numbering scheme and not
-created yet. Add them when the corresponding phase starts and record them here.
+`docs/` folder `03-test/` was added on 2026-10-28 for the test phase; `04-*` is reserved by the
+course's numbering scheme and not created yet. Add it when the corresponding phase starts and
+record it here.
 
 Each `docs/` subfolder has a `README.md` describing what belongs there and its
 conventions — read it before adding files.

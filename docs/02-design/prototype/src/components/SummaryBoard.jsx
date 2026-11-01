@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useState } from "react";
-import { PackagePlus, PackageCheck, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { THAI_MONTHS, toDateInputValue } from "./shared";
 import { InlineError } from "./Modals";
 import { api } from "../api/client";
@@ -27,6 +27,13 @@ function shiftDate(value, period, step) {
     d.setDate(1);
     d.setMonth(d.getMonth() + step);
   }
+  return toDateInputValue(d);
+}
+
+function periodStart(value, period) {
+  const d = parseDay(value);
+  if (period === "month") d.setDate(1);
+  if (period === "week") d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
   return toDateInputValue(d);
 }
 
@@ -74,25 +81,33 @@ export default function SummaryBoard({ refreshKey }) {
   const meta = PERIODS.find((p) => p.id === period);
   // The board shows the server's answer for the current request only — never a stale period's numbers
   // under a new label.
-  const shown = summary && summary.period === period ? summary : null;
-  const isCurrent = shown ? shown.from <= today && today <= shown.to : true;
+  const shown = !loading && !error && summary && summary.period === period ? summary : null;
+  const isCurrent = periodStart(date, period) === periodStart(today, period);
 
-  const cards = [
-    { key: "in", label: "พัสดุเข้า", icon: PackagePlus, value: shown?.checkedIn, note: `รับเข้าใน${isCurrent ? meta.current : "ช่วงนี้"}` },
-    { key: "out", label: "พัสดุออก", icon: PackageCheck, value: shown?.pickedUp, note: `นำออกใน${isCurrent ? meta.current : "ช่วงนี้"}` },
-    {
-      key: "pending", label: "รอรับในระบบ", icon: Clock, value: shown?.pending,
-      // unmatchedPending is a count for right now, so it only explains the current period's total.
-      note: isCurrent
-        ? `ค้างอยู่ตอนนี้${shown?.unmatchedPending ? ` · รวมพัสดุมีปัญหา ${shown.unmatchedPending.toLocaleString()} ชิ้น` : ""}`
-        : "ค้างอยู่ ณ สิ้นสุดช่วง",
-    },
+  const movements = [
+    { key: "in", label: "รับเข้า", value: shown?.checkedIn },
+    { key: "out", label: "นำออก", value: shown?.pickedUp },
   ];
+  const periodCaption = period === "day" ? "รายการในวันที่เลือก" : period === "week" ? "รายการในสัปดาห์ที่เลือก" : "รายการในเดือนที่เลือก";
 
   return (
     <section className="summary-board" aria-labelledby={headingId} aria-busy={loading}>
       <div className="summary-board-header">
-        <h2 id={headingId}>สรุปพัสดุ</h2>
+        <h2 id={headingId}>สรุปการรับ–จ่ายพัสดุ</h2>
+
+        <div className="summary-range">
+          <button type="button" className="icon-button" aria-label={`${meta.label}ก่อนหน้า`} onClick={() => setDate((d) => shiftDate(d, period, -1))}>
+            <ChevronLeft size={18} aria-hidden="true" />
+          </button>
+          <p role="status">{shown ? rangeLabel(shown) : error ? "โหลดข้อมูลไม่สำเร็จ" : "กำลังโหลด…"}</p>
+          <button type="button" className="icon-button" aria-label={`${meta.label}ถัดไป`} disabled={isCurrent} onClick={() => setDate((d) => shiftDate(d, period, 1))}>
+            <ChevronRight size={18} aria-hidden="true" />
+          </button>
+          {!isCurrent && (
+            <button type="button" className="text-button" onClick={() => setDate(today)}>กลับไป{meta.current}</button>
+          )}
+        </div>
+
         <div className="summary-periods" role="group" aria-label="ช่วงเวลา">
           {PERIODS.map((p) => (
             <button key={p.id} type="button" className="filter-button" aria-pressed={period === p.id} onClick={() => setPeriod(p.id)}>
@@ -102,29 +117,26 @@ export default function SummaryBoard({ refreshKey }) {
         </div>
       </div>
 
-      <div className="summary-range">
-        <button type="button" className="icon-button" aria-label={`${meta.label}ก่อนหน้า`} onClick={() => setDate((d) => shiftDate(d, period, -1))}>
-          <ChevronLeft size={18} aria-hidden="true" />
-        </button>
-        <p role="status">{shown ? rangeLabel(shown) : "กำลังโหลด…"}</p>
-        <button type="button" className="icon-button" aria-label={`${meta.label}ถัดไป`} disabled={isCurrent} onClick={() => setDate((d) => shiftDate(d, period, 1))}>
-          <ChevronRight size={18} aria-hidden="true" />
-        </button>
-        {!isCurrent && (
-          <button type="button" className="text-button" onClick={() => setDate(today)}>กลับไป{meta.current}</button>
-        )}
-      </div>
-
       <InlineError message={error} />
-      <dl className="summary-cards">
-        {cards.map(({ key, label, icon: Icon, value, note }) => (
-          <div key={key} className="summary-card" data-kind={key}>
-            <dt><Icon size={18} aria-hidden="true" />{label}</dt>
-            <dd>{value == null ? "–" : value.toLocaleString()}</dd>
-            <p>{note}</p>
-          </div>
-        ))}
-      </dl>
+      <div className="summary-report">
+        <div className="summary-movements">
+          <p className="summary-period-caption">{periodCaption}</p>
+          <dl className="summary-ledger">
+            {movements.map(({ key, label, value }) => (
+              <div key={key} className="summary-ledger-row" data-kind={key}>
+                <dt>{label}</dt>
+                <dd>{value == null ? "–" : value.toLocaleString()}<span className="summary-unit">ชิ้น</span></dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <div className="summary-balance" data-kind="pending">
+          <dl>
+            <dt>คงเหลือรอรับ{!isCurrent && <span className="sr-only"> ณ สิ้นสุดช่วงที่เลือก</span>}</dt>
+            <dd>{shown?.pending == null ? "–" : shown.pending.toLocaleString()}<span className="summary-unit">ชิ้น</span></dd>
+          </dl>
+        </div>
+      </div>
     </section>
   );
 }
