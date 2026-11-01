@@ -375,7 +375,7 @@ function CheckInModal({ onClose }) {
       <InlineError message={error} />
       {savedCount > 0 && <p role="status">บันทึกเข้าสู่ระบบสำเร็จ {savedCount} รายการ</p>}
       {drafts.length > 0 && <section className="selected-summary" aria-label="รายการรอบันทึก">
-        <p>รอบันทึก ({drafts.length})</p>
+        <p>รอบันทึก {drafts.length} รายการ</p>
         <ul className="checkin-drafts">
           {drafts.slice((currentPage - 1) * 8, currentPage * 8).map((draft) => <li key={draft.input.trackingCode}>
             <div className="checkin-draft-details"><strong>{draft.input.trackingCode}</strong>

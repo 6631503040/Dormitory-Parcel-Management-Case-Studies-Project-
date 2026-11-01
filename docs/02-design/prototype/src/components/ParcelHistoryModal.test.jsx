@@ -159,4 +159,26 @@ describe("ParcelHistoryModal", () => {
     await user.click(screen.getByLabelText("ปิด"));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+  it("paginates long audit histories without losing events and resets for a different parcel", async () => {
+    const events = Array.from({length: 9}, (_, i) => ({id: i + 1, eventType: "note_added", staff: {id: i + 1, fullName: `เจ้าหน้าที่ ${i + 1}`}, occurredAt: "2026-09-20T01:00:00Z"}));
+    server.use(
+      http.get("/api/v1/parcels/H1", () => HttpResponse.json(makeParcelDetail({trackingCode: "H1", events}))),
+      http.get("/api/v1/parcels/H2", () => HttpResponse.json(makeParcelDetail({trackingCode: "H2", events: []})))
+    );
+    const user = userEvent.setup();
+    const {rerender} = render(<ParcelHistoryModal trackingCode="H1" onClose={vi.fn()} />);
+    await screen.findByText("H1");
+    expect(screen.getAllByText("บันทึกหมายเหตุ")).toHaveLength(8);
+    expect(screen.getByText("โดย เจ้าหน้าที่ 1")).toBeInTheDocument();
+    expect(screen.queryByText("โดย เจ้าหน้าที่ 9")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", {name: "ถัดไป"}));
+    expect(screen.getByText("โดย เจ้าหน้าที่ 9")).toBeInTheDocument();
+    expect(screen.queryByText("โดย เจ้าหน้าที่ 1")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", {name: "ถัดไป"})).toBeDisabled();
+    rerender(<ParcelHistoryModal trackingCode="H2" onClose={vi.fn()} />);
+    await screen.findByText("H2");
+    expect(screen.getByText("ไม่มีประวัติ")).toBeInTheDocument();
+    expect(screen.queryByRole("navigation", {name: "แบ่งหน้าประวัติพัสดุ"})).not.toBeInTheDocument();
+  });
+
 });

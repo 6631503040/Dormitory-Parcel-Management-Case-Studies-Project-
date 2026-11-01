@@ -195,7 +195,7 @@ describe("CheckInModal", () => {
       await user.click(screen.getByRole("button", {name: "เพิ่มพัสดุอีกชิ้น"}));
     }
     expect(bodies).toHaveLength(0);
-    expect(screen.getByText("รอบันทึก (2)")).toBeInTheDocument();
+    expect(screen.getByText("รอบันทึก 2 รายการ")).toBeInTheDocument();
     await user.click(screen.getByRole("button", {name: "บันทึก"}));
     await screen.findByText("บันทึกเข้าสู่ระบบสำเร็จ 2 รายการ");
     expect(bodies.map((body) => body.trackingCode)).toEqual(["TH10", "TH11"]);
@@ -210,7 +210,7 @@ describe("CheckInModal", () => {
       await user.click(screen.getByRole("button", {name: "เพิ่มพัสดุอีกชิ้น"}));
     }
     expect(screen.getByText("เลขพัสดุนี้อยู่ในรายการรอบันทึกแล้ว")).toBeInTheDocument();
-    expect(screen.getByText("รอบันทึก (1)")).toBeInTheDocument();
+    expect(screen.getByText("รอบันทึก 1 รายการ")).toBeInTheDocument();
     await user.click(screen.getByRole("button", {name: "ลบ TH10"}));
     // The current complete form can now be saved directly, even with no queued items.
     expect(screen.getByRole("button", {name: "บันทึก"})).toBeEnabled();
@@ -248,7 +248,7 @@ describe("CheckInModal", () => {
     await user.click(screen.getByRole("button", {name: "เพิ่มพัสดุอีกชิ้น"}));
     await user.click(screen.getByLabelText("ปิด")); expect(close).not.toHaveBeenCalled();
     await user.click(screen.getByRole("button", {name: "กลับไปทำต่อ"}));
-    expect(screen.getByText("รอบันทึก (1)")).toBeInTheDocument();
+    expect(screen.getByText("รอบันทึก 1 รายการ")).toBeInTheDocument();
     await user.click(screen.getByLabelText("ปิด"));
     await user.click(screen.getByRole("button", {name: "ทิ้งรายการและปิด"}));
     expect(close).toHaveBeenCalledTimes(1);

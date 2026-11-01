@@ -487,3 +487,38 @@ input::placeholder, textarea::placeholder { color: var(--desk-muted); opacity: 1
   .checkout-scan-dialog .dialog-content { padding: 16px 20px; }
   .checkout-scan-dialog .dialog-footer { padding: 12px 20px 16px; }
 }
+
+/* Parcel history is a plain custody record, with no decorative timeline badges. */
+.history-record { padding-bottom: 16px; border-bottom: 1px solid var(--desk-border); }
+.history-record-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.history-record-heading h3 { margin: 0; min-width: 0; font-size: 17px; font-weight: 600; overflow-wrap: anywhere; }
+.history-record-heading .parcel-status { flex-shrink: 0; }
+.history-record-recipient { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; }
+.history-record-recipient > p { margin: 0; color: var(--desk-muted); font-size: 14px; min-width: 0; overflow-wrap: anywhere; }
+.history-edit { flex-shrink: 0; color: var(--desk-text); background: var(--desk-surface); border-color: var(--desk-border); font-weight: 500; }
+.history-edit:hover { background: var(--desk-bg); border-color: var(--desk-control-border); }
+.history-problem, .history-record-recipient > .history-problem { font-size: 13px; color: var(--desk-warning); overflow-wrap: anywhere; margin-top: 8px; }
+.history-note { margin: 12px 0 0; }
+.history-note dt { color: var(--desk-muted); font-size: 12px; margin-bottom: 4px; }
+.history-note dd { margin: 0; font-size: 13px; overflow-wrap: anywhere; }
+.history-note dd[data-damaged="true"] { color: var(--desk-warning); }
+.history-events { margin-top: 16px; }
+.history-events > h3 { margin: 0 0 4px; color: var(--desk-muted); font-size: 13px; font-weight: 500; }
+.history-events ol { list-style: none; margin: 0; padding: 0; }
+.history-events li { padding: 12px 0; }
+.history-events li + li { border-top: 1px solid var(--desk-border); }
+.history-events li:last-child { padding-bottom: 0; }
+.history-event-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 16px; flex-wrap: wrap; }
+.history-event-heading > p { margin: 0; font-size: 14px; font-weight: 500; }
+.history-event-heading time { color: var(--desk-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.history-event-staff { margin: 4px 0 0; font-size: 13px; color: var(--desk-muted); overflow-wrap: anywhere; }
+.history-event-change { margin: 6px 0 0; font-size: 13px; overflow-wrap: anywhere; }
+.history-empty { padding: 12px 0; margin: 0; color: var(--desk-muted); font-size: 13px; }
+.history-pagination { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; border-top: 1px solid var(--desk-border); color: var(--desk-muted); font-size: 12px; }
+.history-pagination .text-button { min-width: 44px; }
+.history-pagination button:disabled { opacity: .5; }
+@media (max-width: 400px) {
+  .parcel-history-dialog .dialog-content { padding: 20px; }
+  .history-event-heading { flex-direction: column; align-items: flex-start; }
+  .history-record-recipient { align-items: flex-start; }
+}
