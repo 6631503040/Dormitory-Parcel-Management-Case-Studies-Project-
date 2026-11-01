@@ -33,6 +33,11 @@ export function pushSupport() {
   return "unsupported";
 }
 
+// "granted" | "denied" | "default", read without prompting; "default" when push is unsupported.
+export function notificationPermission() {
+  return pushSupport() === "ok" ? Notification.permission : "default";
+}
+
 export async function registerServiceWorker() {
   await navigator.serviceWorker.register(SW_URL, { scope: SW_SCOPE });
   return navigator.serviceWorker.ready;
@@ -74,6 +79,22 @@ export async function currentSubscription() {
   const reg = await registerServiceWorker();
   const sub = await reg.pushManager.getSubscription();
   return sub ? sub.toJSON() : null;
+}
+
+// A local notification shown straight from this device (no server round trip), so the Resident
+// can see at the counter that the phone really buzzes. Resolves false when it could not be shown.
+export async function showTestNotification(body) {
+  if (pushSupport() !== "ok" || Notification.permission !== "granted") return false;
+  const reg = await navigator.serviceWorker.getRegistration(SW_SCOPE);
+  if (!reg) return false;
+  await reg.showNotification("แจ้งเตือนพัสดุ", {
+    body,
+    tag: "dpms-test",
+    icon: "/resident/icon-192.png",
+    badge: "/resident/icon-192.png",
+    data: { url: SW_SCOPE },
+  });
+  return true;
 }
 
 export async function unsubscribeBrowser() {

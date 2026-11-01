@@ -14,6 +14,8 @@ The user confirmed on 2026-10-05 that `docs/02-design/design-spec.md` (LOCKED, v
 
 Primary users are dormitory front-desk Staff who record incoming Parcels, find Pending Parcels, and perform Check-Out. Residents collect their Parcels; resident self-service is not part of the confirmed scope.
 
+Residents of the Resident notification page (`/resident/`) are university students using their own phones (user confirmed 2026-10-28). They register a browser once at the counter with a 6-digit code that Staff read aloud, then check their room's Pending Parcels and receive a Web Push notification on Check-In.
+
 ## Product Purpose
 
 Dormitory Parcel Management System replaces the desk's Google Forms/Google Sheets workflow with a dedicated web application. It aims to reduce identification errors and repetitive entry, make Pending Parcels easy to find, and preserve a traceable history of Check-In and Check-Out.
@@ -46,6 +48,8 @@ Open decisions: the precise post-pickup archival window and any future expansion
 ## Brand Commitments
 
 Display name: Dormitory Parcel Management System. Short name: Parcel Desk. Preserve the locked terminology and user-facing strings in `docs/02-design/design-spec.md`. The specified v1 language is English, with strings centralized for later localization. Preserve the documented commitment to familiar Google Sheets/Forms workflows so Staff need little retraining; visual details remain in the existing design specification.
+
+Resident page (`/resident/`), user confirmed 2026-10-28: the Resident-facing name is **ParcelHub** (with "แจ้งเตือนพัสดุ" as the Home Screen app name), the UI is Thai only. On 2026-10-30 the user reversed the earlier separate-identity decision: the page uses the Staff desk's visual system (DESIGN.md tokens, Noto Sans Thai, cards, buttons) while keeping its own phone-first structure. Also on 2026-10-30 the user asked for a formal tone like the Staff screens (polite "กรุณา…" copy, "อุปกรณ์นี้", page-style headings, emphasis by weight rather than colour), replacing the earlier "must not feel official" preference. The Google Sheets layout commitment applies to Staff screens, not to this page. Registration requires notification permission (push is mandatory), and the consent text is versioned with the backend (`PushConsentVersion`), so its wording changes only with a version bump on both sides.
 
 ## Evidence on Hand
 
