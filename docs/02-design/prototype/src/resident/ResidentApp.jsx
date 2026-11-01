@@ -444,7 +444,7 @@ function VerifyStep({ claim, vapidPublicKey, onRegistered, onReclaimed, onChange
   );
 }
 
-function StatusView({ status, updatedAt, stale, onRefresh, refreshing, notifyState, onReenable, onRecheck, onTest, onUnregister }) {
+function StatusView({ status, updatedAt, stale, onRefresh, refreshing, notifyState, onReenable, onRecheck, onUnregister }) {
   const [confirm, setConfirm] = useState(false);
   const [unregistering, setUnregistering] = useState(false);
   const [reenabling, setReenabling] = useState(false);
@@ -553,7 +553,6 @@ function StatusView({ status, updatedAt, stale, onRefresh, refreshing, notifySta
         </dl>
        {!confirm ? (
           <div className="resident-device-actions">
-            {notifyState === "on" && <button type="button" className="text-button resident-test" onClick={onTest}>ส่งการแจ้งเตือนทดสอบ</button>}
             <button type="button" ref={triggerRef} className="resident-danger" onClick={() => setConfirm(true)}>ยกเลิกการลงทะเบียนอุปกรณ์นี้</button>
           </div>
         ) : (
@@ -734,8 +733,7 @@ export default function ResidentApp() {
     body = (
       <StatusView status={status} updatedAt={updatedAt} stale={Boolean(statusError)} refreshing={refreshing} notifyState={notifyState}
         onRefresh={() => loadStatus(token)} onReenable={config ? reenable : null} onUnregister={unregister}
-        onRecheck={() => readNotifyState().then(({ state }) => setNotifyState(state))}
-        onTest={() => sendTest(`${status.device.buildingCode}${status.device.roomNumber}`)} />
+        onRecheck={() => readNotifyState().then(({ state }) => setNotifyState(state))} />
     );
   else if (token || !config)
     body = fatal
