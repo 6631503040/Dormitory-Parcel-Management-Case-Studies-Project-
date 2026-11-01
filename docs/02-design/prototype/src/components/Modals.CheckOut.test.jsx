@@ -223,6 +223,29 @@ describe("scanner-first CheckOutModal", () => {
     expect(codes).toEqual(["TH100", "TH101"]);
   });
 
+  it("keeps slowly hand-typed text until Enter instead of looking up each character (QA-05)", async () => {
+    const {lookup} = setup();
+    const slow = userEvent.setup({delay: 450});
+    const input = screen.getByLabelText("เลขพัสดุ");
+    await slow.type(input, "TH1");
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    expect(lookup).not.toHaveBeenCalled();
+    expect(input).toHaveValue("TH1");
+    expect(screen.getByText("พิมพ์ครบแล้วกด Enter เพื่อค้นหา")).toBeInTheDocument();
+    await slow.type(input, "00{Enter}");
+    await screen.findByRole("region", {name: "ข้อมูลพัสดุที่ค้นพบ"});
+    expect(lookup).toHaveBeenCalledTimes(1);
+    expect(lookup).toHaveBeenCalledWith("TH100");
+  }, 10000);
+
+  it("looks up a pasted code without Enter, like a scanner burst", async () => {
+    const {user, lookup} = setup();
+    await user.click(screen.getByLabelText("เลขพัสดุ"));
+    await user.paste("TH100");
+    await screen.findByRole("region", {name: "ข้อมูลพัสดุที่ค้นพบ"});
+    expect(lookup).toHaveBeenCalledWith("TH100");
+  });
+
   it("waits for IME composition to finish before automatic lookup", async () => {
     const {lookup} = setup(); const input = screen.getByLabelText("เลขพัสดุ");
     fireEvent.compositionStart(input); fireEvent.change(input, {target: {value: "TH100"}});

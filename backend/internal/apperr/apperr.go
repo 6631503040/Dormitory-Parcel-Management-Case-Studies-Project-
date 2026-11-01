@@ -26,6 +26,7 @@ const (
 	AmbiguousRoom         = "AMBIGUOUS_ROOM"
 	UsernameTaken         = "USERNAME_TAKEN"
 	ResidentImportInvalid = "RESIDENT_IMPORT_INVALID"
+	TooManyLoginAttempts  = "TOO_MANY_LOGIN_ATTEMPTS"
 
 	// Web Push (US-23/US-24)
 	PushNotConfigured    = "PUSH_NOT_CONFIGURED"
@@ -54,6 +55,7 @@ var statusByCode = map[string]int{
 	AmbiguousRoom:         http.StatusUnprocessableEntity,
 	UsernameTaken:         http.StatusConflict,
 	ResidentImportInvalid: http.StatusUnprocessableEntity,
+	TooManyLoginAttempts:  http.StatusTooManyRequests,
 	PushNotConfigured:     http.StatusServiceUnavailable,
 	NoPendingResidentOTP:  http.StatusNotFound,
 	OTPInvalid:            http.StatusUnprocessableEntity,

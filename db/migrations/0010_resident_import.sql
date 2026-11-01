@@ -1,4 +1,4 @@
--- 0009 — Resident directory import (US-29). An Admin uploads a CSV of everyone currently living in
+-- 0010 — Resident directory import (US-29). An Admin uploads a CSV of everyone currently living in
 -- the dormitory; the API adds new Residents, moves those whose room changed and deactivates those no
 -- longer listed (is_active = false — never deleted, Parcel history keeps pointing at them).
 -- Each applied import is recorded here: who ran it, when, and what it changed. Append-only.

@@ -46,7 +46,10 @@ type Deps struct {
 	WebDir string
 }
 
-type handlers struct{ Deps }
+type handlers struct {
+	Deps
+	logins *loginLimiter
+}
 
 func NewRouter(d Deps) *gin.Engine {
 	binding.EnableDecoderDisallowUnknownFields = true
@@ -58,7 +61,7 @@ func NewRouter(d Deps) *gin.Engine {
 		log.Printf("invalid TRUSTED_PROXIES: %v", err)
 	}
 	r.Use(gin.Recovery(), requestLogger(), securityHeaders(), requestLimits(), requireJSONBody())
-	h := &handlers{d}
+	h := &handlers{Deps: d, logins: newLoginLimiter()}
 	r.NoRoute(h.noRoute)
 
 	r.GET("/healthz", h.health)
@@ -165,15 +168,26 @@ func (h *handlers) requireAuth() gin.HandlerFunc {
 			fail(c, apperr.New(apperr.Unauthenticated, nil))
 			return
 		}
-		id, ok := h.Signer.Verify(token, time.Now())
+		sess, ok := h.Signer.Verify(token, time.Now())
 		if !ok {
+			h.clearSession(c)
+			fail(c, apperr.New(apperr.Unauthenticated, nil))
+			return
+		}
+		// A session that logged out stays dead even if a copy of its cookie is presented.
+		revoked, err := h.Store.SessionRevoked(c.Request.Context(), sess.ID)
+		if err != nil {
+			fail(c, err)
+			return
+		}
+		if revoked {
 			h.clearSession(c)
 			fail(c, apperr.New(apperr.Unauthenticated, nil))
 			return
 		}
 		// Role and active status are re-read on every request, so disabling an account or changing
 		// its role takes effect immediately, not when the token expires.
-		acct, err := h.Store.StaffByID(c.Request.Context(), id)
+		acct, err := h.Store.StaffByID(c.Request.Context(), sess.StaffID)
 		if err != nil {
 			fail(c, err)
 			return

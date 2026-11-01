@@ -19,6 +19,10 @@ vi.mock("./pushSupport", async () => {
   return {
     PushPermissionError,
     pushSupport: vi.fn(() => "ok"),
+    notificationPermission: vi.fn(() => "granted"),
+    isIOS: vi.fn(() => false),
+    isStandalone: vi.fn(() => false),
+    showTestNotification: vi.fn(async () => true),
     subscribe: vi.fn(),
     currentSubscription: vi.fn(async () => null),
     unsubscribeBrowser: vi.fn(async () => {}),
@@ -43,9 +47,27 @@ function mockStatus(pending = []) {
   );
 }
 
+function mockClaim(expiresInMs = 300000, bodies = []) {
+  server.use(
+    http.post("/api/v1/resident/otp", async ({ request }) => {
+      bodies.push(await request.json());
+      return HttpResponse.json({ claimToken: `c${bodies.length}`, expiresAt: new Date(Date.now() + expiresInMs).toISOString(), roomNumber: "101", buildingCode: "3" }, { status: 201 });
+    })
+  );
+  return bodies;
+}
+
+async function claimRoom(user) {
+  await user.type(await screen.findByLabelText(/เลขห้อง/), "3101");
+  await user.click(screen.getByRole("checkbox"));
+  await user.click(screen.getByRole("button", { name: "ขอรหัสยืนยัน" }));
+}
+
 beforeEach(() => {
   localStorage.clear();
+  sessionStorage.clear();
   vi.mocked(pushSupport.pushSupport).mockReturnValue("ok");
+  vi.mocked(pushSupport.notificationPermission).mockReturnValue("granted");
   vi.mocked(pushSupport.subscribe).mockReset();
   vi.mocked(pushSupport.currentSubscription).mockResolvedValue(null);
 });
@@ -64,9 +86,11 @@ describe("ResidentApp", () => {
       http.post("/api/v1/resident/otp/verify", async ({ request }) => {
         verifyBody = await request.json();
         return HttpResponse.json({ deviceToken: "dev-token", device: DEVICE }, { status: 201 });
-      })
+      }),
+      http.put("/api/v1/resident/push/subscription", () => new HttpResponse(null, { status: 204 }))
     );
     vi.mocked(pushSupport.subscribe).mockResolvedValue(SUB);
+    vi.mocked(pushSupport.currentSubscription).mockResolvedValue(SUB); // what a real browser reports right after subscribing
     const user = userEvent.setup();
     render(<ResidentApp />);
 
@@ -84,6 +108,9 @@ describe("ResidentApp", () => {
 
     expect(await screen.findByText("TH123")).toBeInTheDocument();
     expect(screen.getByText("รับแจ้งเตือนอยู่")).toBeInTheDocument();
+    expect(await screen.findByText(/ห้อง 3101 จะได้รับแจ้งเตือนบนอุปกรณ์นี้ ส่งแจ้งเตือนทดสอบไปแล้ว/)).toBeInTheDocument();
+    expect(screen.getByText("ลงทะเบียนแล้ว")).toBeInTheDocument();
+    expect(pushSupport.showTestNotification).toHaveBeenCalledWith(expect.stringContaining("ห้อง 3101"));
     expect(pushSupport.subscribe).toHaveBeenCalledWith("BPUB");
     expect(verifyBody).toEqual({ claimToken: "claim-1", code: "265074", subscription: SUB });
     expect(localStorage.getItem(TOKEN_KEY)).toBe("dev-token");
@@ -105,6 +132,9 @@ describe("ResidentApp", () => {
     await user.type(await screen.findByLabelText(/รหัส 6 หลัก/), "000000");
     await user.click(screen.getByRole("button", { name: /ยืนยันและเปิดการแจ้งเตือน/ }));
     expect(await screen.findByRole("alert")).toHaveTextContent("รหัสไม่ถูกต้อง (ลองได้อีก 3 ครั้ง)");
+    const code = screen.getByLabelText(/รหัส 6 หลัก/);
+    expect(code).toHaveAttribute("aria-invalid", "true");
+    await waitFor(() => expect(code).toHaveFocus());
     expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
   });
 
@@ -146,9 +176,10 @@ describe("ResidentApp", () => {
     render(<ResidentApp />);
     expect(await screen.findByText(/ยังไม่มีพัสดุรอรับ/)).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /ปิดการแจ้งเตือนบนอุปกรณ์นี้/ }));
-    await user.click(screen.getByRole("button", { name: "ยืนยันปิดการแจ้งเตือน" }));
+    await user.click(screen.getByRole("button", { name: "ยกเลิกการลงทะเบียนอุปกรณ์นี้" }));
+    await user.click(screen.getByRole("button", { name: "ยืนยันยกเลิกการลงทะเบียน" }));
     expect(await screen.findByRole("button", { name: "ขอรหัสยืนยัน" })).toBeInTheDocument();
+    expect(screen.getByText(/ยกเลิกการลงทะเบียนอุปกรณ์นี้แล้ว/)).toBeInTheDocument();
     expect(deleted).toBe(true);
     expect(pushSupport.unsubscribeBrowser).toHaveBeenCalled();
     expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
@@ -160,7 +191,178 @@ describe("ResidentApp", () => {
     mockStatus([]);
     render(<ResidentApp />);
     expect(await screen.findByRole("button", { name: "ขอรหัสยืนยัน" })).toBeInTheDocument();
+    expect(screen.getByText(/หมดอายุหรือถูกยกเลิกแล้ว/)).toBeInTheDocument();
     await waitFor(() => expect(localStorage.getItem(TOKEN_KEY)).toBeNull());
+  });
+
+  it("puts a missing Room Number error on the field and focuses it", async () => {
+    mockConfig();
+    const user = userEvent.setup();
+    render(<ResidentApp />);
+    await user.click(await screen.findByRole("button", { name: "ขอรหัสยืนยัน" }));
+    const room = screen.getByLabelText(/เลขห้อง/);
+    expect(room).toHaveAttribute("aria-invalid", "true");
+    expect(room).toHaveFocus();
+    expect(room).toHaveAccessibleDescription(/กรุณากรอกเลขห้อง/);
+  });
+
+  it("warns before a code is requested when the browser already blocks notifications", async () => {
+    vi.mocked(pushSupport.notificationPermission).mockReturnValue("denied");
+    mockConfig();
+    render(<ResidentApp />);
+    expect(await screen.findByRole("alert")).toHaveTextContent("บล็อกการแจ้งเตือนของเว็บนี้อยู่");
+    expect(screen.getByRole("alert")).toHaveTextContent("› การแจ้งเตือน › อนุญาต"); // a platform path, not a generic hint
+    expect(screen.queryByRole("button", { name: "ขอรหัสยืนยัน" })).not.toBeInTheDocument();
+  });
+
+  it("names the typed room when it is not in the directory", async () => {
+    mockConfig();
+    server.use(http.post("/api/v1/resident/otp", () => HttpResponse.json(apiError("ROOM_NOT_IN_DIRECTORY"), { status: 422 })));
+    const user = userEvent.setup();
+    render(<ResidentApp />);
+    await user.type(await screen.findByLabelText(/เลขห้อง/), "9999");
+    await user.click(screen.getByRole("checkbox"));
+    await user.click(screen.getByRole("button", { name: "ขอรหัสยืนยัน" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("ไม่พบห้อง 9999 ในทะเบียนผู้พัก");
+    expect(screen.getByRole("alert")).not.toHaveTextContent("เลือกห้องจากรายการ");
+  });
+
+  it("warns about the browser's permission prompt and marks finished steps on the code screen", async () => {
+    vi.mocked(pushSupport.notificationPermission).mockReturnValue("default");
+    mockConfig();
+    mockClaim();
+    const user = userEvent.setup();
+    render(<ResidentApp />);
+    await claimRoom(user);
+    expect(await screen.findByText(/เบราว์เซอร์จะขอสิทธิ์ส่งการแจ้งเตือน/)).toBeInTheDocument();
+    expect(screen.getByText("(เสร็จแล้ว)", { exact: false })).toBeInTheDocument();
+  });
+
+  it("shows the last loaded parcels, marked with their time, when a reload fails", async () => {
+    localStorage.setItem(TOKEN_KEY, "dev-token");
+    localStorage.setItem("dpms.residentLastStatus", JSON.stringify({
+      token: "dev-token",
+      updatedAt: "2026-10-28T03:00:00Z",
+      status: { device: DEVICE, pendingCount: 1, pending: [{ trackingCode: "TH7", checkedInAt: "2026-10-27T03:00:00Z" }] },
+    }));
+    mockConfig();
+    server.use(http.get("/api/v1/resident/me", () => HttpResponse.json(apiError("INTERNAL_ERROR"), { status: 500 })));
+    render(<ResidentApp />);
+    expect(await screen.findByText(/ยังโหลดข้อมูลล่าสุดไม่ได้/)).toBeInTheDocument();
+    expect(screen.getByText("TH7")).toBeInTheDocument();
+    expect(screen.getByText(/ข้อมูลเมื่อ/)).toBeInTheDocument();
+  });
+
+  it("turns notifications back on for a registered device that lost its subscription", async () => {
+    localStorage.setItem(TOKEN_KEY, "dev-token");
+    mockConfig();
+    mockStatus([]);
+    vi.mocked(pushSupport.subscribe).mockResolvedValue(SUB);
+    let put;
+    server.use(
+      http.put("/api/v1/resident/push/subscription", async ({ request }) => {
+        put = await request.json();
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+    const user = userEvent.setup();
+    render(<ResidentApp />);
+    await user.click(await screen.findByRole("button", { name: "เปิดการแจ้งเตือนอีกครั้ง" }));
+    expect(await screen.findByText("รับแจ้งเตือนอยู่")).toBeInTheDocument();
+    expect(put).toEqual(SUB);
+  });
+
+  it("an expired code is replaced in one tap for the same room", async () => {
+    mockConfig();
+    const bodies = mockClaim(-1000);
+    const user = userEvent.setup();
+    render(<ResidentApp />);
+    await claimRoom(user);
+    expect(await screen.findByRole("heading", { name: "รหัสหมดอายุแล้ว" })).toBeInTheDocument();
+
+    mockClaim(300000, bodies);
+    await user.click(screen.getByRole("button", { name: "ขอรหัสใหม่สำหรับห้อง 3101" }));
+    expect(await screen.findByLabelText(/รหัส 6 หลัก/)).toBeEnabled();
+    expect(bodies.map((b) => b.roomNumber)).toEqual(["3101", "3101"]);
+  });
+
+  it("a code the server locked offers a new one instead of the dead code field", async () => {
+    mockConfig();
+    const bodies = mockClaim();
+    server.use(http.post("/api/v1/resident/otp/verify", () => HttpResponse.json(apiError("OTP_EXPIRED", { reason: "locked" }), { status: 422 })));
+    vi.mocked(pushSupport.subscribe).mockResolvedValue(SUB);
+    const user = userEvent.setup();
+    render(<ResidentApp />);
+    await claimRoom(user);
+    await user.type(await screen.findByLabelText(/รหัส 6 หลัก/), "999999");
+    await user.click(screen.getByRole("button", { name: /ยืนยันและเปิดการแจ้งเตือน/ }));
+    expect(await screen.findByRole("heading", { name: "ใส่รหัสผิดหลายครั้งเกินไป" })).toBeInTheDocument();
+    expect(screen.queryByLabelText(/รหัส 6 หลัก/)).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "ขอรหัสใหม่สำหรับห้อง 3101" }));
+    expect(await screen.findByLabelText(/รหัส 6 หลัก/)).toBeEnabled();
+    expect(bodies).toHaveLength(2);
+  });
+
+  it("keeps the pending claim across a reload", async () => {
+    mockConfig();
+    mockClaim();
+    const user = userEvent.setup();
+    const { unmount } = render(<ResidentApp />);
+    await claimRoom(user);
+    expect(await screen.findByLabelText(/รหัส 6 หลัก/)).toBeInTheDocument();
+    unmount();
+
+    render(<ResidentApp />);
+    expect(await screen.findByLabelText(/รหัส 6 หลัก/)).toBeInTheDocument();
+    expect(screen.getByText("3101")).toBeInTheDocument();
+  });
+
+  it("changing the room keeps what was typed", async () => {
+    mockConfig();
+    mockClaim();
+    const user = userEvent.setup();
+    render(<ResidentApp />);
+    await claimRoom(user);
+    await user.click(await screen.findByRole("button", { name: "เปลี่ยนเลขห้อง" }));
+    expect(screen.getByLabelText(/เลขห้อง/)).toHaveValue("3101");
+    expect(screen.getByRole("checkbox")).toBeChecked();
+  });
+
+  it("offers a retry when the status cannot be loaded", async () => {
+    localStorage.setItem(TOKEN_KEY, "dev-token");
+    mockConfig();
+    server.use(http.get("/api/v1/resident/me", () => HttpResponse.json(apiError("INTERNAL"), { status: 500 })));
+    const user = userEvent.setup();
+    render(<ResidentApp />);
+    await user.click(await screen.findByRole("button", { name: "ลองใหม่" }));
+    expect(screen.queryByText("กำลังโหลด…")).not.toBeInTheDocument();
+
+    mockStatus([{ trackingCode: "TH9", checkedInAt: "2026-10-21T03:00:00Z" }]);
+    await user.click(screen.getByRole("button", { name: "ลองใหม่" }));
+    expect(await screen.findByText("TH9")).toBeInTheDocument();
+  });
+
+  it("says so when the browser blocks notifications for a registered device", async () => {
+    vi.mocked(pushSupport.notificationPermission).mockReturnValue("denied");
+    localStorage.setItem(TOKEN_KEY, "dev-token");
+    mockConfig();
+    mockStatus([]);
+    render(<ResidentApp />);
+    expect(await screen.findByText("เบราว์เซอร์บล็อกการแจ้งเตือน")).toBeInTheDocument();
+    expect(screen.queryByText("รับแจ้งเตือนอยู่")).not.toBeInTheDocument();
+  });
+
+  it("the unregister confirm states the consequence and focuses the safe choice", async () => {
+    localStorage.setItem(TOKEN_KEY, "dev-token");
+    mockConfig();
+    mockStatus([]);
+    const user = userEvent.setup();
+    render(<ResidentApp />);
+    await user.click(await screen.findByRole("button", { name: "ยกเลิกการลงทะเบียนอุปกรณ์นี้" }));
+    expect(screen.getByRole("button", { name: "เก็บการลงทะเบียนไว้" })).toHaveFocus();
+    expect(screen.getByText(/ไม่แสดงรายการพัสดุอีก/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "เก็บการลงทะเบียนไว้" }));
+    expect(screen.getByRole("button", { name: "ยกเลิกการลงทะเบียนอุปกรณ์นี้" })).toHaveFocus();
   });
 
   it("re-sends a rotated browser subscription when it opens", async () => {
@@ -213,7 +415,7 @@ describe("ResidentApp", () => {
   it("tells iPhone users to add the page to the Home Screen first", async () => {
     vi.mocked(pushSupport.pushSupport).mockReturnValue("ios_install");
     render(<ResidentApp />);
-    expect(screen.getByText("เพิ่มไว้ที่หน้าจอโฮมก่อน")).toBeInTheDocument();
+    expect(screen.getByText("กรุณาเพิ่มหน้านี้ไว้ที่หน้าจอโฮม")).toBeInTheDocument();
   });
 
   it("reports when the server has push turned off", async () => {

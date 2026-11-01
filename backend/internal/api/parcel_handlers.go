@@ -22,18 +22,25 @@ const (
 	maxCheckOut     = 100
 	recentCheckIns  = 10
 	maxRoomHits     = 20
+	// maxPage keeps (page-1)*pageSize far from integer overflow (a negative OFFSET was a 500).
+	// 100,000 pages of 100 is ten million rows — beyond anything the dormitory will hold.
+	maxPage = 100_000
 )
 
 // Barcode values are printable ASCII without spaces. They are stored upper-cased, which is what
-// makes prefix search on the tracking_code index case-insensitive.
+// makes prefix search on the tracking_code index case-insensitive. The code is also a URL path
+// segment (GET/PATCH /parcels/:trackingCode), so characters that change a path's meaning
+// (/ \ ? # %) are refused, as are codes made only of dots ("." and ".." are path navigation):
+// a code that can be saved must also be retrievable.
 var trackingCodePattern = regexp.MustCompile(`^[\x21-\x7E]{1,64}$`)
+var trackingCodeForbidden = regexp.MustCompile(`[/\\?#%]|^\.+$`)
 
 func normalizeTrackingCode(raw string) (string, *apperr.Error) {
 	code := strings.ToUpper(strings.TrimSpace(raw))
 	if code == "" {
 		return "", apperr.Validation("trackingCode", "required")
 	}
-	if !trackingCodePattern.MatchString(code) {
+	if !trackingCodePattern.MatchString(code) || trackingCodeForbidden.MatchString(code) {
 		return "", apperr.Validation("trackingCode", "invalid_format")
 	}
 	return code, nil
@@ -50,6 +57,9 @@ func parsePaging(c *gin.Context) (page, size int, err *apperr.Error) {
 		n, e := strconv.Atoi(v)
 		if e != nil || n < 1 {
 			return 0, 0, apperr.Validation("page", "must_be_positive_integer")
+		}
+		if n > maxPage {
+			return 0, 0, apperr.Validation("page", "too_large")
 		}
 		page = n
 	}

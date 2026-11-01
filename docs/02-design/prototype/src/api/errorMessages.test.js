@@ -37,6 +37,16 @@ describe("errorMessage()", () => {
     expect(new Set(messages).size).toBe(messages.length);
   });
 
+  it("tells Staff how long to wait after too many failed logins", () => {
+    expect(errorMessage({ code: "TOO_MANY_LOGIN_ATTEMPTS", params: { retryAfterSeconds: 601 } })).toContain("11 นาที");
+  });
+
+  it("explains which characters a Tracking Code may not contain", () => {
+    const msg = errorMessage({ code: "VALIDATION_ERROR", params: { field: "trackingCode", reason: "invalid_format" } });
+    expect(msg).toContain("/");
+    expect(errorMessage({ code: "VALIDATION_ERROR", params: { field: "note", reason: "too_long" } })).not.toBe(msg);
+  });
+
   it("falls back to a generic message for an unknown code instead of throwing", () => {
     expect(() => errorMessage({ code: "SOMETHING_NEW_FROM_THE_SERVER", params: {} })).not.toThrow();
     expect(errorMessage({ code: "SOMETHING_NEW_FROM_THE_SERVER" })).toBe(errorMessage({ code: "INTERNAL_ERROR" }));

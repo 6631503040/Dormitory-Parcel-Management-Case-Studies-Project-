@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -47,6 +48,24 @@ func (h *handlers) login(c *gin.Context) {
 		return
 	}
 
+	// Too many recent failures for this username from this client: refuse before checking the
+	// password, so guessing can't continue (QA-02). The refusal is logged like any failed attempt.
+	key := loginKey(username, ip)
+	if wait := h.logins.retryAfter(key, time.Now()); wait > 0 {
+		var staffID *int64
+		if acct != nil {
+			staffID = &acct.ID
+		}
+		if err := h.Store.RecordAccess(ctx, staffID, logged, "failed", ip); err != nil {
+			fail(c, err)
+			return
+		}
+		secs := int(wait.Seconds()) + 1
+		c.Header("Retry-After", strconv.Itoa(secs))
+		fail(c, apperr.New(apperr.TooManyLoginAttempts, map[string]any{"retryAfterSeconds": secs}))
+		return
+	}
+
 	// One error for every failure, and the same work for an unknown username, so the response
 	// never reveals which field was wrong.
 	if acct == nil {
@@ -61,9 +80,11 @@ func (h *handlers) login(c *gin.Context) {
 			fail(c, err)
 			return
 		}
+		h.logins.fail(key, time.Now())
 		fail(c, apperr.New(apperr.InvalidCredentials, nil))
 		return
 	}
+	h.logins.succeed(key)
 
 	if err := h.Store.RecordAccess(ctx, &acct.ID, logged, "success", ip); err != nil {
 		fail(c, err)
@@ -78,7 +99,18 @@ func (h *handlers) login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"staff": acct.Staff})
 }
 
+// logout revokes the session server-side before clearing the cookie, so a copy of the cookie can't
+// be used afterwards (QA-01). If the revocation can't be stored, logout fails rather than pretending
+// the session is gone. Logging out without a valid session is a no-op.
 func (h *handlers) logout(c *gin.Context) {
+	if token, err := c.Cookie(sessionCookie); err == nil {
+		if sess, ok := h.Signer.Verify(token, time.Now()); ok {
+			if err := h.Store.RevokeSession(c.Request.Context(), sess.ID, sess.StaffID, sess.ExpiresAt); err != nil {
+				fail(c, err)
+				return
+			}
+		}
+	}
 	h.clearSession(c)
 	c.Status(http.StatusNoContent)
 }
