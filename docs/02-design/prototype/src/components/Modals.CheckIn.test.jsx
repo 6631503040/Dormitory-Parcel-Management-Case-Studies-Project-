@@ -241,16 +241,13 @@ describe("CheckInModal", () => {
     expect(calls).toEqual(["TH10", "TH11", "TH11"]);
   });
 
-  it("protects drafts from accidental close and does not post on closing", async () => {
+  it("closes immediately with pending drafts without confirmation or posting", async () => {
     const close = vi.fn(); const user = userEvent.setup(); render(<CheckInModal onClose={close} />);
     await user.type(screen.getByLabelText("เลขพัสดุ"), "TH10");
     await user.click(screen.getByRole("checkbox", {name: "พัสดุมีปัญหา"}));
     await user.click(screen.getByRole("button", {name: "เพิ่มพัสดุอีกชิ้น"}));
-    await user.click(screen.getByLabelText("ปิด")); expect(close).not.toHaveBeenCalled();
-    await user.click(screen.getByRole("button", {name: "กลับไปทำต่อ"}));
-    expect(screen.getByText("รอบันทึก 1 รายการ")).toBeInTheDocument();
     await user.click(screen.getByLabelText("ปิด"));
-    await user.click(screen.getByRole("button", {name: "ทิ้งรายการและปิด"}));
+    expect(screen.queryByText("ปิดโดยไม่บันทึก?")).not.toBeInTheDocument();
     expect(close).toHaveBeenCalledTimes(1);
   });
 

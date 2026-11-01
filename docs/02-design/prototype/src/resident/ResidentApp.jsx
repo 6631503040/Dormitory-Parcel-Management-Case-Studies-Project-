@@ -157,8 +157,10 @@ function Steps({ current }) {
         const state = i < current ? "done" : i === current ? "current" : "todo";
         return (
           <li key={label} data-state={state} aria-current={state === "current" ? "step" : undefined}>
-            {state === "done" && <Check size={14} strokeWidth={3} aria-hidden="true" />}
-            {label}
+            <span className="resident-step-marker" aria-hidden="true">
+              {state === "done" ? <Check size={16} strokeWidth={2.5} /> : i + 1}
+            </span>
+            <span className="resident-step-label">{label}</span>
             {state === "done" && <span className="sr-only"> (เสร็จแล้ว)</span>}
           </li>
         );
@@ -268,7 +270,6 @@ function ClaimStep({ initialRoom, initialAgreed, onClaimed }) {
     <section className="resident-card" aria-labelledby="claim-heading">
       <Steps current={0} />
       <h1 id="claim-heading">ลงทะเบียนรับการแจ้งเตือนพัสดุ</h1>
-      <p className="resident-lead">รับการแจ้งเตือนทุกครั้งที่มีพัสดุของห้องคุณ</p>
       {blocked ? (
         <BlockedNotice lead="เบราว์เซอร์นี้บล็อกการแจ้งเตือนของเว็บนี้อยู่ จึงยังลงทะเบียนไม่ได้" onRecheck={recheckPermission} />
       ) : (
@@ -276,9 +277,8 @@ function ClaimStep({ initialRoom, initialAgreed, onClaimed }) {
           <div className="form-field resident-field">
             <label htmlFor="room">เลขห้อง (อาคาร+ห้อง)</label>
             <input id="room" ref={roomRef} className="resident-room-input" inputMode="numeric" autoComplete="off" placeholder="เช่น 3101" value={room} disabled={busy}
-              aria-invalid={roomError ? "true" : undefined} aria-describedby={roomError ? "room-hint room-error" : "room-hint"}
+              aria-invalid={roomError ? "true" : undefined} aria-describedby={roomError ? "room-error" : undefined}
               onChange={(e) => { setRoom(e.target.value); setError(null); }} />
-            <p id="room-hint" className="resident-hint">เลขอาคารตามด้วยเลขห้อง</p>
             {roomError && <p id="room-error" className="resident-error" role="alert">{roomError}</p>}
           </div>
           <div className="resident-consent">
@@ -484,7 +484,7 @@ function StatusView({ status, updatedAt, stale, onRefresh, refreshing, notifySta
       <div className="page-heading resident-status-heading">
         <div>
           <h1 id="status-heading">ห้อง {device.buildingCode}{device.roomNumber}</h1>
-          <p aria-live="polite">{pendingCount > 0 ? `มีพัสดุรอรับที่เคาน์เตอร์ ${pendingCount} ชิ้น` : "ไม่มีพัสดุรอรับที่เคาน์เตอร์"}</p>
+          <p aria-live="polite">{pendingCount > 0 ? `มีพัสดุรอรับที่เคาน์เตอร์ ${pendingCount} ชิ้น` : "ตรวจสอบรายการพัสดุของห้องนี้"}</p>
         </div>
         <button type="button" className="desk-button resident-secondary" onClick={onRefresh} disabled={refreshing}>
           <RefreshCw size={16} aria-hidden="true" />{refreshing ? "กำลังโหลด…" : "รีเฟรช"}
@@ -502,7 +502,7 @@ function StatusView({ status, updatedAt, stale, onRefresh, refreshing, notifySta
       {notifyState === "blocked" && <BlockedNotice lead="เบราว์เซอร์บล็อกการแจ้งเตือน" onRecheck={onRecheck} />}
       {actionError && <p className="resident-error resident-action-error" role="alert">{actionError}</p>}
 
-      <section className="parcel-register resident-register" aria-labelledby="status-heading">
+      <section className={`resident-register ${pending.length ? "parcel-register" : "is-empty"}`} aria-labelledby="status-heading">
         {pending.length > 0 ? (
           <table className="parcel-table resident-table">
             <caption className="sr-only">พัสดุที่รอรับ</caption>
@@ -527,7 +527,7 @@ function StatusView({ status, updatedAt, stale, onRefresh, refreshing, notifySta
             </tbody>
           </table>
         ) : (
-          <p className="resident-empty">ยังไม่มีพัสดุรอรับ หากขนส่งแจ้งว่าส่งแล้ว เจ้าหน้าที่อาจยังไม่ได้บันทึก</p>
+          <div className="resident-empty"><h2>ยังไม่มีพัสดุรอรับ</h2><p>หากขนส่งแจ้งว่าส่งแล้ว เจ้าหน้าที่อาจยังไม่ได้บันทึก</p></div>
         )}
         <p className="resident-register-meta">
           {updatedAt && <>{stale ? "ข้อมูลเมื่อ" : "อัปเดตล่าสุด"} {formatThaiDateTime(updatedAt)}</>}
@@ -535,11 +535,11 @@ function StatusView({ status, updatedAt, stale, onRefresh, refreshing, notifySta
         </p>
       </section>
 
-      <section className="parcel-register resident-device" aria-labelledby="device-heading">
-        <h2 id="device-heading">การลงทะเบียนอุปกรณ์นี้</h2>
+      <section className="resident-device" aria-labelledby="device-heading">
+        <h2 id="device-heading">การแจ้งเตือน</h2>
         <dl>
           <div>
-            <dt>การแจ้งเตือน</dt>
+            <dt>สถานะ</dt>
             <dd aria-live="polite">
               {notifyState === "on" && <span className="resident-on"><CheckCircle2 size={16} aria-hidden="true" />รับแจ้งเตือนอยู่</span>}
               {notifyState === "off" && "ยังไม่ได้เปิด"}
@@ -547,7 +547,7 @@ function StatusView({ status, updatedAt, stale, onRefresh, refreshing, notifySta
             </dd>
           </div>
           <div>
-            <dt>ใช้ได้ถึง</dt>
+            <dt>ลงทะเบียนถึง</dt>
             <dd>{formatThaiDate(device.expiresAt)}</dd>
           </div>
         </dl>
@@ -733,7 +733,8 @@ export default function ResidentApp() {
     body = (
       <StatusView status={status} updatedAt={updatedAt} stale={Boolean(statusError)} refreshing={refreshing} notifyState={notifyState}
         onRefresh={() => loadStatus(token)} onReenable={config ? reenable : null} onUnregister={unregister}
-        onRecheck={() => readNotifyState().then(({ state }) => setNotifyState(state))} />
+        onRecheck={() => readNotifyState().then(({ state }) => setNotifyState(state))}
+        />
     );
   else if (token || !config)
     body = fatal
@@ -804,11 +805,7 @@ export default function ResidentApp() {
           <button type="button" onClick={() => setNotice(null)} className="icon-button desk-banner-close" aria-label="ปิดข้อความแจ้งผล"><X size={16} aria-hidden="true" /></button>
         </div>
       )}
-      {screen !== "status" && (
-        <div className="login-visual" aria-hidden="true">
-          <img src={`${import.meta.env.BASE_URL}images/dormitory-login-campus.webp`} width="1122" height="1402" alt="" />
-        </div>
-      )}
+
     </div>
   );
 }
