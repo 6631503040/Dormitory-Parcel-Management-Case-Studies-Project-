@@ -297,6 +297,9 @@ func TestPush_ClaimValidationAndRateLimit(t *testing.T) {
 	wantCode(t, c.post("/api/v1/resident/otp", map[string]any{"roomNumber": "1101", "consentVersion": api.PushConsentVersion, "consentAccepted": false}), 400, apperr.ValidationError)
 	wantCode(t, c.post("/api/v1/resident/otp", claimBody("9999")), 422, apperr.RoomNotInDirectory)
 	wantCode(t, c.post("/api/v1/resident/otp", claimBody("101")), 422, apperr.AmbiguousRoom) // 101 exists in two buildings
+	// LIKE wildcards are plain text, not patterns: they can't be used to probe which rooms exist.
+	wantCode(t, c.post("/api/v1/resident/otp", claimBody("210_")), 422, apperr.RoomNotInDirectory)
+	wantCode(t, c.post("/api/v1/resident/otp", claimBody("%")), 422, apperr.RoomNotInDirectory)
 	for i := 0; i < 3; i++ {
 		if r := c.post("/api/v1/resident/otp", claimBody("1101")); r.Status != 201 {
 			t.Fatalf("claim %d: %d", i, r.Status)
