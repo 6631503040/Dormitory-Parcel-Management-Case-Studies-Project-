@@ -264,7 +264,6 @@ function CheckInModal({ onClose }) {
   const [progress, setProgress] = useState(0);
   const [batchTotal, setBatchTotal] = useState(0);
   const [error, setError] = useState(null);
-  const [confirmClose, setConfirmClose] = useState(false);
   const busy = useRef(false);
   const codeRef = useRef(null);
   const roomRef = useRef(null);
@@ -338,8 +337,7 @@ function CheckInModal({ onClose }) {
   };
   const requestClose = () => {
     if (busy.current) return;
-    if (drafts.length || hasFields) setConfirmClose(true);
-    else onClose();
+    onClose();
   };
   const handleCodeKeyDown = (event) => {
     if (event.key !== "Enter" || event.nativeEvent?.isComposing || busy.current) return;
@@ -354,17 +352,7 @@ function CheckInModal({ onClose }) {
     setDamaged(draft.damaged); setDamageReason(draft.damageReason); setError(null);
     codeRef.current?.focus();
   };
-  const footer = confirmClose ? (
-    <div className="checkin-close-confirmation">
-      <div className="checkin-close-message" role="alert">
-        <div><h3>ปิดโดยไม่บันทึก?</h3><p>ข้อมูลที่ยังไม่ได้บันทึกจะไม่ถูกเก็บไว้</p></div>
-      </div>
-      <div className="checkin-close-actions">
-        <button type="button" className="desk-button checkin-discard" onClick={onClose}>ทิ้งรายการและปิด</button>
-        <button type="button" className="desk-button desk-button-primary" autoFocus onClick={() => setConfirmClose(false)}>กลับไปทำต่อ</button>
-      </div>
-    </div>
-  ) : savedCount > 0 && !drafts.length && !hasFields && !submitting ? (
+  const footer = savedCount > 0 && !drafts.length && !hasFields && !submitting ? (
     <button type="button" className="desk-button desk-button-primary dialog-submit" onClick={requestClose}>เสร็จสิ้น</button>
   ) : (
     <div className="checkin-footer-actions">
