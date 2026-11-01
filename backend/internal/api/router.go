@@ -23,8 +23,8 @@ const (
 	requestTimeout = 10 * time.Second
 	maxBodyBytes   = 1 << 20
 
-	roleOperator = "operator"
-	roleAdmin    = "admin"
+	roleOperator = store.RoleOperator
+	roleAdmin    = store.RoleAdmin
 )
 
 type Deps struct {
@@ -103,6 +103,11 @@ func NewRouter(d Deps) *gin.Engine {
 	// RBAC is enforced here, at the API layer — hiding a button in the UI is not access control.
 	admin := authed.Group("/admin", requireRole(roleAdmin))
 	admin.GET("/access-logs", h.listAccessLogs)
+	admin.GET("/staff", h.listStaff)
+	admin.POST("/staff", h.createStaff)
+	admin.GET("/residents/export", h.exportResidents)
+	admin.POST("/residents/import/preview", h.previewResidentImport)
+	admin.POST("/residents/import", h.applyResidentImport)
 
 	return r
 }

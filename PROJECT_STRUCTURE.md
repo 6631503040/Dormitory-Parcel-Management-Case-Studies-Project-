@@ -24,6 +24,7 @@ Case Studies Project/
 ├── backend/                   # Go + Gin REST API (module `dpms/backend`) — see backend/README.md
 │   ├── cmd/server/            #   API entrypoint (applies db/migrations on start)
 │   ├── cmd/seed/              #   Synthetic data: directory, staff, ~1,000 parcels (dev only)
+│   ├── cmd/createadmin/       #   Creates the first Admin account at install time (production-safe)
 │   ├── cmd/vapidkeys/         #   Prints a Web Push (VAPID) key pair for docker/.env
 │   └── internal/              #   apperr (error codes) · config · db (pool + migrator) · auth · store (all SQL) · api (routes, handlers, integration tests) · push (Web Push crypto, stdlib only) · notify (push outbox worker)
 ├── db/

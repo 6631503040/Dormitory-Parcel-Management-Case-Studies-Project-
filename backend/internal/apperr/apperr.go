@@ -24,6 +24,8 @@ const (
 	NoPendingParcels      = "NO_PENDING_PARCELS"
 	PendingCountChanged   = "PENDING_COUNT_CHANGED"
 	AmbiguousRoom         = "AMBIGUOUS_ROOM"
+	UsernameTaken         = "USERNAME_TAKEN"
+	ResidentImportInvalid = "RESIDENT_IMPORT_INVALID"
 	TooManyLoginAttempts  = "TOO_MANY_LOGIN_ATTEMPTS"
 
 	// Web Push (US-23/US-24)
@@ -51,6 +53,8 @@ var statusByCode = map[string]int{
 	NoPendingParcels:      http.StatusNotFound,
 	PendingCountChanged:   http.StatusConflict,
 	AmbiguousRoom:         http.StatusUnprocessableEntity,
+	UsernameTaken:         http.StatusConflict,
+	ResidentImportInvalid: http.StatusUnprocessableEntity,
 	TooManyLoginAttempts:  http.StatusTooManyRequests,
 	PushNotConfigured:     http.StatusServiceUnavailable,
 	NoPendingResidentOTP:  http.StatusNotFound,

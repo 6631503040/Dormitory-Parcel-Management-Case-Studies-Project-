@@ -217,6 +217,26 @@ As staff, I want to look up who lives in which room without starting a Check-In,
 - Read-only: no create, edit or delete; no phone numbers shown (LR-03).
 - *Status 2026-10-27:* the API (`GET /api/v1/directory`) exists; the page is **not built** — Test Plan TC60 is Blocked until it is.
 
+**US-28 — Admin registers Staff accounts** *(Must Have for deployment — added and built 2026-11-01; **pending advisor sign-off**: account management is outside the four core features)*
+As an Admin, I want to create login accounts for Staff and other Admins, so that each person at the desk signs in as themselves and the dormitory never depends on the development team or the seed tool for accounts.
+- Only an Admin can open the registration page (menu ลงทะเบียนผู้ใช้) and the API rejects everyone else (`403 FORBIDDEN`) — RBAC is enforced server-side, not by hiding the menu.
+- The Admin enters username, full name, password (twice) and role — **Staff** (`operator`) or **Admin**. A taken username is rejected (`409 USERNAME_TAKEN`); passwords are bcrypt-hashed and never returned.
+- Each new account records which Admin created it (`staff.created_by`).
+- The first Admin at a new installation is created once from the command line (`backend/cmd/createadmin`); there is no public sign-up.
+- *Compliance:* `rule.md` Computer Crime Act §26 — one account per real person, so every access log and parcel event is tied to an identifiable user rather than a shared login.
+- *Not included:* disabling accounts, resetting passwords, changing roles.
+
+**US-29 — Admin updates the Resident directory from a CSV file** *(Must Have for deployment — added and built 2026-11-01; **pending advisor sign-off**: CLAUDE.md scopes the directory as a read-only reference, and this makes it Admin-editable)*
+As an Admin, I want to upload the dormitory's current resident list as a CSV file, so that move-ins, room changes and move-outs reach the system without anyone editing the database, and Check-In keeps validating against an up-to-date directory.
+- The file has three columns, header first: `room_number,full_name,phone` — `room_number` is building + 3-digit room (`1101` = building 1, room 101), `phone` is optional. The page shows this format, a downloadable template, and a download of the current list to edit and re-upload.
+- The file is the **complete current list**: a Resident with the same name in the same room is unchanged; the same name in another room is a room change; a new name is added; an active Resident missing from the file is marked moved out (`is_active = false` — never deleted, so Parcel history stays intact). Rooms not yet in the system are created.
+- Every upload is previewed first (counts, the changes, and any problem lines with their line number); nothing changes until the Admin confirms. A file with any problem line is refused as a whole.
+- The preview flags moved and moved-out Residents who still have Pending Parcels, so the desk can deal with them.
+- Each applied import is logged with the Admin and time (`resident_imports`). Only an Admin can preview, apply or export (`403` otherwise).
+- *Compliance:* `rule.md` PDPA — the export contains phone numbers (Admin only; the page tells the Admin to keep and delete it safely); the preview never echoes phone numbers. Data retention — moved-out Residents are deactivated, not deleted.
+- *Known limit:* Residents are matched by full name, so a changed spelling is read as one move-out plus one new Resident; the preview makes that visible before confirming.
+- *Tests (US-28 and US-29):* automated only (Go integration + Vitest). **No Test Plan cases** — Test Plan v1.7 (DPMS-TP-002) was already submitted and is not being revised before this test round, so these features are outside its scope: exclude them from this round's results and from UAT, and add cases in the next Test Plan revision (suggested TC65-TC73: account creation and login, duplicate/short-password rejection, operator 403, `createadmin`, import preview counts with no write before confirm, error lines block confirm, non-UTF-8 rejected, moved-out history and pending warning, Excel export→re-import round trip incl. phone leading zero).
+
 **Future epic — Multi-Building Administration** *(Should Have / Could Have — only matters once more than one building is actually live)*
 - US-20–22 — cross-building volume reporting, role-based staff access per building, aging-parcel escalation.
 

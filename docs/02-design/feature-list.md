@@ -9,5 +9,6 @@ Grouped from `product_backlog.md` (16 Must-Have stories) per `spec.md`. One core
 - Room-mismatch double-check at handover (soft warning, not a block)
 - Legal & compliance (PDPA consent, ≥90-day access log, verifiable consent records)
 - AI-ethics safeguards (human confirms every match suggestion; works even if OCR or the push service is down)
+- Admin tools *(added 2026-11-01, advisor sign-off pending — supports the core feature by keeping the directory it validates against current)*: register Staff/Admin accounts; update the resident directory from a CSV of the full current list (move-in / room change / move-out)
 
 **Resolved — core feature is check-in with validation.** Checkout also traces cleanly to a charter pain and has the clearer before/after metric, but check-in is upstream of everything: a resident/room mismatch at intake corrupts matching, notification, and checkout all at once, while a checkout-only fix can't repair bad data injected earlier. Charter pain #1 (identification failures) is also the headline pain, ranked above system inefficiency and slow checkout. Lock the user-journey and diagrams to this thread.
