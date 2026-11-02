@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { History, Pencil } from "lucide-react";
-import { C, bodyFont, roomLabel, formatThaiDateTime, StatusChip } from "./shared";
+import { C, bodyFont, damageDetail, roomLabel, formatThaiDateTime, StatusChip } from "./shared";
 import { ModalShell, InlineError, LabeledInput } from "./Modals";
 import RoomCombobox from "./RoomCombobox";
 import { api } from "../api/client";
@@ -147,8 +147,8 @@ export default function ParcelHistoryModal({ trackingCode, onClose, onChanged })
               <p className={!detail.room ? "history-problem" : undefined}>{roomLabel(detail)}</p>
               {editable && <button type="button" className="desk-button history-edit" onClick={() => setEditing(true)}><Pencil size={14} aria-hidden="true" />แก้ไข</button>}
             </div>
-            {!detail.room && detail.unmatchedReason && <p className="history-problem">
-              {unmatchedReasonLabel(detail.unmatchedReason)}{detail.note ? ` — ${detail.note}` : ""}
+            {!detail.room && <p className="history-problem">
+              ชำรุด: {damageDetail(detail)}{detail.unmatchedReason ? ` (${unmatchedReasonLabel(detail.unmatchedReason)})` : ""}
             </p>}
             {detail.room && detail.note && <dl className="history-note"><dt>หมายเหตุ</dt><dd data-damaged={detail.note.startsWith("ชำรุด:")}>{detail.note}</dd></dl>}
           </section>

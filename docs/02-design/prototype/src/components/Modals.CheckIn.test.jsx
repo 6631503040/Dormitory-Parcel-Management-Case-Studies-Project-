@@ -151,10 +151,11 @@ describe("CheckInModal", () => {
     expect(submit).toBeEnabled();
     await user.type(screen.getByPlaceholderText(/หมายเหตุ/), "label says แนน");
     await user.click(submit);
+    expect(screen.getByText("ชำรุด: ไม่มีเลขห้อง — label says แนน")).toBeInTheDocument();
     await user.click(screen.getByRole("button", {name: "บันทึก"}));
 
     await screen.findByText("บันทึกเข้าสู่ระบบสำเร็จ 1 รายการ");
-    expect(body).toEqual({ trackingCode: "TH3", unmatchedReason: "other", note: "label says แนน" });
+    expect(body).toEqual({ trackingCode: "TH3", unmatchedReason: "other", note: "ชำรุด: label says แนน" });
   });
 
   it("omits the note field entirely when left blank", async () => {
@@ -170,6 +171,7 @@ describe("CheckInModal", () => {
     await user.type(screen.getByLabelText(/เลขพัสดุ/), "TH4");
     await user.click(screen.getByText(/พัสดุมีปัญหา/));
     await user.click(screen.getByRole("button", { name: "เพิ่มพัสดุอีกชิ้น" }));
+    expect(screen.getByText("ชำรุด: ไม่มีเลขห้อง")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "บันทึก" }));
 
     await screen.findByText("บันทึกเข้าสู่ระบบสำเร็จ 1 รายการ");

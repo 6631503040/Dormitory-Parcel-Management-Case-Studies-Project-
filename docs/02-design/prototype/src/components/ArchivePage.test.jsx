@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { server } from "../test/server";
@@ -69,6 +69,29 @@ describe("ArchivePage", () => {
 
     await waitFor(() => expect(screen.queryByText("TH100")).not.toBeInTheDocument());
     expect(await screen.findByText("TH102")).toBeInTheDocument();
+  });
+
+  it("marks a parcel with no room as ชำรุด beside its tracking code and keeps its real status", async () => {
+    mockArchiveData([unmatched]);
+    render(<ArchivePage onOpenHistory={vi.fn()} />);
+
+    const row = (await screen.findByText("TH102")).closest("tr");
+    const cells = within(row).getAllByRole("cell");
+    expect(within(cells[1]).getByText("ชำรุด")).toBeInTheDocument();
+    expect(within(cells[1]).getByText("ไม่มีเลขห้อง")).toBeInTheDocument();
+    expect(within(cells[3]).getByText("รอรับ")).toBeInTheDocument();
+  });
+
+  it("shows no room as the damage detail ahead of what staff wrote, and drops it once a room is set", async () => {
+    mockArchiveData([
+      makeParcel({ trackingCode: "TH103", room: null, status: "pending", unmatchedReason: "other", note: "ชำรุด: กล่องเปียก" }),
+      makeParcel({ trackingCode: "TH104", room, status: "pending", note: "ชำรุด: กล่องเปียก" }),
+    ]);
+    render(<ArchivePage onOpenHistory={vi.fn()} />);
+
+    const roomless = (await screen.findByText("TH103")).closest("tr");
+    expect(within(roomless).getByText("ไม่มีเลขห้อง — กล่องเปียก")).toBeInTheDocument();
+    expect(within(screen.getByText("TH104").closest("tr")).getByText("กล่องเปียก")).toBeInTheDocument();
   });
 
   it("searches by tracking code / room / resident name", async () => {
