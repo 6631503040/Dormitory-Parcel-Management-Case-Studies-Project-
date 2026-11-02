@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import { X, ScanLine, PackagePlus, Plus } from "lucide-react";
-import { C, roomLabel } from "./shared";
+import { C, DAMAGE_NOTE_PREFIX, damageDetail, roomLabel } from "./shared";
 import RoomCombobox from "./RoomCombobox";
 import { api, ApiError } from "../api/client";
 import { errorMessage } from "../api/errorMessages";
@@ -62,14 +62,19 @@ const ROOM_PAGE_SIZE = 8;
 // 100 ms+ apart. Only a burst this fast (or a paste) is sent automatically after a quiet period.
 const SCANNER_KEY_GAP_MS = 50;
 const SCAN_QUIET_MS = 400;
+const LOOKUP_ROOM_LIMIT = 20;
+// What GET /parcels/:code answers when the text simply isn't a Tracking Code (a resident's name is
+// rejected as a malformed code), as opposed to a real failure worth showing.
+const NOT_A_PARCEL = ["PARCEL_NOT_FOUND", "VALIDATION_ERROR"];
 
 function CheckOutModal({ onClose, onConfirm }) {
   const [scan, setScan] = useState("");
   const [parcel, setParcel] = useState(null);
+  const [room, setRoom] = useState(null); // a directory room found instead of a Parcel
+  const [choices, setChoices] = useState(null); // {parcel, rooms} when the text matched several things
   const [pendingCodes, setPendingCodes] = useState([]);
   const [composing, setComposing] = useState(false);
   const [selected, setSelected] = useState(new Map());
-  const [selectionPage, setSelectionPage] = useState(1);
   const [roomPage, setRoomPage] = useState(1);
   const [roomItems, setRoomItems] = useState([]);
   const [roomTotal, setRoomTotal] = useState(0);
@@ -88,16 +93,18 @@ function CheckOutModal({ onClose, onConfirm }) {
   // burst: null until a second character shows how fast this entry is arriving.
   const entryRef = useRef({ last: 0, burst: null });
   const [typedByHand, setTypedByHand] = useState(false);
-  const verified = parcel && !scan.trim() && !pendingCodes.length;
+  const verified = (parcel || room) && !scan.trim() && !pendingCodes.length;
+  const activeRoom = room || parcel?.room; // the room whose Pending Parcels are listed
+  const activeRoomId = activeRoom?.id;
   const disabled = submitting || searching;
   useEffect(() => () => { requestId.current += 1; }, []);
-  useEffect(() => { if (!searching && !submitting) scanRef.current?.focus(); }, [searching, submitting]);
+  useEffect(() => { if (!searching && !submitting) scanRef.current?.focus(); }, [searching, submitting, room, parcel]);
 
   useEffect(() => {
-    if (!parcel?.room) return;
+    if (!activeRoomId) return;
     let active = true;
     setRoomLoading(true); setRoomError("");
-    api.listParcels({ roomId: parcel.room.id, status: "pending", page: roomPage, pageSize: ROOM_PAGE_SIZE })
+    api.listParcels({ roomId: activeRoomId, status: "pending", page: roomPage, pageSize: ROOM_PAGE_SIZE })
       .then((result) => {
         if (!active) return;
         setRoomItems(result.items); setRoomTotal(result.total); setRoomLoading(false);
@@ -106,7 +113,7 @@ function CheckOutModal({ onClose, onConfirm }) {
         setRoomLoading(false); setRoomError(errorMessage(err));
       });
     return () => { active = false; };
-  }, [parcel, roomPage, roomRefresh]);
+  }, [activeRoomId, roomPage, roomRefresh]);
 
   const enqueueScan = (event) => {
     event?.preventDefault();
@@ -135,6 +142,32 @@ function CheckOutModal({ onClose, onConfirm }) {
     return () => clearTimeout(timer);
   }, [scan, composing, submitting, all, confirmAll]);
 
+  const showRoom = (entry) => {
+    setChoices(null); setSelected(new Map()); setRoomPage(1); setConfirmAll(false);
+    setRoom(entry); setAll(true); setRoomLoading(true);
+  };
+  const clearResult = () => {
+    setRoom(null); setParcel(null); setAll(false); setConfirmAll(false); setSelected(new Map()); setRoomPage(1);
+    setRoomItems([]); setRoomTotal(0); setRoomLoading(false); setRoomError("");
+  };
+  // Only "select all" uses Check Out All and its confirmation; ticked rows go out by Tracking Code.
+  const toggleRoomItem = (item) => {
+    const next = new Map(all ? roomItems.map((entry) => [entry.trackingCode, entry]) : selected);
+    if (next.has(item.trackingCode)) next.delete(item.trackingCode); else next.set(item.trackingCode, item);
+    setAll(false); setSelected(next); setConfirmAll(false);
+  };
+  const addParcel = (result) => {
+    setChoices(null);
+    // Keep one recipient room per handover. Roomless parcels remain a single-item handover.
+    if ((parcel || room) && (!activeRoom || !result.room || activeRoom.id !== result.room.id)) {
+      setError("พัสดุนี้ไม่ใช่ห้องเดียวกับรายการรอนำออก กรุณาแยกนำออกคนละรอบ"); return;
+    }
+    if (!parcel && !room) { setParcel(result); setRoomPage(1); }
+    setSelected((previous) => new Map([...previous, [result.trackingCode, result]]));
+  };
+
+  // The first entry may be a Tracking Code, a Room Number or a resident's name. The room always comes
+  // from the directory, and when the text fits more than one thing Staff pick — it is never guessed.
   const lookup = async (code) => {
     if (busyRef.current || searchingRef.current) return;
     if (!code) { setError("กรอกเลขพัสดุหรือสแกนบาร์โค้ด"); scanRef.current?.focus(); return; }
@@ -142,23 +175,26 @@ function CheckOutModal({ onClose, onConfirm }) {
     if (selected.size >= 100) { setError("นำออกได้สูงสุด 100 รายการต่อรอบ"); return; }
     const id = ++requestId.current;
     searchingRef.current = true;
-    setSearching(true); setError("");
-    try {
-      const result = await api.getParcel(code);
-      if (id !== requestId.current) return;
-      if (result.status !== "pending") { setError("พัสดุนี้นำออกแล้วหรือไม่อยู่ในสถานะรอรับ"); return; }
-      // Keep one recipient room per handover. Roomless parcels remain a single-item handover.
-      if (parcel && (!parcel.room || !result.room || parcel.room.id !== result.room.id)) {
-        setError("พัสดุนี้ไม่ใช่ห้องเดียวกับรายการรอนำออก กรุณาแยกนำออกคนละรอบ"); return;
-      }
-      if (!parcel) { setParcel(result); setRoomPage(1); }
-      setSelected((previous) => new Map([...previous, [result.trackingCode, result]]));
-      setSelectionPage(Math.ceil((selected.size + 1) / ROOM_PAGE_SIZE));
-    } catch (err) {
-      if (id === requestId.current) setError(errorMessage(err));
-    } finally {
-      if (id === requestId.current) { searchingRef.current = false; setSearching(false); }
-    }
+    setSearching(true); setError(""); setChoices(null);
+    const firstEntry = !parcel && !room;
+    const [parcelResult, roomResult] = await Promise.allSettled([
+      api.getParcel(code),
+      firstEntry ? api.searchRooms(code, LOOKUP_ROOM_LIMIT) : null,
+    ]);
+    if (id !== requestId.current) return;
+    searchingRef.current = false;
+    setSearching(false);
+    const found = parcelResult.value;
+    const pending = found?.status === "pending" ? found : null;
+    const hits = roomResult.value?.items || [];
+    const exact = hits.filter((hit) => `${hit.buildingCode}${hit.roomNumber}`.toUpperCase() === code);
+    if (pending && exact.length) { setChoices({ parcel: pending, rooms: exact }); return; }
+    if (pending) { addParcel(pending); return; }
+    if (exact.length === 1) { showRoom(exact[0]); return; }
+    if (found) { setError("พัสดุนี้นำออกแล้วหรือไม่อยู่ในสถานะรอรับ"); return; }
+    if (hits.length) { setChoices({ parcel: null, rooms: exact.length ? exact : hits }); return; }
+    const failure = [parcelResult, roomResult].find((r) => r.status === "rejected" && (!firstEntry || !NOT_A_PARCEL.includes(r.reason.code)));
+    setError(failure ? errorMessage(failure.reason) : "ไม่พบเลขพัสดุ เลขห้อง หรือชื่อผู้พักนี้");
   };
   // Serialise lookups, while keeping the input available for the next scanner burst.
   useEffect(() => {
@@ -173,7 +209,7 @@ function CheckOutModal({ onClose, onConfirm }) {
     busyRef.current = true; setSubmitting(true); setError("");
     try {
       const result = all
-        ? await api.checkOutAll(parcel.room.id, roomTotal)
+        ? await api.checkOutAll(activeRoom.id, roomTotal)
         : await api.checkOut(Array.from(selected.keys()));
       onConfirm(result.parcels);
     } catch (err) {
@@ -187,21 +223,22 @@ function CheckOutModal({ onClose, onConfirm }) {
       }
     } finally { busyRef.current = false; setSubmitting(false); }
   };
-  const removeSelected = (code) => {
-    if (disabled || all) return;
-    const next = new Map(selected); next.delete(code); setSelected(next);
-    if (!next.size) { setParcel(null); setRoomItems([]); setRoomTotal(0); setSelectionPage(1); }
-  };
-  const selectionPages = Math.max(1, Math.ceil(selected.size / ROOM_PAGE_SIZE));
-  const visiblePage = Math.min(selectionPage, selectionPages);
   const count = all ? roomTotal : selected.size;
-  const tablePages = all ? Math.max(1, Math.ceil(roomTotal / ROOM_PAGE_SIZE)) : selectionPages;
-  const tablePage = all ? roomPage : visiblePage;
-  const tableItems = all ? roomItems : [...selected.values()].slice((visiblePage - 1) * ROOM_PAGE_SIZE, visiblePage * ROOM_PAGE_SIZE);
-  const changeTablePage = (page) => { if (all) setRoomPage(page); else setSelectionPage(page); };
-  const showRoomOptions = parcel?.room && (all || roomTotal > selected.size || roomError);
-  const footer = parcel && <fieldset disabled={disabled} className="checkout-footer-fields">
-    {confirmAll && <div className="checkout-confirmation" role="group" aria-label="ยืนยันนำออกทั้งหมด"><p>นำออกทั้งหมด {roomTotal} รายการของห้อง {parcel.room.buildingCode}{parcel.room.roomNumber}?</p><button type="button" className="text-button" onClick={() => setConfirmAll(false)}>กลับไปตรวจสอบ</button></div>}
+  const tablePages = Math.max(1, Math.ceil(roomTotal / ROOM_PAGE_SIZE));
+  const place = activeRoom ? `${activeRoom.buildingCode}${activeRoom.roomNumber}` : "";
+  const recipients = (room || parcel)?.residents?.map((resident) => resident.fullName).join(" / ");
+  const emptyRoom = room && !roomLoading && !roomError && roomTotal === 0;
+  const everyParcelTicked = all || (!roomLoading && roomTotal > 0 && selected.size >= roomTotal);
+  // A scanned Parcel may sit on another page of its room, so it stays listed while it is selected.
+  const listedCodes = new Set(roomItems.map((item) => item.trackingCode));
+  const pinned = activeRoom ? (all ? [] : [...selected.values()].filter((item) => !listedCodes.has(item.trackingCode))) : parcel ? [parcel] : [];
+  const listRows = [...pinned, ...(roomLoading ? [] : roomItems)];
+  const parcelRow = (item, ticked, rowDisabled, onChange) => <label key={item.trackingCode} className="checkout-selection-row">
+    <input type="checkbox" disabled={rowDisabled} checked={ticked} onChange={onChange} />
+    <span><strong>{item.trackingCode}</strong>{item.note && <span className="checkout-row-qty" data-damaged={item.note.startsWith(DAMAGE_NOTE_PREFIX)}>{item.note}</span>}</span>
+  </label>;
+  const footer = (parcel || room) && <fieldset disabled={disabled} className="checkout-footer-fields">
+    {confirmAll && <div className="checkout-confirmation" role="group" aria-label="ยืนยันนำออกทั้งหมด"><p>นำออกทั้งหมด {roomTotal} รายการของห้อง {place}?</p><button type="button" className="text-button" onClick={() => setConfirmAll(false)}>กลับไปตรวจสอบ</button></div>}
     <div className="checkout-submit-row">
       <p role="status">รอนำออก <strong>{count}</strong> รายการ</p>
       <button type="button" className="desk-button desk-button-primary checkout-submit" disabled={disabled || !verified || !count || (all && (roomLoading || !!roomError))} onClick={submit}>{submitting ? "กำลังนำออก…" : confirmAll ? `ยืนยันนำออกทั้งหมด (${count})` : "ยืนยันนำออก"}</button>
@@ -209,37 +246,42 @@ function CheckOutModal({ onClose, onConfirm }) {
   </fieldset>;
   return <ModalShell title="นำพัสดุออก" icon={ScanLine} onClose={() => { if (!busyRef.current) onClose(); }} className="checkout-dialog checkout-scan-dialog" footer={footer}>
     <form onSubmit={enqueueScan} className="checkout-lookup">
-      <LabeledInput label="เลขพัสดุ" value={scan} inputRef={scanRef} disabled={submitting || all || confirmAll} error={error} reserveMessage
+      <LabeledInput label="เลขพัสดุ / เลขห้อง" value={scan} inputRef={scanRef} disabled={submitting || all || confirmAll} error={error} reserveMessage
         feedback={searching || pendingCodes.length ? "กำลังตรวจสอบพัสดุ…" : typedByHand && scan.trim() ? "พิมพ์ครบแล้วกด Enter เพื่อค้นหา" : ""}
         onChange={changeScan}
         onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}
-        onKeyDown={(event) => { if (event.key === "Enter" && event.nativeEvent.isComposing) event.preventDefault(); }} placeholder="สแกนหรือพิมพ์เลขพัสดุ" />
+        onKeyDown={(event) => { if (event.key === "Enter" && event.nativeEvent.isComposing) event.preventDefault(); }} placeholder="สแกนหรือพิมพ์ แล้วกด Enter" />
     </form>
-    {parcel && <section className="checkout-parcel-detail" aria-label="ข้อมูลพัสดุที่ค้นพบ">
-      <div className="checkout-recipient"><strong>{parcel.room ? `ห้อง ${parcel.room.buildingCode}${parcel.room.roomNumber}` : "ยังไม่ระบุห้อง"}</strong>{parcel.room && <span>{parcel.residents?.map((resident) => resident.fullName).join(" / ") || roomLabel(parcel)}</span>}</div>
-      {!parcel.room && <p className="checkout-roomless-note">ตรวจสอบชื่อผู้รับกับฉลากพัสดุก่อนส่งมอบ</p>}
-      <div className="checkout-batch-table-wrap" aria-busy={all && roomLoading}>
-        <table className="checkout-batch-table" aria-label="พัสดุรอนำออก">
-          <thead><tr><th scope="col">พัสดุรอนำออก</th><th scope="col"><span className="sr-only">การจัดการ</span></th></tr></thead>
-          <tbody>{all && roomLoading ? <tr><td colSpan={2}>กำลังโหลดรายการ…</td></tr> : all && roomError ? <tr><td colSpan={2}><InlineError message={roomError} /></td></tr> : tableItems.map((item) => <tr key={item.trackingCode}>
-            <td><span className="checkout-tracking-code">{item.trackingCode}</span>{item.note && <p className="checkout-parcel-note" data-damaged={item.note.startsWith("ชำรุด:")}>{item.note}</p>}</td>
-            <td>{!all && <button type="button" className="checkout-remove" disabled={disabled || confirmAll} aria-label={`ลบ ${item.trackingCode}`} onClick={() => removeSelected(item.trackingCode)}>ลบ</button>}</td>
-          </tr>)}</tbody>
-        </table>
+    {choices && <section className="checkout-parcel-detail" aria-label="เลือกผลการค้นหา">
+      <p className="checkout-choice-prompt" role="status">พบหลายรายการ เลือกรายการที่ต้องการ</p>
+      <div className="checkout-checklist checkout-parcel-list">
+        {choices.parcel && <button type="button" className="checkout-selection-row checkout-choice" onClick={() => addParcel(choices.parcel)}><span><strong>พัสดุ {choices.parcel.trackingCode}</strong><span className="checkout-row-qty">{roomLabel(choices.parcel)}</span></span></button>}
+        {choices.rooms.map((hit) => <button key={hit.id} type="button" className="checkout-selection-row checkout-choice" onClick={() => showRoom(hit)}><span><strong>ห้อง {hit.buildingCode}{hit.roomNumber}</strong>{hit.residents?.length > 0 && <span className="checkout-row-qty">{hit.residents.map((resident) => resident.fullName).join(" / ")}</span>}</span></button>)}
       </div>
+    </section>}
+    {(parcel || room) && <section className="checkout-parcel-detail" aria-label="ข้อมูลพัสดุที่ค้นพบ">
+      <div className="checkout-recipient">
+        <div className="checkout-recipient-name"><strong>{place ? `ห้อง ${place}` : "ยังไม่ระบุห้อง"}</strong>{activeRoom && <span>{recipients || (parcel && roomLabel(parcel))}</span>}</div>
+        <button type="button" className="text-button" disabled={disabled || confirmAll} onClick={clearResult}>{activeRoom ? "เปลี่ยนห้อง" : "ล้างรายการ"}</button>
+      </div>
+      {!activeRoom && <p className="checkout-roomless-note">ตรวจสอบชื่อผู้รับกับฉลากพัสดุก่อนส่งมอบ</p>}
+      {emptyRoom && <p className="search-feedback" role="status">ห้องนี้ไม่มีพัสดุรอรับ</p>}
+      {!emptyRoom && <fieldset disabled={disabled || confirmAll || !verified} className="checkout-room-fields" aria-busy={roomLoading}>
+        <div className="checkout-checklist">
+          {activeRoom && <label className="checkout-select-all"><input type="checkbox" ref={(node) => { if (node) node.indeterminate = !everyParcelTicked && selected.size > 0; }} checked={everyParcelTicked} disabled={roomLoading || !!roomError} onChange={(event) => { setAll(event.target.checked); setSelected(new Map()); setConfirmAll(false); }} /><span>เลือกทั้งหมดของห้อง</span></label>}
+          {listRows.length > 0 && <div className="checkout-parcel-list">{listRows.map((item) => {
+            const ticked = all || selected.has(item.trackingCode);
+            return parcelRow(item, ticked, all ? roomTotal > ROOM_PAGE_SIZE : !ticked && selected.size >= 100, () => toggleRoomItem(item));
+          })}</div>}
+          {roomLoading && <p role="status">กำลังโหลดรายการ…</p>}
+        </div>
+        {roomError && <div><InlineError message={roomError} /><button type="button" className="text-button" onClick={() => setRoomRefresh((value) => value + 1)}>ลองโหลดใหม่</button></div>}
+      </fieldset>}
       {tablePages > 1 && <nav className="checkout-pagination" aria-label="แบ่งหน้าพัสดุรอนำออก">
-        <button type="button" className="text-button" disabled={disabled || (all && roomLoading) || tablePage === 1} onClick={() => changeTablePage(tablePage - 1)}>ก่อนหน้า</button>
-        <span>หน้า {tablePage} / {tablePages}</span>
-        <button type="button" className="text-button" disabled={disabled || (all && roomLoading) || tablePage === tablePages} onClick={() => changeTablePage(tablePage + 1)}>ถัดไป</button>
+        <button type="button" className="text-button" disabled={disabled || roomLoading || roomPage === 1} onClick={() => setRoomPage(roomPage - 1)}>ก่อนหน้า</button>
+        <span>หน้า {roomPage} / {tablePages}</span>
+        <button type="button" className="text-button" disabled={disabled || roomLoading || roomPage === tablePages} onClick={() => setRoomPage(roomPage + 1)}>ถัดไป</button>
       </nav>}
-      {showRoomOptions && <details className="checkout-other-parcels"><summary>พัสดุอื่นของห้องนี้</summary>
-        <fieldset disabled={disabled || confirmAll || !verified} className="checkout-room-fields">
-          <label className="checkout-select-all"><input type="checkbox" checked={all} disabled={roomLoading || !!roomError || roomTotal < 2} onChange={(event) => { setAll(event.target.checked); setConfirmAll(false); setRoomPage(1); }} /><span>เลือกทั้งหมดของห้อง</span></label>
-          {roomError && <div><InlineError message={roomError} /><button type="button" className="text-button" onClick={() => setRoomRefresh((value) => value + 1)}>ลองโหลดใหม่</button></div>}
-          {!all && (roomLoading ? <p role="status">กำลังโหลดรายการ…</p> : <div className="checkout-parcel-list">{roomItems.filter((item) => !selected.has(item.trackingCode)).map((item) => <label key={item.trackingCode} className="checkout-selection-row"><input type="checkbox" disabled={selected.size >= 100} checked={false} onChange={() => setSelected((previous) => new Map([...previous, [item.trackingCode, item]]))} /><span><strong>{item.trackingCode}</strong>{item.note && <span className="checkout-row-qty">{item.note}</span>}</span></label>)}</div>)}
-          {!all && roomTotal > ROOM_PAGE_SIZE && <div className="checkout-pagination"><button type="button" className="text-button" disabled={roomLoading || roomPage === 1} onClick={() => setRoomPage((page) => page - 1)}>ก่อนหน้า</button><span role="status">หน้า {roomPage} / {Math.ceil(roomTotal / ROOM_PAGE_SIZE)}</span><button type="button" className="text-button" disabled={roomLoading || roomPage >= Math.ceil(roomTotal / ROOM_PAGE_SIZE)} onClick={() => setRoomPage((page) => page + 1)}>ถัดไป</button></div>}
-        </fieldset>
-      </details>}
     </section>}
   </ModalShell>;
 }
@@ -291,9 +333,10 @@ function CheckInModal({ onClose }) {
       setError("เลขพัสดุนี้อยู่ในรายการรอบันทึกแล้ว"); return;
     }
     if (drafts.length >= 100) { setError("เพิ่มได้สูงสุด 100 รายการต่อรอบ กรุณาบันทึกก่อนเพิ่มรายการใหม่"); return; }
+    const detail = damageReason.trim();
     const input = !room
-      ? { trackingCode, unmatchedReason: UNMATCHED_REASON_DEFAULT, note: damageReason.trim() || undefined }
-      : { trackingCode, roomId: room.id, ...(damaged ? { note: `ชำรุด: ${damageReason.trim() || "ไม่ได้ระบุเหตุผล"}` } : {}) };
+      ? { trackingCode, unmatchedReason: UNMATCHED_REASON_DEFAULT, note: detail ? `${DAMAGE_NOTE_PREFIX} ${detail}` : undefined }
+      : { trackingCode, roomId: room.id, ...(damaged ? { note: `${DAMAGE_NOTE_PREFIX} ${detail || "ไม่ได้ระบุเหตุผล"}` } : {}) };
     return { input, room, damaged, damageReason, error: null };
   };
   const addDraft = () => {
@@ -386,8 +429,8 @@ function CheckInModal({ onClose }) {
         <ul className="checkin-drafts">
           {drafts.slice((currentPage - 1) * 8, currentPage * 8).map((draft) => <li key={draft.input.trackingCode}>
             <div className="checkin-draft-details"><strong>{draft.input.trackingCode}</strong>
-              <span>{draft.room ? `${draft.room.buildingCode}${draft.room.roomNumber} · ${(draft.room.residents || []).map((r) => r.fullName).join(" / ")}` : "ไม่ทราบห้อง"}{draft.damaged ? " · มีปัญหา" : ""}</span>
-              {draft.input.note && <span>{draft.input.note}</span>}
+              <span>{draft.room ? `${draft.room.buildingCode}${draft.room.roomNumber} · ${(draft.room.residents || []).map((r) => r.fullName).join(" / ")}` : "ไม่ทราบห้อง"}</span>
+              {draft.damaged && <span>ชำรุด: {damageDetail({ room: draft.room, note: draft.input.note })}</span>}
               {draft.error && <InlineError message={draft.error} />}
             </div>
             <button type="button" className="text-button" disabled={submitting} aria-label={`แก้ไข ${draft.input.trackingCode}`} onClick={() => editDraft(draft)}>แก้ไข</button>

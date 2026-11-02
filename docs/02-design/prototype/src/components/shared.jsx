@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useRef } from "react";
-import { Package, Check, HelpCircle, Info, X, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Package, Check, Info, X, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { unmatchedReasonLabel } from "../constants/unmatchedReasons";
 
 export const C = {
@@ -22,6 +22,9 @@ export const C = {
 
 export const bodyFont = { fontFamily: "var(--desk-font)" };
 export const displayFont = bodyFont;
+
+// A damaged Parcel is marked through its `note`, which starts with this prefix.
+export const DAMAGE_NOTE_PREFIX = "ชำรุด:";
 
 export const THAI_MONTHS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
@@ -53,6 +56,22 @@ export function roomLabel(parcel) {
   return names.length ? `${place} · ${names.join(" / ")}` : place;
 }
 
+// What is wrong with a damaged Parcel, or null if nothing is. A Parcel with no room counts as
+// damaged; "ไม่มีเลขห้อง" comes from that state, not from `note`, so it disappears once a room is set.
+export function damageDetail(parcel) {
+  const note = parcel.note?.trim() || "";
+  const isMarked = note.startsWith(DAMAGE_NOTE_PREFIX);
+  const detail = isMarked ? note.slice(DAMAGE_NOTE_PREFIX.length).trim() : note;
+  if (isUnmatched(parcel)) return detail ? `ไม่มีเลขห้อง — ${detail}` : "ไม่มีเลขห้อง";
+  return isMarked ? detail || "ไม่ได้ระบุเหตุผล" : null;
+}
+
+function DamageNote({ parcel }) {
+  const detail = damageDetail(parcel);
+  if (!detail) return null;
+  return <details className="parcel-damage-note"><summary>ชำรุด</summary><p>{detail}</p></details>;
+}
+
 export function StatusChip({ parcel }) {
   if (parcel.status === "picked_up") {
     return (
@@ -66,14 +85,6 @@ export function StatusChip({ parcel }) {
     return (
       <span className="parcel-status parcel-status-archived">
         เก็บประวัติ
-      </span>
-    );
-  }
-  if (isUnmatched(parcel)) {
-    return (
-      <span className="parcel-status parcel-status-unmatched">
-        <HelpCircle size={14} aria-hidden="true" />
-        มีปัญหา
       </span>
     );
   }
@@ -186,7 +197,7 @@ export function ParcelTable({ parcels, emptyLabel, onSelect, label = "ราย�
         <thead><tr>{headers.map((h) => <th scope="col" key={h}>{h}</th>)}</tr></thead>
         <tbody>{parcels.map((p) => <tr key={p.trackingCode}>
           <td><p className="resident-label">{roomLabel(p)}</p>{isUnmatched(p) && p.unmatchedReason && <p className="search-feedback">{unmatchedReasonLabel(p.unmatchedReason)}</p>}</td>
-          <td className="tracking-cell"><div className="tracking-content">{onSelect ? <button type="button" className="parcel-history-button" onClick={() => onSelect(p)} aria-label={`ดูประวัติพัสดุ ${p.trackingCode}`}>{p.trackingCode}</button> : p.trackingCode}{p.note?.startsWith("ชำรุด:") && <details className="parcel-damage-note"><summary>ชำรุด</summary><p>{p.note.slice("ชำรุด:".length).trim() || "ไม่ได้ระบุเหตุผล"}</p></details>}</div></td>
+          <td className="tracking-cell"><div className="tracking-content">{onSelect ? <button type="button" className="parcel-history-button" onClick={() => onSelect(p)} aria-label={`ดูประวัติพัสดุ ${p.trackingCode}`}>{p.trackingCode}</button> : p.trackingCode}<DamageNote parcel={p} /></div></td>
           <td className="date-cell">{formatThaiDateTime(p.checkedInAt)}</td><td><StatusChip parcel={p} /></td>
           {!dashboard && <td className="date-cell">{p.checkedOutAt ? formatThaiDateTime(p.checkedOutAt) : "–"}</td>}
         </tr>)}</tbody>
@@ -195,7 +206,7 @@ export function ParcelTable({ parcels, emptyLabel, onSelect, label = "ราย�
     {dashboard && <ul className="parcel-mobile-list" aria-label={label}>{parcels.map((p) => <li key={p.trackingCode}>
       <div className="parcel-mobile-identity"><p>{roomLabel(p)}</p><StatusChip parcel={p} /></div>
       <button type="button" className="parcel-history-button parcel-mobile-code" onClick={() => onSelect?.(p)}>{p.trackingCode}</button>
-      <p className="date-cell">รับเข้า {formatThaiDateTime(p.checkedInAt)}</p>{p.note?.startsWith("ชำรุด:") && <details className="parcel-damage-note"><summary>ชำรุด</summary><p>{p.note.slice("ชำรุด:".length).trim() || "ไม่ได้ระบุเหตุผล"}</p></details>}
+      <p className="date-cell">รับเข้า {formatThaiDateTime(p.checkedInAt)}</p><DamageNote parcel={p} />
     </li>)}</ul>}
   </div>;
 }

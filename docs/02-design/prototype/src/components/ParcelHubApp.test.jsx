@@ -176,7 +176,7 @@ describe("ParcelHubApp", () => {
     render(<ParcelHubApp />);
     await screen.findByText("Dashboard");
     await user.click(screen.getByRole("button", { name: "นำพัสดุออก", exact: true }));
-    await user.type(screen.getByLabelText("เลขพัสดุ"), "EXPIRED{Enter}");
+    await user.type(screen.getByLabelText(/เลขพัสดุ/), "EXPIRED{Enter}");
     await screen.findByRole("button", { name: "เข้าสู่ระบบ", exact: true });
     await user.type(screen.getByLabelText("ชื่อผู้ใช้"), "next");
     await user.type(screen.getByLabelText("รหัสผ่าน"), "testpassword");

@@ -1,6 +1,6 @@
 import React, { useId, useState } from "react";
 import { HelpCircle, ChevronDown } from "lucide-react";
-import { C, bodyFont, formatThaiDateTime, PagePagination } from "./shared";
+import { C, bodyFont, damageDetail, formatThaiDateTime, PagePagination } from "./shared";
 import RoomCombobox from "./RoomCombobox";
 import { InlineError } from "./Modals";
 import { api, ApiError } from "../api/client";
@@ -70,7 +70,7 @@ export default function UnmatchedQueue({ refreshKey, onOpenHistory, onChange }) 
                     {unmatchedReasonLabel(p.unmatchedReason) || "ไม่ระบุเหตุผล"}
                     <span style={{ color: C.textMuted }}> · รับเข้า {formatThaiDateTime(p.checkedInAt)}</span>
                   </p>
-                  {p.note && <p className="text-xs" style={{ ...bodyFont, color: C.textMuted }}>หมายเหตุ: {p.note}</p>}
+                  <p className="text-xs" style={{ ...bodyFont, color: C.textMuted }}>ชำรุด: {damageDetail(p)}</p>
                 </button>
                 {resolvingCode !== p.trackingCode && (
                   <button onClick={() => startResolving(p.trackingCode)} className="px-3.5 py-2 rounded-lg text-sm font-semibold border-2 flex-shrink-0" style={{ ...bodyFont, borderColor: C.primary, color: C.primaryDark }}>

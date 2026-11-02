@@ -39,15 +39,16 @@ describe("ParcelHistoryModal", () => {
     expect(screen.getByText(/โดย Prasert/)).toBeInTheDocument();
   });
 
-  it("shows the unmatched reason and note when the parcel has no room", async () => {
+  it("shows a parcel with no room as damaged, with its real status, note and unmatched reason", async () => {
     server.use(
       http.get("/api/v1/parcels/R1", () =>
         HttpResponse.json(makeParcelDetail({ trackingCode: "R1", room: null, unmatchedReason: "ambiguous", note: "label says แนน", events: [] }))
       )
     );
     render(<ParcelHistoryModal trackingCode="R1" onClose={vi.fn()} />);
-    expect(await screen.findByText(/ชื่อตรงกับหลายห้อง — label says แนน/)).toBeInTheDocument();
-    expect(screen.getByText("มีปัญหา")).toBeInTheDocument();
+    expect(await screen.findByText("ชำรุด: ไม่มีเลขห้อง — label says แนน (ชื่อตรงกับหลายห้อง)")).toBeInTheDocument();
+    expect(screen.getByText("รอรับ")).toBeInTheDocument();
+    expect(screen.queryByText("มีปัญหา")).not.toBeInTheDocument();
     expect(screen.getByText("ไม่มีประวัติ")).toBeInTheDocument();
   });
 
