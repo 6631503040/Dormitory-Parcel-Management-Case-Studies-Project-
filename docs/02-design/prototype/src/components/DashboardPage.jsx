@@ -1,49 +1,33 @@
-import { dashboardResults, pendingDamagedParcels } from "../lib/parcelRules";
-import React, { useMemo, useState } from "react";
-import { Search, PackagePlus, ScanLine, AlertTriangle, ChevronDown, X } from "lucide-react";
-import { PageHeader, ParcelTable } from "./shared";
+import React, { useState } from "react";
+import { PackagePlus, ScanLine } from "lucide-react";
+import { SearchBar, ParcelTable, PageHeader, PagePagination } from "./shared";
+import { InlineError } from "./Modals";
+import UnmatchedQueue from "./UnmatchedQueue";
+import SummaryBoard from "./SummaryBoard";
+import useParcelPage, { PARCEL_PAGE_SIZE } from "./useParcelPage";
 
-function BottleneckPanel({ parcels }) {
-  const damaged = useMemo(() => pendingDamagedParcels(parcels), [parcels]);
-  return (
-    <details className="damage-section">
-      <summary>
-        <span className="damage-heading"><AlertTriangle size={18} aria-hidden="true" />พัสดุชำรุด <span className="section-count">{damaged.length} รายการ</span></span>
-        <span className="disclosure-action">ดูรายการ <ChevronDown size={16} aria-hidden="true" /></span>
-      </summary>
-      <div className="damage-content">
-        <ParcelTable pageSize={8} numberedPages variant="dashboard" resetKey="pending-damage" parcels={damaged} showLine={false} emptyLabel="ไม่มีพัสดุชำรุดที่รอรับ" label="พัสดุชำรุด" />
-      </div>
-    </details>
-  );
-}
-
-export default function DashboardPage({ parcels, onOpenCheckOut, onOpenCheckIn }) {
+export default function DashboardPage({ onOpenCheckOut, onOpenCheckIn, onOpenHistory, refreshKey, onDataChanged }) {
   const [query, setQuery] = useState("");
-  const filtered = useMemo(() => dashboardResults(parcels, query), [query, parcels]);
+  const { items, total, page, setPage, loading, error } = useParcelPage({ query, status: "pending", unmatched: false, refreshKey });
   return (
-    <div className="dashboard-page">
+    <div>
       <div className="dashboard-heading">
         <PageHeader title="Dashboard" description="ค้นหาและจัดการพัสดุที่เคาน์เตอร์" />
         <div className="desk-actions">
           <button onClick={onOpenCheckIn} className="desk-button desk-button-in"><PackagePlus size={18} aria-hidden="true" />รับพัสดุเข้า</button>
-          <button onClick={() => onOpenCheckOut()} className="desk-button desk-button-primary"><ScanLine size={18} aria-hidden="true" />นำพัสดุออก</button>
+          <button onClick={onOpenCheckOut} className="desk-button desk-button-primary"><ScanLine size={18} aria-hidden="true" />นำพัสดุออก</button>
         </div>
       </div>
-      <section className="parcel-register dashboard-register" aria-labelledby="search-heading">
-        <div className="register-toolbar">
-          <div className="register-search">
-            <label id="search-heading" htmlFor="dashboard-search">ค้นหาพัสดุรอรับ</label>
-            <div className="search-control">
-              <Search size={19} aria-hidden="true" />
-              <input id="dashboard-search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="เลขห้อง ชื่อผู้รับ หรือเลขพัสดุ" />
-              {query && <button type="button" className="icon-button" aria-label="ล้างคำค้นหา" onClick={() => setQuery("")}><X size={17} aria-hidden="true" /></button>}
-            </div>
-          </div>
+      <SummaryBoard refreshKey={refreshKey} />
+      <section className="parcel-register dashboard-register" aria-label="ค้นหาและจัดการพัสดุ">
+        <div className="register-toolbar"><SearchBar label="ค้นหาพัสดุรอรับ" value={query} onChange={setQuery} placeholder="เลขห้อง ชื่อผู้รับ หรือเลขพัสดุ" /></div>
+        <InlineError message={error} />
+        <PagePagination page={page} total={total} pageSize={PARCEL_PAGE_SIZE} onChange={setPage} loading={loading} label="พัสดุรอรับ" />
+        <div aria-busy={loading} className="parcel-page-content" data-reserve={total > PARCEL_PAGE_SIZE}>
+          {loading ? <p className="table-empty" role="status">กำลังค้นหา…</p> : <ParcelTable parcels={items} onSelect={onOpenHistory} variant="dashboard" label="พัสดุรอรับ" emptyLabel={query.trim() ? "ไม่พบพัสดุที่ตรงกับคำค้นหา" : "ไม่มีพัสดุรอรับ"} />}
         </div>
-        <ParcelTable pageSize={8} numberedPages variant="dashboard" resetKey={query} parcels={filtered} showLine={false} label="ผลการค้นหาพัสดุ" emptyLabel={query.trim() ? "ไม่พบพัสดุรอรับ ลองเปลี่ยนคำค้นหาหรือดูประวัติที่ Archive" : "ไม่มีพัสดุรอรับในขณะนี้"} />
       </section>
-      <BottleneckPanel parcels={parcels} />
+      <div className="mt-6"><UnmatchedQueue refreshKey={refreshKey} onOpenHistory={onOpenHistory} onChange={onDataChanged} /></div>
     </div>
   );
 }

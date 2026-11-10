@@ -1,0 +1,12 @@
+# Keep the build context small and secret-free. The images COPY only backend/, db/migrations and
+# the prototype sources; everything else here would only slow the build or leak into a layer.
+.git
+**/.env
+**/node_modules
+**/dist
+**/*.exe
+docs/**/*.docx
+docs/**/*.pdf
+docs/03-test
+*.pdf
+*.docx

@@ -1,15 +1,19 @@
 import React, { useRef, useState } from "react";
 import { Package, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { api } from "../api/client";
+import { errorMessage } from "../api/errorMessages";
 
 export default function LoginPage({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [invalid, setInvalid] = useState({});
   const usernameInput = useRef(null);
   const passwordInput = useRef(null);
-  const submit = (event) => {
+
+  const submit = async (event) => {
     event.preventDefault();
     if (!username.trim() || !password.trim()) {
       setInvalid({ username: !username.trim(), password: !password.trim() });
@@ -19,9 +23,17 @@ export default function LoginPage({ onLogin }) {
     }
     setInvalid({});
     setError("");
-    const result = onLogin(username.trim());
-    if (!result?.ok) setError(result?.error || "เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่");
+    setSubmitting(true);
+    try {
+      const res = await api.login(username.trim(), password);
+      onLogin(res.staff);
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
   };
+
   return (
     <main className="login-page">
       <section className="login-panel" aria-labelledby="login-heading">
@@ -30,10 +42,19 @@ export default function LoginPage({ onLogin }) {
           <h1 id="login-heading">เข้าสู่ระบบ</h1>
           <p className="login-description">ระบบจัดการพัสดุประจำอาคาร</p>
           <form onSubmit={submit} className="login-form">
-            <div className="form-field"><label htmlFor="username">ชื่อผู้ใช้</label><input ref={usernameInput} id="username" autoComplete="username" autoCapitalize="none" spellCheck={false} value={username} onChange={(e) => { setUsername(e.target.value); setInvalid((fields) => ({ ...fields, username: false })); setError(""); }} placeholder="กรอกชื่อผู้ใช้" aria-invalid={!!invalid.username} aria-describedby={error ? "login-error" : undefined} /></div>
-            <div className="form-field"><label htmlFor="password">รหัสผ่าน</label><div className="login-password"><input ref={passwordInput} id="password" type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(e) => { setPassword(e.target.value); setInvalid((fields) => ({ ...fields, password: false })); setError(""); }} placeholder="กรอกรหัสผ่าน" aria-invalid={!!invalid.password} aria-describedby={error ? "login-error" : undefined} /><button type="button" className="icon-button login-password-toggle" aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"} onClick={() => setShowPassword((value) => !value)}>{showPassword ? <EyeOff size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}</button></div></div>
+            <div className="form-field">
+              <label htmlFor="username">ชื่อผู้ใช้</label>
+              <input ref={usernameInput} id="username" disabled={submitting} autoComplete="username" autoCapitalize="none" spellCheck={false} value={username} onChange={(e) => { setUsername(e.target.value); setInvalid((fields) => ({ ...fields, username: false })); setError(""); }} placeholder="กรอกชื่อผู้ใช้" aria-invalid={!!invalid.username} aria-describedby={error ? "login-error" : undefined} />
+            </div>
+            <div className="form-field">
+              <label htmlFor="password">รหัสผ่าน</label>
+              <div className="login-password">
+                <input ref={passwordInput} id="password" disabled={submitting} type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(e) => { setPassword(e.target.value); setInvalid((fields) => ({ ...fields, password: false })); setError(""); }} placeholder="กรอกรหัสผ่าน" aria-invalid={!!invalid.password} aria-describedby={error ? "login-error" : undefined} />
+                <button type="button" disabled={submitting} className="icon-button login-password-toggle" aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"} onClick={() => setShowPassword((value) => !value)}>{showPassword ? <EyeOff size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}</button>
+              </div>
+            </div>
             <div className="login-feedback">{error && <p id="login-error" className="field-error" role="alert">{error}</p>}</div>
-            <button type="submit" className="desk-button desk-button-primary">เข้าสู่ระบบ<ArrowRight size={18} aria-hidden="true" /></button>
+            <button type="submit" disabled={submitting} className="desk-button desk-button-primary">{submitting ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}{!submitting && <ArrowRight size={18} aria-hidden="true" />}</button>
           </form>
         </div>
       </section>

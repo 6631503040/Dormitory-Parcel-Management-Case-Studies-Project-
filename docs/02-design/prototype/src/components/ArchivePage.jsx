@@ -1,50 +1,66 @@
-import { parcelMatches } from "../lib/parcelRules";
-import React, { useMemo, useState } from "react";
-import { SearchBar, ParcelTable } from "./shared";
+import React, { useEffect, useState } from "react";
+import { C, bodyFont, SearchBar, ParcelTable, PagePagination, PageHeader } from "./shared";
+import { InlineError } from "./Modals";
+import { api } from "../api/client";
+import useParcelPage, { PARCEL_PAGE_SIZE } from "./useParcelPage";
 
-function StatusFilterTabs({ value, onChange, counts }) {
-  const options = [
-    { id: "all", label: "ทั้งหมด" },
-    { id: "in", label: "รอรับ" },
-    { id: "out", label: "นำออกแล้ว" },
-    { id: "damaged", label: "ชำรุด" },
-  ];
-  return (
-    <div className="archive-filters" role="group" aria-label="กรองตามสถานะพัสดุ">
-      {options.map((opt) => (
-        <button key={opt.id} onClick={() => onChange(opt.id)} aria-pressed={value === opt.id} className="filter-button">
-          {opt.label}<span>{counts[opt.id]}</span>
-        </button>
-      ))}
-    </div>
-  );
-}
 
-export default function ArchivePage({ parcels }) {
+
+const TABS = [
+  { id: "all", label: "ทั้งหมด", params: {} },
+  { id: "in", label: "รอรับ", params: { status: "pending", unmatched: false } },
+  { id: "out", label: "นำออกแล้ว", params: { status: "picked_up" } },
+  { id: "unmatched", label: "มีปัญหา", params: { status: "pending", unmatched: true }, warn: true },
+];
+
+export default function ArchivePage({ onOpenHistory }) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const counts = useMemo(() => ({
-    all: parcels.length,
-    in: parcels.filter((p) => p.status === "in").length,
-    out: parcels.filter((p) => p.status === "out").length,
-    damaged: parcels.filter((p) => p.damaged).length,
-  }), [parcels]);
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return parcels.filter((p) => {
-      const matchesQuery = !q || parcelMatches(p, q);
-      const matchesStatus = statusFilter === "all" || (statusFilter === "damaged" ? p.damaged : p.status === statusFilter);
-      return matchesQuery && matchesStatus;
-    });
-  }, [query, parcels, statusFilter]);
+  const tab = TABS.find((t) => t.id === statusFilter);
+  const { items, total, page, setPage, loading, error } = useParcelPage({ query, ...tab.params });
+  const [counts, setCounts] = useState(null);
+  const tabCount = (id) => (counts && counts[id] !== undefined ? counts[id].toLocaleString() : "…");
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all(TABS.map((t) => api.listParcels({ ...t.params, q: query.trim() || undefined, pageSize: 1 })))
+      .then((results) => {
+        if (cancelled) return;
+        const next = {};
+        TABS.forEach((t, i) => {
+          next[t.id] = results[i].total;
+        });
+        setCounts(next);
+      })
+      .catch(() => {
+        if (!cancelled) setCounts(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [query, statusFilter]); // refetch counts too: they should reflect the query, same as the list
+
   return (
-    <section className="parcel-register" aria-label="ประวัติพัสดุทั้งหมด">
+    <><PageHeader title="Archive" description="ค้นหาประวัติการรับเข้าและนำจ่ายพัสดุ" /><section className="parcel-register" aria-label="ประวัติพัสดุทั้งหมด">
       <div className="archive-toolbar">
-        <StatusFilterTabs value={statusFilter} onChange={setStatusFilter} counts={counts} />
-        <SearchBar value={query} onChange={setQuery} placeholder="เลขห้อง ชื่อผู้รับ หรือเลขพัสดุ" label="ค้นหาประวัติพัสดุ" />
-        <p className="search-feedback" role="status">ทั้งหมด {filtered.length} รายการ</p>
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <p className="text-base font-semibold" style={{ ...bodyFont, color: C.text }}>ประวัติพัสดุทั้งหมด</p>
+          <span className="text-xs font-medium px-2.5 py-1 rounded-full" style={{ background: C.bg, color: C.textMuted, ...bodyFont }}>{total.toLocaleString()} รายการ</span>
+        </div>
+        <div className="archive-filters" role="group" aria-label="กรองตามสถานะพัสดุ">
+          {TABS.map((t) => (
+            <button key={t.id} aria-pressed={statusFilter === t.id} onClick={() => setStatusFilter(t.id)} className="filter-button">
+              {t.label} ({tabCount(t.id)})
+            </button>
+          ))}
+        </div>
+        <SearchBar value={query} onChange={setQuery} placeholder="ค้นหาด้วยชื่อผู้พัก เลขพัสดุ หรือเลขห้อง" />
+        <InlineError message={error} />
       </div>
-      <ParcelTable pageSize={8} numberedPages parcels={filtered} label="ประวัติพัสดุ" emptyLabel="ไม่พบรายการ ลองเปลี่ยนคำค้นหาหรือตัวกรองสถานะ" />
-    </section>
+      <PagePagination page={page} total={total} pageSize={PARCEL_PAGE_SIZE} onChange={setPage} loading={loading} label="ประวัติพัสดุ" />
+      <div aria-busy={loading} className="parcel-page-content" data-reserve={total > PARCEL_PAGE_SIZE}>
+        {loading ? <p className="table-empty" role="status">กำลังโหลด…</p> : <ParcelTable parcels={items} onSelect={onOpenHistory} label="ประวัติพัสดุ" emptyLabel="ไม่พบรายการที่ตรงกับคำค้นหา" />}
+      </div>
+    </section></>
   );
 }

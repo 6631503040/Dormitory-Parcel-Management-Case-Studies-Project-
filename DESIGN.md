@@ -238,8 +238,20 @@ Earlier room-first audit findings and fixes remain historical evidence in `docs/
 
 ### Softer checkout tones
 
-The user's 2026-10-06 feedback asks for less intense blue and black in the recently revised checkout modal. Local dialog tokens use primary `#3267BD`, hover `#2856A5`, text `#374151` and selected-row text `#40546F`; tracking-code weight is 500. This softens visual emphasis rather than rolling back the checkbox/pagination interaction. The existing global palette and all other screens retain their tokens. White-on-primary contrast is 5.51:1, normal text on white 10.31:1 and selected text on the existing pale blue surface 6.75:1.
+The user's 2026-10-06 feedback asks for less intense blue and black in the recently revised checkout modal. Local dialog tokens use primary `#3267BD`, hover `#2856A5` and text `#374151`; tracking-code weight is 500. This softens visual emphasis rather than rolling back the checkbox/pagination interaction. The existing global palette and all other screens retain their tokens. White-on-primary contrast is 5.51:1, normal text on white 10.31:1 and selected text on the existing pale blue surface 6.75:1.
 
+
+### Check-Out by room — 2026-11-02
+
+One field, "เลขพัสดุ / เลขห้อง", takes a Tracking Code, Room Number or Resident name. The first entry of a handover also searches the directory: an exact room opens that room, several matches (or a code that is also a room) list buttons for Staff to choose, so a room is never guessed or taken as free text. Scanning continues as before.
+
+Per the user's feedback, the room view is one checklist rather than the batch table: every Parcel starts ticked under a "เลือกทั้งหมดของห้อง" header row that also reports "เลือกแล้ว n จาก m". Ticked rows stay white, with the tick as the only selection cue (no pale-blue fill or hover band). A 20px/600 room with the Resident name beneath gives the recipient the most weight in the dialog, since it is what Staff check before handover; "เปลี่ยนห้อง" sits at the right of that block. Check Out All still takes the inline confirmation.
+
+Per the user's request the scanned-Parcel result is the same view: the room, its Resident and the room's checklist, with only the scanned Parcel ticked (a room search starts with all ticked). This replaces the "พัสดุรอนำออก" table, its "ลบ" buttons and the collapsed "พัสดุอื่นของห้องนี้" section. A selected Parcel on another page stays listed at the top. A Parcel with no room shows a single row and "ล้างรายการ" in place of "เปลี่ยนห้อง".
+
+The user chose a plain checklist from a reference image, rejecting first full-width row dividers and then a framed table. Lists in this dialog have no frame, header band or row rules: 40px rows on a 2px gap, a 22px checkbox with a 2px `--desk-control-border` outline and 5px corners, filling solid primary with a white tick when checked and a white dash on "select all" when only some are chosen, and a `--desk-bg` 6px hover band that bleeds 8px past the content edge so boxes stay in line with the text above. Intake uses the same checkbox. The dialog drops the reserved scrollbar gutter so content and footer share one right edge.
+
+Verified in a browser at 1280×800 and 390×844 for the room, unticked, confirmation and choice states. Physical scanner hardware and touch were not verified.
 
 ### Dashboard table pagination
 

@@ -404,7 +404,7 @@ function ParcelTable({ parcels, emptyLabel }) {
       <table className="w-full text-base" style={bodyFont}>
         <thead>
           <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-            {["ห้อง / ชื่อ / Line", "เลขพัสดุ", "จำนวน", "วันที่รับเข้า", "สถานะ", "วันที่นำจ่าย"].map((h) => (
+            {["ห้อง / ชื่อ / Line", "เลขพัสดุ", "จำนวน", "วันที่รับเข้า", "สถานะ", "วันที่นำออก"].map((h) => (
               <th key={h} className="text-left py-3 px-3 font-medium first:pl-1" style={{ color: C.textMuted, fontSize: 12.5 }}>{h}</th>
             ))}
           </tr>

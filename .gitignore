@@ -1,3 +1,14 @@
+# Secrets and local config — never commit
+docker/.env
+.env
+
+# Office lock files (a document is open in Word)
+~$*
+
+# Build output
+backend/server
+backend/seed
+backend/*.exe
 # Local Impeccable skills and generated review artifacts
 /.impeccable/
 **/skills/impeccable/

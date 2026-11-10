@@ -46,7 +46,7 @@ Baansoi5 Dormitory handles about 418 incoming and 418 outgoing parcels per day, 
 
 The project covers the dormitory front-desk parcel workflow — check-in, check-out, search, and a daily status view — for parcel staff across all 10 buildings and for student residents at Baansoi5 Dormitory. It replaces the current Google Forms/Sheets process with a dedicated web application.
 
-**In scope:** parcel check-in with a directory-validated room number; parcel check-out (bulk or selective); search by room number, tracking code, or resident name; a daily status dashboard; a read-only resident/room directory; an audit trail on every check-in and check-out; opt-in LINE notification on check-in.
+**In scope:** parcel check-in with a directory-validated room number; parcel check-out (bulk or selective); search by room number, tracking code, or resident name; a daily status dashboard; a read-only resident/room directory; an audit trail on every check-in and check-out; an opt-in Resident notification web page (check whether a parcel has arrived + phone notification on check-in) — *revised 2026-10-27, replaced the LINE notification.*
 
 **Out of scope:** storage-location (shelf/bin) tracking; handwriting OCR of labels; nickname-to-legal-name AI matching; a mobile app (web only); direct courier-API integration; any identity check or digital signature at pickup; resident self-service check-out.
 
@@ -82,7 +82,7 @@ Develop a three-tier web application — React front end, Go/Gin API, PostgreSQL
 - **Daily status dashboard** — received / picked up / pending counts for the day
 - **Read-only resident/room directory** reference
 - **Audit trail** — every check-in and check-out records staff ID + timestamp (append-only)
-- **Opt-in LINE notification** on check-in (staff-confirmed link only)
+- **Opt-in Resident notification page** (`/resident/`, PWA / Web Push): see whether a parcel has arrived, and get a phone notification on check-in (device registered with a staff-issued code only) — *replaced LINE, revised 2026-10-27*
 
 ---
 
@@ -113,7 +113,7 @@ Develop a three-tier web application — React front end, Go/Gin API, PostgreSQL
 - The system must stay fast during Flash Sale peaks (up to ~1,024 parcels/day); performance is a key risk.
 - Room number must be validated against the official resident directory (no free-text), so the system depends on an accurate, up-to-date directory.
 - Staff are used to the current Google Sheets/Forms workflow and may need time to adjust; the UI must closely mirror it.
-- The system relies on external pieces (barcode scanning, LINE notifications); check-in and check-out must keep working if those are unavailable.
+- The system relies on external pieces (barcode scanning, browser push services for Resident notifications); check-in and check-out must keep working if those are unavailable.
 - A team of 5 on a fixed ~14-week academic timeline — scope must stay strictly limited to the core workflow.
 
 ---
@@ -122,7 +122,7 @@ Develop a three-tier web application — React front end, Go/Gin API, PostgreSQL
 
 - The dormitory can provide an accurate, up-to-date resident/room directory.
 - Parcel staff have a device with a barcode scanner or camera at the counter.
-- Residents are willing to opt in to LINE notifications.
+- Residents are willing to register their phone on the Resident notification page (opt-in), and their phone browser supports web notifications (iPhone: iOS 16.4+, added to the Home Screen).
 - Dormitory management and staff support replacing the manual Google Forms/Sheets process.
 - Real historical parcel data is loaded only at cutover, not during development.
 
@@ -130,7 +130,7 @@ Develop a three-tier web application — React front end, Go/Gin API, PostgreSQL
 
 ## Legal & Compliance
 
-- **PDPA** — obtain plain-language consent before storing a resident's name, room number, or LINE ID; use the data only for parcel handling; let residents access, correct, or delete their data.
+- **PDPA** — obtain plain-language consent before storing a resident's name, room number, or device/push identifier; use the data only for parcel handling; let residents access, correct, or delete their data.
 - **Computer Crime Act §26** — keep an access/action log (login, check-in, check-out, override), each entry tied to a real user, for at least 90 days.
 - **Electronic Transactions Act §9 / 26** — record verifiable consent (who consented, the exact text/version shown, and when) whenever a resident agrees to something. Parcel pickup stays on the existing paper logbook, not an in-system e-signature.
 
