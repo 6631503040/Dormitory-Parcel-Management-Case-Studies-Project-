@@ -26,7 +26,7 @@ participants. Times are means in seconds.
 | US-24 Resident registers a phone with a desk OTP (UAT07) | No such step | 18.0 s | New capability | UAT, n=5 | [UAT results](../03-test/results/20261102-uat/README.md) |
 | US-24 Resident turns notifications off — PDPA withdrawal (UAT10) | No such step | 10.0 s | New capability | UAT, n=5 | [UAT results](../03-test/results/20261102-uat/README.md) |
 | US-26 Correct a checked-in Parcel | Edit the Sheet (not measured) | Edit keeps history: "ห้อง: 1101/2 → 1090" with Staff name and time | Correction is traceable | TC14 Pass | [results.json](../03-test/results/20261028/results.json) |
-| US-27 Read-only Resident Directory page | — | API only (`GET /api/v1/directory`); **page not built** | — | TC60 Blocked | [results.json](../03-test/results/20261028/results.json) · [product_backlog.md](../01-requirements/product_backlog.md) |
+| US-27 Read-only Resident Directory page — *re-prioritised to Won't Have this release (18 Nov)* | — | API only (`GET /api/v1/directory`); **page not built**. Room autocomplete shows each room's Residents during Check-In/Check-Out | — | TC60 Blocked; TC06 Pass (autocomplete) | [results.json](../03-test/results/20261028/results.json) · [product_backlog.md](../01-requirements/product_backlog.md) |
 | US-28 Admin registers Staff accounts | — | Each Staff member has an account created by an Admin | New capability | Go test `TestAdminRegistersStaff` (Pass) | [unit results](../03-test/results/20261102-unit/README.md) |
 | US-29 Update the Resident directory from CSV | — | Upload CSV → preview → apply; moved-out Residents deactivated | New capability | Go tests `TestResidentImportPreviewThenApply`, `TestResidentImportRejectsBadFile` (Pass) | [unit results](../03-test/results/20261102-unit/README.md) |
 
@@ -58,5 +58,5 @@ participants. Times are means in seconds.
 - **Worse**: single-Parcel Check-In, search and selective Check-Out are slower in first use. Most of
   the gap comes from the first two sessions on a build with two defects; both were fixed in
   `5da15cc`, and the fixed build had 0 errors.
-- **Not delivered**: the Directory page (US-27) and the room-mismatch check (US-15) have no
-  measurement. There is no AI feature in the product.
+- **Not delivered**: the Directory page (US-27, moved to Won't Have this release on 18 Nov) and the
+  room-mismatch check (US-15) have no measurement. There is no AI feature in the product.

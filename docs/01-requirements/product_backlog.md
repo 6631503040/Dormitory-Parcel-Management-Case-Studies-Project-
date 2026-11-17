@@ -211,7 +211,9 @@ As staff, I want to see how many parcels came in, went out, and are still waitin
 - The counts refresh after every Check-In, Check-Out or edit made from the Dashboard.
 - *Tests:* TC59.
 
-**US-27 — Read-only Resident Directory page** *(Must Have — CLAUDE.md "read-only Resident/Room Directory reference"; added 2026-10-27)*
+**US-27 — Read-only Resident Directory page** *(**Won't Have this release** — re-prioritised 2026-11-18, was Must Have; added 2026-10-27)*
+
+> **Re-prioritised 2026-11-18 (Must Have → Won't Have this release).** The page was not built before the final release and is not added in the last hours before submission, to avoid an untested change to the live system. The need behind it — Staff seeing who lives in a room — is covered today by the Room Number autocomplete in Check-In and Check-Out, which shows each room with its Residents' names (`1090 · ทดสอบ เอ`, TC06), and by the read-only API below. What is missing is looking a Resident up *without* starting a Check-In. Kept here, not deleted, for the next release; TC60 stays Blocked.
 As staff, I want to look up who lives in which room without starting a Check-In, so that I can answer questions at the desk quickly.
 - Search by room, resident name/nickname or building; results are paginated; an empty search says so plainly.
 - Read-only: no create, edit or delete; no phone numbers shown (LR-03).
