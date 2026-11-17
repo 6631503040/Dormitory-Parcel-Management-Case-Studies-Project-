@@ -24,7 +24,7 @@ const (
 	NoPendingParcels      = "NO_PENDING_PARCELS"
 	PendingCountChanged   = "PENDING_COUNT_CHANGED"
 	MixedRooms            = "MIXED_ROOMS"
-	AmbiguousRoom        = "AMBIGUOUS_ROOM"
+	AmbiguousRoom         = "AMBIGUOUS_ROOM"
 	UsernameTaken         = "USERNAME_TAKEN"
 	ResidentImportInvalid = "RESIDENT_IMPORT_INVALID"
 	TooManyLoginAttempts  = "TOO_MANY_LOGIN_ATTEMPTS"

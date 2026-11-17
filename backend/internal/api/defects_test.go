@@ -26,7 +26,7 @@ func TestDEF002CheckOutRejectsTwoRooms(t *testing.T) {
 		http.StatusConflict, apperr.MixedRooms)
 	for _, code := range []string{"ROOM-A1", "ROOM-B1"} {
 		var p store.Parcel
-		c.get("/api/v1/parcels/" + code).decode(t, &p)
+		c.get("/api/v1/parcels/"+code).decode(t, &p)
 		if p.Status != "pending" {
 			t.Errorf("%s = %s after a refused mixed-room request, want pending", code, p.Status)
 		}
@@ -79,7 +79,7 @@ func TestQA08OTPIssuedBeforeRevokeCannotRegister(t *testing.T) {
 			r.decode(t, &c)
 		}
 		var otp store.ResidentOTPView
-		e.login("op1").get("/api/v1/rooms/" + strconv.FormatInt(roomID, 10) + "/resident-otp").decode(t, &otp)
+		e.login("op1").get("/api/v1/rooms/"+strconv.FormatInt(roomID, 10)+"/resident-otp").decode(t, &otp)
 		return c["claimToken"].(string), otp.Code
 	}
 	verify := func(token, code, endpoint string) response {
