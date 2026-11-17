@@ -51,7 +51,7 @@ Every item below is on branch **`main`**. One link per item.
 | Case study (Problem, Process, Outcome + live URL) | [case-study.md](case-study.md) |
 | AI logic (Where, How, Prove, Measure) | [ai-logic.md](ai-logic.md) |
 | Comparison table (incl. AI row) | [comparison-table.md](comparison-table.md) |
-| Role statement — Supawan Kongsapcharoen (6631503042) | *pending* |
+| Role statement — Supawan Kongsapcharoen (6631503042) | [6631503042-Supawan-Kongsapcharoen.md](role-statements/6631503042-Supawan-Kongsapcharoen.md) |
 | Role statement — Sadayu Suriya (6631503040) | *pending* |
 | Role statement — Kongphop Ruentongdi (6631503103) | *pending* |
 | Role statement — Phuriphat Chantiuaong (6631503034) | [6631503034-Phuriphat-Chantiuaong.md](role-statements/6631503034-Phuriphat-Chantiuaong.md) |
