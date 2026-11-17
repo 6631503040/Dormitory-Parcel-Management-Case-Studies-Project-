@@ -57,7 +57,10 @@ Case Studies Project/
 │   │           └── components/    #   ParcelHubApp, Dashboard, Login, TopNav, Modals, Archive, RoomCombobox, UnmatchedQueue, ParcelHistoryModal, …
 │   ├── 03-test/               # Test phase — UAT instruments (the Test Plan itself is docs/Test-Plan.docx)
 │   │   ├── README.md          #   What belongs here
+│   │   ├── results/           #   Dated test results: 20261028 (system TCs + load), 20261102-unit, 20261102-uat (UAT logs, SUS/TAM, analyze_uat.py)
+│   │   ├── uat-dataset/       #   UAT starting data generator + printed labels/cards (synthetic)
 │   │   └── uat-forms.gs       #   Apps Script: creates the SUS/TAM questionnaires, task record and consent Google Forms
+│   ├── final/                 # Final submission (Deliver): README index, case-study, ai-logic, comparison-table, role-statements/
 │   └── 05-log/                # Dated working log + meeting notes + audit reports
 │       ├── README.md          #   Naming: {YYYYMMDD}-log.md, {YYYYMMDD}-backlog-audit.md, {YYYYMMDD}-{topic}.md
 │       ├── {YYYYMMDD}-log.md
@@ -76,7 +79,8 @@ Case Studies Project/
 > been decided. Until it is, treat `CLAUDE.md` + `design-spec.md` + `docs/01-requirements/`
 > + root `rule.md` as canonical and the `02-design/*.md` set as course-deliverable inputs.
 
-`docs/` folder `03-test/` was added on 2026-10-28 for the test phase; `04-*` is reserved by the
+`docs/final/` was added on 2026-11-18 for the final submission; `.docs/final/README.md` only points
+to it (the course announcement names that path). `docs/` folder `03-test/` was added on 2026-10-28 for the test phase; `04-*` is reserved by the
 course's numbering scheme and not created yet. Add it when the corresponding phase starts and
 record it here.
 

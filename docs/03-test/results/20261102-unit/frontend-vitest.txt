@@ -1,0 +1,184 @@
+
+ RUN  v4.1.12 C:/Users/Admin/Desktop/Project/Case Studies Project/docs/02-design/prototype
+
+ ✓ src/components/ParcelHistoryModal.test.jsx > ParcelHistoryModal > fetches the parcel by its tracking code and renders its event timeline in order 384ms
+ ✓ src/components/ParcelHistoryModal.test.jsx > ParcelHistoryModal > shows a parcel with no room as damaged, with its real status, note and unmatched reason 87ms
+ ✓ src/components/ParcelHistoryModal.test.jsx > ParcelHistoryModal > shows an error message when the parcel can't be found 42ms
+ ✓ src/components/ResidentsPage.test.jsx > ResidentsPage > explains the required columns before any upload 1007ms
+ ✓ src/components/StaffPage.test.jsx > StaffPage > lists existing accounts with Staff/Admin role labels 1111ms
+ ✓ src/components/UnmatchedQueue.test.jsx > UnmatchedQueue > shows nothing extra when the queue is empty 1166ms
+ ✓ src/components/SummaryBoard.test.jsx > SummaryBoard > shows today's received, picked up and still-waiting counts 1146ms
+ ✓ src/components/ParcelHistoryModal.test.jsx > ParcelHistoryModal > re-fetches when the tracking code changes 213ms
+ ✓ src/components/UnmatchedQueue.test.jsx > UnmatchedQueue > shows the total count badge and the full list, with each item's reason shown inline 198ms
+ ✓ src/components/ParcelHubApp.test.jsx > ParcelHubApp > shows the login page when there is no existing session — quietly, not as a session-expired error 825ms
+ ✓ src/components/ArchivePage.test.jsx > ArchivePage > shows all parcels with per-tab counts by default 1089ms
+ ✓ src/components/RoomCombobox.test.jsx > RoomCombobox > never accepts free text: onChange only ever receives an option chosen from the list 1508ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > Enter on the tracking code moves to the room field instead of submitting anything 1419ms
+ ✓ src/components/ParcelHubApp.test.jsx > ParcelHubApp > goes straight to the Dashboard when a session cookie is already valid 119ms
+ ✓ src/components/SummaryBoard.test.jsx > SummaryBoard > switches between day, week and month 412ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > waits for the scanner burst to finish and supports immediate Enter submission 1968ms
+ ✓ src/components/RoomCombobox.test.jsx > RoomCombobox > selects with the keyboard: ArrowDown then Enter 537ms
+ ✓ src/components/ResidentsPage.test.jsx > ResidentsPage > previews the upload, warns about pending parcels, and applies only on confirm 986ms
+ ✓ src/components/ArchivePage.test.jsx > ArchivePage > filters to only picked-up parcels on the 'นำออกแล้ว' tab 718ms
+ ✓ src/components/ResidentsPage.test.jsx > ResidentsPage > lists file errors by line and blocks confirming 212ms
+ ✓ src/components/ResidentsPage.test.jsx > ResidentsPage > rejects a file that is not UTF-8 without calling the API 145ms
+ ✓ src/components/SummaryBoard.test.jsx > SummaryBoard > steps back to an earlier period and returns to the current one 532ms
+ ✓ src/components/SummaryBoard.test.jsx > SummaryBoard > shows the server's error instead of numbers 56ms
+ ✓ src/components/SummaryBoard.test.jsx > SummaryBoard > keeps return navigation available when a historical request fails 351ms
+ ✓ src/components/SummaryBoard.test.jsx > SummaryBoard > labels each period in Thai with Buddhist-era years 2ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > Enter only finds parcel details; checkout needs explicit confirmation 583ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > registers with consent + the desk code, then shows the room's Pending Parcels 2415ms
+ ✓ src/components/ArchivePage.test.jsx > ArchivePage > filters to the unmatched queue on the 'มีปัญหา' tab — distinct from ordinary pending 516ms
+ ✓ src/components/RoomCombobox.test.jsx > RoomCombobox > clearing a selected room returns to free text and refocuses the input 702ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > choosing a room alone does not stage or submit a parcel 1277ms
+ ✓ src/components/ArchivePage.test.jsx > ArchivePage > marks a parcel with no room as ชำรุด beside its tracking code and keeps its real status 124ms
+ ✓ src/components/UnmatchedQueue.test.jsx > UnmatchedQueue > resolves an item by choosing a room from the directory, then reports the change 1316ms
+ ✓ src/components/ArchivePage.test.jsx > ArchivePage > shows no room as the damage detail ahead of what staff wrote, and drops it once a room is set 106ms
+ ✓ src/components/ParcelHubApp.test.jsx > ParcelHubApp > logs in and reaches the Dashboard 1284ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > blocks confirmation after staff edit the verified code 473ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > has no separate scanner button — the scanner types straight into the tracking field 60ms
+ ✓ src/components/StaffPage.test.jsx > StaffPage > registers a Staff account with the chosen role, then clears the form and reports it 1963ms
+ ✓ src/components/RoomCombobox.test.jsx > RoomCombobox > shows a not-found message when the directory has no match 420ms
+ ✓ src/components/ParcelHubApp.test.jsx > ParcelHubApp > logs out back to the login page 433ms
+ ✓ src/components/ParcelHistoryModal.test.jsx > ParcelHistoryModal > edits a Pending Parcel, sends only the changed fields, and shows the change in its history 2715ms
+ ✓ src/components/RoomCombobox.test.jsx > RoomCombobox > shows a distinct error message when the search request itself fails 394ms
+ ✓ src/components/ArchivePage.test.jsx > ArchivePage > searches by tracking code / room / resident name 574ms
+ ✓ src/components/ArchivePage.test.jsx > ArchivePage > shows the empty-state message when nothing matches 61ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > shows how many tries are left on a wrong code 909ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > shows API not-found and picked-up errors without allowing checkout 500ms
+ ✓ src/components/UnmatchedQueue.test.jsx > UnmatchedQueue > shows an inline error and keeps the form open when resolving fails 1013ms
+ ✓ src/components/ParcelHubApp.test.jsx > ParcelHubApp > switches to the ประวัติ (Archive) tab and back 566ms
+ ✓ src/components/ParcelHistoryModal.test.jsx > ParcelHistoryModal > keeps the form and shows the server's reason when an edit is rejected 539ms
+ ✓ src/components/ArchivePage.test.jsx > ArchivePage > replaces eight-item pages without accumulating rows 506ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > checks out a parcel that has no room, without asking for one 472ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > submits a staged parcel only on the final batch save 1404ms
+ ✓ src/components/ArchivePage.test.jsx > ArchivePage > opens a parcel's history when a row is clicked 128ms
+ ✓ src/components/UnmatchedQueue.test.jsx > UnmatchedQueue > cancelling the resolve form closes it without calling the API 355ms
+ ✓ src/components/ArchivePage.test.jsx > ArchivePage > shows an inline error when the list fails to load 84ms
+ ✓ src/components/ParcelHistoryModal.test.jsx > ParcelHistoryModal > offers no edit for Picked Up or unmatched Parcels 115ms
+ ✓ src/components/ParcelHistoryModal.test.jsx > ParcelHistoryModal > closes via the close button 149ms
+ ✓ src/components/StaffPage.test.jsx > StaffPage > stops on mismatched passwords without calling the API 1290ms
+ ✓ src/components/RoomCombobox.test.jsx > RoomCombobox > aborts an in-flight search instead of letting its slow response clobber a newer one 932ms
+ ✓ src/components/ParcelHistoryModal.test.jsx > ParcelHistoryModal > paginates long audit histories without losing events and resets for a different parcel 299ms
+ ✓ src/components/ParcelHubApp.test.jsx > ParcelHubApp > opens and closes the Check-In modal, refreshing the dashboard behind it 542ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > explains a blocked notification permission and never calls verify 887ms
+ ✓ src/components/UnmatchedQueue.test.jsx > UnmatchedQueue > paginates without accumulating rows, eight at a time 505ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > keeps a failed selection for retry and does not report completion 572ms
+ ✓ src/components/UnmatchedQueue.test.jsx > UnmatchedQueue > opens a Parcel's history when its tracking code is clicked 138ms
+stderr | src/components/ParcelHubApp.test.jsx > ParcelHubApp > checking out end-to-end (scan, select, confirm) shows a success banner and closes the modal
+[MSW] Error: intercepted a request without a matching request handler:
+
+  • GET /api/v1/rooms/search?q=TH1&limit=20
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > a registered device opens on its status, and can turn notifications off 337ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > a revoked device token falls back to registration 105ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > puts a missing Room Number error on the field and focuses it 247ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > warns before a code is requested when the browser already blocks notifications 63ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > selects additional parcels with native checkboxes and uses selected-code endpoint 568ms
+ ✓ src/components/ParcelHubApp.test.jsx > ParcelHubApp > checking out end-to-end (scan, select, confirm) shows a success banner and closes the modal 930ms
+ ✓ src/components/StaffPage.test.jsx > StaffPage > shows USERNAME_TAKEN against the username field 1294ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > names the typed room when it is not in the directory 435ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > records a damaged matched parcel through the existing note field 1666ms
+ ✓ src/components/ParcelHubApp.test.jsx > ParcelHubApp > drops back to the login page and shows a banner when the session expires mid-use 531ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > checks out the entire room with expectedCount even when its server list spans pages 701ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > warns about the browser's permission prompt and marks finished steps on the code screen 400ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > shows the last loaded parcels, marked with their time, when a reload fails 119ms
+stderr | src/components/ParcelHubApp.test.jsx > ParcelHubApp > clears old checkout context when the session expires and staff sign in again
+[MSW] Error: intercepted a request without a matching request handler:
+
+  • GET /api/v1/rooms/search?q=EXPIRED&limit=20
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > turns notifications back on for a registered device that lost its subscription 150ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > keeps add disabled until both a tracking code and a room are set 863ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > accumulates scans in the same room, resets focus, and submits once 760ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > an expired code is replaced in one tap for the same room 575ms
+ ✓ src/components/ParcelHubApp.test.jsx > ParcelHubApp > clears old checkout context when the session expires and staff sign in again 1177ms
+ ✓ src/components/ParcelHubApp.test.jsx > ParcelHubApp > does not pretend logout succeeded when the API rejects logout 205ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > a code the server locked offers a new one instead of the dead code field 667ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > shows the duplicate-tracking-code error inline and keeps the fields so staff can fix them 928ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > rejects duplicate, other-room and picked-up scans without losing the existing selection 904ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > keeps the pending claim across a reload 327ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > keeps the room open when the last Parcel is unticked, and changes room on request 661ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > changing the room keeps what was typed 429ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > shows the room-not-in-directory error when the server rejects the room 785ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > offers a retry when the status cannot be loaded 145ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > says so when the browser blocks notifications for a registered device 40ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > the unregister confirm states the consequence and focuses the safe choice 196ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > re-sends a rotated browser subscription when it opens 23ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > reloads the Pending list when the page comes back to the foreground 70ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > reloads the Pending list when the service worker reports a new push 73ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > tells iPhone users to add the page to the Home Screen first 14ms
+ ✓ src/resident/ResidentApp.test.jsx > ResidentApp > reports when the server has push turned off 21ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > submits a problem parcel with a fixed reason once staff tick the box and click บันทึก 684ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > omits the note field entirely when left blank 345ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > closes via the close button, calling onClose 76ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > lists every scanned parcel and submits them together 1781ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > stages multiple parcels without any POST, then saves them only on the final action 1375ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > automatically adds consecutive scanner bursts without Enter or clicking Add 1211ms
+ ✓ src/api/errorMessages.test.js > errorMessage() > names the existing parcel's room and time on a duplicate tracking code 7ms
+ ✓ src/api/errorMessages.test.js > errorMessage() > still gives a sensible duplicate message when the existing parcel has no room 2ms
+ ✓ src/api/errorMessages.test.js > errorMessage() > lists the affected tracking codes for PARCEL_NOT_PENDING 1ms
+ ✓ src/api/errorMessages.test.js > errorMessage() > reports the actual count for PENDING_COUNT_CHANGED 1ms
+ ✓ src/api/errorMessages.test.js > errorMessage() > has a distinct message per known code (no accidental duplicates/fallback collisions) 1ms
+ ✓ src/api/errorMessages.test.js > errorMessage() > tells Staff how long to wait after too many failed logins 1ms
+ ✓ src/api/errorMessages.test.js > errorMessage() > explains which characters a Tracking Code may not contain 3ms
+ ✓ src/api/errorMessages.test.js > errorMessage() > falls back to a generic message for an unknown code instead of throwing 2ms
+ ✓ src/api/errorMessages.test.js > errorMessage() > does not throw when params is missing entirely 2ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > rejects local duplicate codes regardless of case and can remove a draft 738ms
+ ✓ src/api/client.test.js > request() > sends credentials so the session cookie is included on every call 75ms
+ ✓ src/api/client.test.js > request() > sends a JSON body with Content-Type when the call has one 16ms
+ ✓ src/components/LoginPage.test.jsx > LoginPage > shows a client-side error and never calls the API when fields are empty 670ms
+ ✓ src/api/client.test.js > request() > omits the body entirely for checkOutAll() with no expectedCount 10ms
+ ✓ src/api/client.test.js > request() > builds the query string and drops undefined/null/empty values 8ms
+ ✓ src/api/client.test.js > request() > throws an ApiError carrying the response's code, params and status on a 4xx/5xx 15ms
+ ✓ src/api/client.test.js > request() > returns null for a 204 No Content 5ms
+ ✓ src/api/client.test.js > request() > wraps a network failure as NETWORK_ERROR 8ms
+ ✓ src/api/client.test.js > request() > falls back to INTERNAL_ERROR when a failed response has no code 9ms
+ ✓ src/api/client.test.js > request() > calls the registered handler once on every 401, in addition to throwing 10ms
+ ✓ src/components/ResidentOtpModal.test.jsx > ResidentOtpModal > shows the room's pending registration code and device count 1089ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > retains only failed drafts and retries without resending successful parcels 721ms
+ ✓ src/components/LoginPage.test.jsx > LoginPage > logs in and hands the returned staff object to onLogin 667ms
+ ✓ src/components/ResidentOtpModal.test.jsx > ResidentOtpModal > says so when the room has no pending request 464ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > buffers a second complete scan while the first lookup is still running 1244ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > closes immediately with pending drafts without confirmation or posting 313ms
+ ✓ src/components/LoginPage.test.jsx > LoginPage > shows the server's message on invalid credentials and does not log in 404ms
+ ✓ src/components/ResidentOtpModal.test.jsx > ResidentOtpModal > revokes every device of the room after an inline confirm 604ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > does not silently ignore a partially entered parcel when saving the queue 408ms
+ ✓ src/components/LoginPage.test.jsx > LoginPage > disables the submit button and shows a loading label while the request is in flight 421ms
+ ✓ src/components/DashboardPage.test.jsx > DashboardPage > shows pending parcels with eight-item server pages and replaces the page 1323ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > stops on a network error and retains every unconfirmed draft 587ms
+ ✓ src/components/DashboardPage.test.jsx > DashboardPage > opens existing parcel history and check-in/out actions 247ms
+ ✓ src/components/DashboardPage.test.jsx > DashboardPage > surfaces API failures 47ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > paginates drafts in groups of eight and clamps the page after removing the last item 2220ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > saves one complete parcel directly without adding to the queue first 525ms
+ ✓ src/components/Modals.CheckIn.test.jsx > CheckInModal > includes the current complete parcel with queued parcels on save 422ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > keeps slowly hand-typed text until Enter instead of looking up each character (QA-05) 6123ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > looks up a pasted code without Enter, like a scanner burst 468ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > waits for IME composition to finish before automatic lookup 889ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > shows a scanned Parcel the same way as a room: ticked in the room's list 163ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > keeps a scanned Parcel listed when it sits on another page of the room 189ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > shows damage notes under the Tracking Code 145ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > pages through the room while the whole room is selected 283ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > searching one field by room > lists every Pending Parcel of a typed room and checks them all out in one action 258ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > searching one field by room > unticks one Parcel out of the whole room 236ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > searching one field by room > goes back to select-all once every Parcel is ticked 260ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > searching one field by room > keeps Parcels on other pages selected, so rows lock while the whole room is chosen 220ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > searching one field by room > still allows checking out individual Parcels 298ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > searching one field by room > says so when the room has nothing waiting 118ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > searching one field by room > rejects text that is neither a Parcel nor a directory room 114ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > searching one field by room > asks instead of guessing when the text is both a Tracking Code and a Room Number 178ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > searching one field by room > finds a room from a resident's name, which the parcel lookup rejects as a malformed code 195ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > searching one field by room > rejects a scanned Parcel from another room while a room is open 324ms
+ ✓ src/components/Modals.CheckOut.test.jsx > scanner-first CheckOutModal > searching one field by room > can leave the room and search again 203ms
+
+ Test Files  16 passed (16)
+      Tests  159 passed (159)
+   Start at  14:05:30
+   Duration  35.80s (transform 7.28s, setup 31.69s, import 27.84s, tests 89.82s, environment 109.14s)
+
