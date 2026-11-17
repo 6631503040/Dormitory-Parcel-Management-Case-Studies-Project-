@@ -66,7 +66,7 @@ Full table with sources: [comparison-table.md](comparison-table.md).
 | Check out a whole room | 47.6 s → **38.8 s (−18%)** | same |
 | Wrong Room Number at Check-In | Blocked — only directory rooms accepted | TC06, TC49 in [results.json](../03-test/results/20261028/results.json) |
 | Flash Sale day (1,024 in + 1,024 out) | Check-In p95 47 ms, **0 errors, 0 lost records** | TC64, [load-result.txt](../03-test/results/20261028/load-result.txt) |
-| System tests | 52 Pass / 3 Fail / 9 Blocked of 64 | [results.json](../03-test/results/20261028/results.json) |
+| System tests | 52 Pass / 3 Fail / 9 Blocked of 64 (rounds 1–2). The 3 Fails (TC25, TC35, TC43) were fixed on 18 Nov; their regression tests now pass, tester retest pending | [results.json](../03-test/results/20261028/results.json) · [fix results](../03-test/results/20261118-fix/README.md) |
 
 **What did not improve.** Single-Parcel Check-In (23.6 s → 47.4 s), search (5.6 → 9.2 s) and
 selective Check-Out (24.8 → 31.8 s) were slower in first use. Staff had months of practice with the
@@ -76,7 +76,10 @@ fixed build no Staff member made an error.
 **Not done / open.** Directory page (US-27: API only; moved from Must Have to Won't Have this
 release on 18 Nov — Staff see each room's Residents in the Room Number autocomplete instead), room-mismatch check (US-15), label OCR
 (US-03); UAT defects UAT-D01 (dialog closes on outside click), UAT-D04 (room number accepted as a
-Tracking Code), UAT-D06 (button text size); 3 failing system test cases (TC25, TC35, TC43).
+Tracking Code), UAT-D06 (button text size); DEF-005 (TRUNCATE on audit tables). The two Critical
+defects (DEF-002 wrong-room Check-Out, QA-08 old registration code) and DEF-001, DEF-003, DEF-004
+were fixed on 18 Nov with regression tests ([defects.md](../03-test/defects.md)); the tester's retest
+on the deployed build is pending.
 
 **Next steps.** Fix the open UAT defects, build the Directory page, run a second UAT round after
 Staff have used the system for a week to separate learning effects from design problems.
