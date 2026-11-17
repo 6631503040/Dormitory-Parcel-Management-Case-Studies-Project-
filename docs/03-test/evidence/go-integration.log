@@ -1,0 +1,29 @@
+
+> dormitory-parcel-management@1.0.0 test:integration
+> node e2e/run.mjs --integration
+
+ Network dpms-quality-43000_default  Creating
+ Network dpms-quality-43000_default  Created
+ Container dpms-quality-43000-db-1  Creating
+ Container dpms-quality-43000-db-1  Created
+ Container dpms-quality-43000-db-1  Starting
+ Container dpms-quality-43000-db-1  Started
+ Container dpms-quality-43000-db-1  Waiting
+ Container dpms-quality-43000-db-1  Healthy
+?   	dpms/backend/cmd/seed	[no test files]
+?   	dpms/backend/cmd/server	[no test files]
+?   	dpms/backend/cmd/vapidkeys	[no test files]
+ok  	dpms/backend/internal/api	11.853s
+?   	dpms/backend/internal/apperr	[no test files]
+ok  	dpms/backend/internal/auth	1.060s
+?   	dpms/backend/internal/config	[no test files]
+?   	dpms/backend/internal/db	[no test files]
+?   	dpms/backend/internal/notify	[no test files]
+ok  	dpms/backend/internal/push	1.013s
+?   	dpms/backend/internal/store	[no test files]
+ Container dpms-quality-43000-db-1  Stopping
+ Container dpms-quality-43000-db-1  Stopped
+ Container dpms-quality-43000-db-1  Removing
+ Container dpms-quality-43000-db-1  Removed
+ Network dpms-quality-43000_default  Removing
+ Network dpms-quality-43000_default  Removed

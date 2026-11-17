@@ -1,0 +1,132 @@
+
+> dormitory-parcel-management@1.0.0 test:e2e
+> node e2e/run.mjs
+
+#1 [internal] load local bake definitions
+#1 reading from stdin 716B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from backend.Dockerfile
+#2 transferring dockerfile: 681B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/alpine:3.21
+#3 ...
+
+#4 [internal] load metadata for docker.io/library/golang:1.26-alpine
+#4 DONE 1.6s
+
+#3 [internal] load metadata for docker.io/library/alpine:3.21
+#3 DONE 2.1s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 334B done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 4.57kB done
+#6 DONE 0.0s
+
+#7 [build 1/6] FROM docker.io/library/golang:1.26-alpine@sha256:a2012b4a1d1f9f7e9f44e0d39b805a901e856b1dd80b4e6ee4338db547050308
+#7 resolve docker.io/library/golang:1.26-alpine@sha256:a2012b4a1d1f9f7e9f44e0d39b805a901e856b1dd80b4e6ee4338db547050308 done
+#7 DONE 0.0s
+
+#8 [stage-1 1/5] FROM docker.io/library/alpine:3.21@sha256:ee16d92f96db08d9d2d07da48555a27f3a69d8f0759021dbc601195ed0d2b5bd
+#8 resolve docker.io/library/alpine:3.21@sha256:ee16d92f96db08d9d2d07da48555a27f3a69d8f0759021dbc601195ed0d2b5bd done
+#8 DONE 0.0s
+
+#9 [stage-1 2/5] RUN adduser -D -u 10001 app
+#9 CACHED
+
+#10 [stage-1 3/5] WORKDIR /app
+#10 CACHED
+
+#11 [build 3/6] COPY backend/go.mod backend/go.sum ./
+#11 CACHED
+
+#12 [build 6/6] RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/server ./cmd/server  && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/seed ./cmd/seed  && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/vapidkeys ./cmd/vapidkeys
+#12 CACHED
+
+#13 [build 5/6] COPY backend/ ./
+#13 CACHED
+
+#14 [stage-1 4/5] COPY --from=build /out/server /out/seed /out/vapidkeys /app/
+#14 CACHED
+
+#15 [build 2/6] WORKDIR /src
+#15 CACHED
+
+#16 [build 4/6] RUN go mod download
+#16 CACHED
+
+#17 [stage-1 5/5] COPY db/migrations /app/migrations
+#17 CACHED
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:18168dcd6c44bb76596606a63ec39a049eeb88236cd5f8fc8ef6c1c61dfdc5ce done
+#18 exporting config sha256:dae526175302a7250719fd5882ed68cedf5ed99ec2d4f6985adddff41fdae5bc done
+#18 exporting attestation manifest sha256:bcbeaae213888de88c28f290629b96ee2a399ce86e61bff7ffdee71ebfba5957 done
+#18 exporting manifest list sha256:8305b8d9c1b269e70c6b840eb35420a8931641b8755a517dd692cc62f702c663 done
+#18 naming to docker.io/library/dpms-quality-45012-backend:latest done
+#18 unpacking to docker.io/library/dpms-quality-45012-backend:latest done
+#18 DONE 0.0s
+
+#19 resolving provenance for metadata file
+#19 DONE 0.0s
+ dpms-quality-45012-backend  Built
+ Network dpms-quality-45012_default  Creating
+ Network dpms-quality-45012_default  Created
+ Container dpms-quality-45012-db-1  Creating
+ Container dpms-quality-45012-db-1  Created
+ Container dpms-quality-45012-backend-1  Creating
+ Container dpms-quality-45012-backend-1  Created
+ Container dpms-quality-45012-db-1  Starting
+ Container dpms-quality-45012-db-1  Started
+ Container dpms-quality-45012-db-1  Waiting
+ Container dpms-quality-45012-db-1  Healthy
+ Container dpms-quality-45012-backend-1  Starting
+ Container dpms-quality-45012-backend-1  Started
+ Container dpms-quality-45012-db-1  Waiting
+ Container dpms-quality-45012-backend-1  Waiting
+ Container dpms-quality-45012-db-1  Healthy
+ Container dpms-quality-45012-backend-1  Healthy
+
+> dormitory-parcel-management@1.0.0 build
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 1603 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                      0.55 kB │ gzip:  0.32 kB
+dist/resident/index.html             1.06 kB │ gzip:  0.56 kB
+dist/assets/resident-C-slOZab.css    3.30 kB │ gzip:  0.97 kB
+dist/assets/styles-7woLU_CG.css     49.43 kB │ gzip: 10.04 kB
+dist/assets/resident-EMvtStF3.js    13.51 kB │ gzip:  5.42 kB
+dist/assets/main-AK147izW.js        48.65 kB │ gzip: 15.25 kB
+dist/assets/styles-Bt2i1qxK.js     159.41 kB │ gzip: 52.06 kB
+✓ built in 1.35s
+[WebServer] (node:45657) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:45684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › e2e/desk.spec.js:16:1 › rejects invalid credentials and returns to login after logout (964ms)
+  ✓  2 [chromium] › e2e/desk.spec.js:28:1 › single save, staged batch, continuous scan and explicit handover use real API/DB (4.6s)
+  ✓  3 [chromium] › e2e/desk.spec.js:69:1 › resident page shows an actionable state when push is not configured (106ms)
+
+  3 passed (6.4s)
+ Container dpms-quality-45012-backend-1  Stopping
+ Container dpms-quality-45012-backend-1  Stopped
+ Container dpms-quality-45012-backend-1  Removing
+ Container dpms-quality-45012-backend-1  Removed
+ Container dpms-quality-45012-db-1  Stopping
+ Container dpms-quality-45012-db-1  Stopped
+ Container dpms-quality-45012-db-1  Removing
+ Container dpms-quality-45012-db-1  Removed
+ Network dpms-quality-45012_default  Removing
+ Network dpms-quality-45012_default  Removed

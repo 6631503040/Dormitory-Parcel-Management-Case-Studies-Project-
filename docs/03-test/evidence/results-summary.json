@@ -1,0 +1,72 @@
+{
+  "applicationCommit": "703a1af",
+  "testHarnessCommit": "4d85196",
+  "date": "2026-11-01",
+  "localOnly": true,
+  "applicationModified": false,
+  "confirmedReproductions": 5,
+  "dependencyFindingGroups": 2,
+  "baseline": {
+    "vitest": {
+      "passed": 120,
+      "files": 14
+    },
+    "goIntegration": "passed with PostgreSQL and race detector",
+    "playwright": {
+      "passed": 3
+    },
+    "goVet": "passed",
+    "build": "passed",
+    "gitleaks": {
+      "commitsScanned": 40,
+      "leaksFound": 0
+    }
+  },
+  "additionalRegression": {
+    "goFailedAsExpected": 4,
+    "playwrightFailedAsExpected": 1
+  },
+  "scanners": {
+    "npmAffectedPackages": 10,
+    "npmRuntimeAffectedPackages": 0,
+    "goStaticallyReachableAdvisories": 18,
+    "codeql": "not run"
+  },
+  "findings": [
+    {
+      "id": "QA-01",
+      "priority": "P1",
+      "type": "reproduced"
+    },
+    {
+      "id": "QA-02",
+      "priority": "P1",
+      "type": "reproduced"
+    },
+    {
+      "id": "QA-03",
+      "priority": "P2",
+      "type": "reproduced"
+    },
+    {
+      "id": "QA-04",
+      "priority": "P2",
+      "type": "reproduced"
+    },
+    {
+      "id": "QA-05",
+      "priority": "P2",
+      "type": "reproduced"
+    },
+    {
+      "id": "QA-06",
+      "priority": "P2",
+      "type": "dependency scan"
+    },
+    {
+      "id": "QA-07",
+      "priority": "P1",
+      "type": "dependency scan"
+    }
+  ]
+}
