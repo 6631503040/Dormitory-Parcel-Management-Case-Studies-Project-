@@ -53,7 +53,7 @@ Every item below is on branch **`main`**. One link per item.
 | Comparison table (incl. AI row) | [comparison-table.md](comparison-table.md) |
 | Role statement — Supawan Kongsapcharoen (6631503042) | [6631503042-Supawan-Kongsapcharoen.md](role-statements/6631503042-Supawan-Kongsapcharoen.md) |
 | Role statement — Sadayu Suriya (6631503040) | *pending* |
-| Role statement — Kongphop Ruentongdi (6631503103) | *pending* |
+| Role statement — Kongphop Ruentongdi (6631503103) | [6631503103-kongphop-ruentongdi.md](role-statements/6631503103-kongphop-ruentongdi.md) |
 | Role statement — Phuriphat Chantiuaong (6631503034) | [6631503034-Phuriphat-Chantiuaong.md](role-statements/6631503034-Phuriphat-Chantiuaong.md) |
 | Role statement — Danaiphong Songsikhwa (6631503106) | *pending* |
 
