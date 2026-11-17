@@ -1,0 +1,227 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><title>UAT moderator cards</title><style>
+  body { font-family: "Sarabun", "Leelawadee UI", Tahoma, sans-serif; margin: 12mm; color: #111; background: #fff; }
+  h1 { font-size: 18pt; margin: 0 0 4mm; } h2 { font-size: 14pt; margin: 6mm 0 2mm; }
+  .note { font-size: 10pt; color: #444; margin-bottom: 4mm; }
+  @media print { .note { display: none; } section { break-inside: avoid; } .page { break-after: page; } }
+
+  h3 { font-size: 11pt; margin: 4mm 0 1mm; } table { border-collapse: collapse; width: 100%; font-size: 10pt; }
+  th, td { border: 1px solid #999; padding: 1.5mm 2mm; text-align: left; vertical-align: top; } th { width: 28mm; background: #f2f2f2; }
+  ul { font-size: 10pt; margin: 0; padding-left: 5mm; } code { font-size: 9pt; }
+  </style></head><body><h1>การ์ด moderator · UAT</h1>
+  <p class="note">พิมพ์ 1 หน้าต่อ session · ข้อมูลทั้งหมดเป็นข้อมูลจำลอง</p><section class="page"><h2>S01 · U01 · Staff</h2>
+      <table><tr><th>ห้อง A</th><td>10107 · รุ่งนภา มณีรัตน์</td></tr>
+      <tr><th>ห้อง B</th><td>10108 · ณัฐธิดา สายทอง</td></tr></table>
+      <h3>ก่อนเริ่ม</h3><ul>
+        <li>รัน <code>node uat-dataset.mjs status</code> แถวของ session นี้ต้องขึ้น <b>ready</b> (A = P01-P03, B = Q01)</li>
+        <li>Google Sheet สำเนา: นำเข้า <code>google-sheet/S01-check-in.csv</code></li>
+        <li>เตรียมกล่อง: TP69-S01-P01, TP69-S01-P02, TP69-S01-P03 บนชั้น (TP69-S01-Q01 อยู่ในระบบแล้ว ไม่ต้องมีกล่อง) ·TP69-S01-N01, TP69-S01-N02 และฉลากชำรุด TP69-S01-D01 แยกไว้</li></ul>
+      <h3>วิธีเดิม (Google Forms/Sheets)</h3><table>
+        <tr><th>Check-In 2 ชิ้น</th><td>TP69-S01-GN01, TP69-S01-GN02 เข้าห้อง B 10108</td></tr>
+        <tr><th>ดูจำนวน Pending</th><td>ห้อง A 10107 · คำตอบที่ถูก: <b>3 ชิ้น</b> (TP69-S01-GP01, TP69-S01-GP02, TP69-S01-GP03)</td></tr>
+        <tr><th>Check-Out 1 ชิ้น</th><td>TP69-S01-GP01 จากห้อง A</td></tr></table>
+      <h3>ระบบใหม่</h3><table>
+        <tr><th>UAT01</th><td>สแกน TP69-S01-N01, TP69-S01-N02 เข้าห้อง B 10108 · ต้องได้ 2 รายการ ไม่ซ้ำ</td></tr>
+        <tr><th>UAT02</th><td>ฉลากชำรุด เลขที่ยืนยันแล้วคือ <b>TP69-S01-D01</b> · ห้อง B · เหตุผล "กล่องบุบ"</td></tr>
+        <tr><th>UAT03</th><td>บอกผู้ทดสอบ: ห้อง 10107 ชื่อ รุ่งนภา มณีรัตน์ · คำตอบ: <b>3 ชิ้น</b> TP69-S01-P01, TP69-S01-P02, TP69-S01-P03</td></tr>
+        <tr><th>UAT04</th><td>Check-Out เฉพาะ TP69-S01-P01 · TP69-S01-P02 และ TP69-S01-P03 ต้องยัง Pending</td></tr>
+        <tr><th>UAT05</th><td>เลือก TP69-S01-P02, TP69-S01-P03 → ย้อนกลับ 1 ครั้ง → Check-Out · TP69-S01-Q01 ในห้อง B ต้องยัง Pending</td></tr>
+        <tr><th>UAT06</th><td>หา TP69-S01-P01 และ TP69-S01-D01 ในประวัติ · ตรวจเวลา สถานะ และเหตุผล "กล่องบุบ"</td></tr></table></section>
+<section class="page"><h2>S02 · U02 · Staff</h2>
+      <table><tr><th>ห้อง A</th><td>10110 · ปิยะพงษ์ แก้วมณี</td></tr>
+      <tr><th>ห้อง B</th><td>10201 · สิรวิชญ์ ธรรมรักษ์ (ฟ้า)</td></tr></table>
+      <h3>ก่อนเริ่ม</h3><ul>
+        <li>รัน <code>node uat-dataset.mjs status</code> แถวของ session นี้ต้องขึ้น <b>ready</b> (A = P01-P03, B = Q01)</li>
+        <li>Google Sheet สำเนา: นำเข้า <code>google-sheet/S02-check-in.csv</code></li>
+        <li>เตรียมกล่อง: TP69-S02-P01, TP69-S02-P02, TP69-S02-P03 บนชั้น (TP69-S02-Q01 อยู่ในระบบแล้ว ไม่ต้องมีกล่อง) ·TP69-S02-N01, TP69-S02-N02 และฉลากชำรุด TP69-S02-D01 แยกไว้</li></ul>
+      <h3>วิธีเดิม (Google Forms/Sheets)</h3><table>
+        <tr><th>Check-In 2 ชิ้น</th><td>TP69-S02-GN01, TP69-S02-GN02 เข้าห้อง B 10201</td></tr>
+        <tr><th>ดูจำนวน Pending</th><td>ห้อง A 10110 · คำตอบที่ถูก: <b>3 ชิ้น</b> (TP69-S02-GP01, TP69-S02-GP02, TP69-S02-GP03)</td></tr>
+        <tr><th>Check-Out 1 ชิ้น</th><td>TP69-S02-GP01 จากห้อง A</td></tr></table>
+      <h3>ระบบใหม่</h3><table>
+        <tr><th>UAT01</th><td>สแกน TP69-S02-N01, TP69-S02-N02 เข้าห้อง B 10201 · ต้องได้ 2 รายการ ไม่ซ้ำ</td></tr>
+        <tr><th>UAT02</th><td>ฉลากชำรุด เลขที่ยืนยันแล้วคือ <b>TP69-S02-D01</b> · ห้อง B · เหตุผล "กล่องบุบ"</td></tr>
+        <tr><th>UAT03</th><td>บอกผู้ทดสอบ: ห้อง 10110 ชื่อ ปิยะพงษ์ แก้วมณี · คำตอบ: <b>3 ชิ้น</b> TP69-S02-P01, TP69-S02-P02, TP69-S02-P03</td></tr>
+        <tr><th>UAT04</th><td>Check-Out เฉพาะ TP69-S02-P01 · TP69-S02-P02 และ TP69-S02-P03 ต้องยัง Pending</td></tr>
+        <tr><th>UAT05</th><td>เลือก TP69-S02-P02, TP69-S02-P03 → ย้อนกลับ 1 ครั้ง → Check-Out · TP69-S02-Q01 ในห้อง B ต้องยัง Pending</td></tr>
+        <tr><th>UAT06</th><td>หา TP69-S02-P01 และ TP69-S02-D01 ในประวัติ · ตรวจเวลา สถานะ และเหตุผล "กล่องบุบ"</td></tr></table></section>
+<section class="page"><h2>S03 · U03 · Staff</h2>
+      <table><tr><th>ห้อง A</th><td>10202 · กิตติพงษ์ สุขใจ</td></tr>
+      <tr><th>ห้อง B</th><td>10205 · มนัสนันท์ เจริญสุข</td></tr></table>
+      <h3>ก่อนเริ่ม</h3><ul>
+        <li>รัน <code>node uat-dataset.mjs status</code> แถวของ session นี้ต้องขึ้น <b>ready</b> (A = P01-P03, B = Q01)</li>
+        <li>Google Sheet สำเนา: นำเข้า <code>google-sheet/S03-check-in.csv</code></li>
+        <li>เตรียมกล่อง: TP69-S03-P01, TP69-S03-P02, TP69-S03-P03 บนชั้น (TP69-S03-Q01 อยู่ในระบบแล้ว ไม่ต้องมีกล่อง) ·TP69-S03-N01, TP69-S03-N02 และฉลากชำรุด TP69-S03-D01 แยกไว้</li></ul>
+      <h3>วิธีเดิม (Google Forms/Sheets)</h3><table>
+        <tr><th>Check-In 2 ชิ้น</th><td>TP69-S03-GN01, TP69-S03-GN02 เข้าห้อง B 10205</td></tr>
+        <tr><th>ดูจำนวน Pending</th><td>ห้อง A 10202 · คำตอบที่ถูก: <b>3 ชิ้น</b> (TP69-S03-GP01, TP69-S03-GP02, TP69-S03-GP03)</td></tr>
+        <tr><th>Check-Out 1 ชิ้น</th><td>TP69-S03-GP01 จากห้อง A</td></tr></table>
+      <h3>ระบบใหม่</h3><table>
+        <tr><th>UAT01</th><td>สแกน TP69-S03-N01, TP69-S03-N02 เข้าห้อง B 10205 · ต้องได้ 2 รายการ ไม่ซ้ำ</td></tr>
+        <tr><th>UAT02</th><td>ฉลากชำรุด เลขที่ยืนยันแล้วคือ <b>TP69-S03-D01</b> · ห้อง B · เหตุผล "กล่องบุบ"</td></tr>
+        <tr><th>UAT03</th><td>บอกผู้ทดสอบ: ห้อง 10202 ชื่อ กิตติพงษ์ สุขใจ · คำตอบ: <b>3 ชิ้น</b> TP69-S03-P01, TP69-S03-P02, TP69-S03-P03</td></tr>
+        <tr><th>UAT04</th><td>Check-Out เฉพาะ TP69-S03-P01 · TP69-S03-P02 และ TP69-S03-P03 ต้องยัง Pending</td></tr>
+        <tr><th>UAT05</th><td>เลือก TP69-S03-P02, TP69-S03-P03 → ย้อนกลับ 1 ครั้ง → Check-Out · TP69-S03-Q01 ในห้อง B ต้องยัง Pending</td></tr>
+        <tr><th>UAT06</th><td>หา TP69-S03-P01 และ TP69-S03-D01 ในประวัติ · ตรวจเวลา สถานะ และเหตุผล "กล่องบุบ"</td></tr></table></section>
+<section class="page"><h2>S04 · U04 · Staff</h2>
+      <table><tr><th>ห้อง A</th><td>10206 · ชนิดา สุขใจ (เจ)</td></tr>
+      <tr><th>ห้อง B</th><td>10209 · อนุชา แสงทอง</td></tr></table>
+      <h3>ก่อนเริ่ม</h3><ul>
+        <li>รัน <code>node uat-dataset.mjs status</code> แถวของ session นี้ต้องขึ้น <b>ready</b> (A = P01-P03, B = Q01)</li>
+        <li>Google Sheet สำเนา: นำเข้า <code>google-sheet/S04-check-in.csv</code></li>
+        <li>เตรียมกล่อง: TP69-S04-P01, TP69-S04-P02, TP69-S04-P03 บนชั้น (TP69-S04-Q01 อยู่ในระบบแล้ว ไม่ต้องมีกล่อง) ·TP69-S04-N01, TP69-S04-N02 และฉลากชำรุด TP69-S04-D01 แยกไว้</li></ul>
+      <h3>วิธีเดิม (Google Forms/Sheets)</h3><table>
+        <tr><th>Check-In 2 ชิ้น</th><td>TP69-S04-GN01, TP69-S04-GN02 เข้าห้อง B 10209</td></tr>
+        <tr><th>ดูจำนวน Pending</th><td>ห้อง A 10206 · คำตอบที่ถูก: <b>3 ชิ้น</b> (TP69-S04-GP01, TP69-S04-GP02, TP69-S04-GP03)</td></tr>
+        <tr><th>Check-Out 1 ชิ้น</th><td>TP69-S04-GP01 จากห้อง A</td></tr></table>
+      <h3>ระบบใหม่</h3><table>
+        <tr><th>UAT01</th><td>สแกน TP69-S04-N01, TP69-S04-N02 เข้าห้อง B 10209 · ต้องได้ 2 รายการ ไม่ซ้ำ</td></tr>
+        <tr><th>UAT02</th><td>ฉลากชำรุด เลขที่ยืนยันแล้วคือ <b>TP69-S04-D01</b> · ห้อง B · เหตุผล "กล่องบุบ"</td></tr>
+        <tr><th>UAT03</th><td>บอกผู้ทดสอบ: ห้อง 10206 ชื่อ ชนิดา สุขใจ (เจ) · คำตอบ: <b>3 ชิ้น</b> TP69-S04-P01, TP69-S04-P02, TP69-S04-P03</td></tr>
+        <tr><th>UAT04</th><td>Check-Out เฉพาะ TP69-S04-P01 · TP69-S04-P02 และ TP69-S04-P03 ต้องยัง Pending</td></tr>
+        <tr><th>UAT05</th><td>เลือก TP69-S04-P02, TP69-S04-P03 → ย้อนกลับ 1 ครั้ง → Check-Out · TP69-S04-Q01 ในห้อง B ต้องยัง Pending</td></tr>
+        <tr><th>UAT06</th><td>หา TP69-S04-P01 และ TP69-S04-D01 ในประวัติ · ตรวจเวลา สถานะ และเหตุผล "กล่องบุบ"</td></tr></table></section>
+<section class="page"><h2>S05 · U05 · Staff</h2>
+      <table><tr><th>ห้อง A</th><td>10210 · รุ่งนภา ภักดี</td></tr>
+      <tr><th>ห้อง B</th><td>10304 · ธนกร วงศ์ไพร</td></tr></table>
+      <h3>ก่อนเริ่ม</h3><ul>
+        <li>รัน <code>node uat-dataset.mjs status</code> แถวของ session นี้ต้องขึ้น <b>ready</b> (A = P01-P03, B = Q01)</li>
+        <li>Google Sheet สำเนา: นำเข้า <code>google-sheet/S05-check-in.csv</code></li>
+        <li>เตรียมกล่อง: TP69-S05-P01, TP69-S05-P02, TP69-S05-P03 บนชั้น (TP69-S05-Q01 อยู่ในระบบแล้ว ไม่ต้องมีกล่อง) ·TP69-S05-N01, TP69-S05-N02 และฉลากชำรุด TP69-S05-D01 แยกไว้</li></ul>
+      <h3>วิธีเดิม (Google Forms/Sheets)</h3><table>
+        <tr><th>Check-In 2 ชิ้น</th><td>TP69-S05-GN01, TP69-S05-GN02 เข้าห้อง B 10304</td></tr>
+        <tr><th>ดูจำนวน Pending</th><td>ห้อง A 10210 · คำตอบที่ถูก: <b>3 ชิ้น</b> (TP69-S05-GP01, TP69-S05-GP02, TP69-S05-GP03)</td></tr>
+        <tr><th>Check-Out 1 ชิ้น</th><td>TP69-S05-GP01 จากห้อง A</td></tr></table>
+      <h3>ระบบใหม่</h3><table>
+        <tr><th>UAT01</th><td>สแกน TP69-S05-N01, TP69-S05-N02 เข้าห้อง B 10304 · ต้องได้ 2 รายการ ไม่ซ้ำ</td></tr>
+        <tr><th>UAT02</th><td>ฉลากชำรุด เลขที่ยืนยันแล้วคือ <b>TP69-S05-D01</b> · ห้อง B · เหตุผล "กล่องบุบ"</td></tr>
+        <tr><th>UAT03</th><td>บอกผู้ทดสอบ: ห้อง 10210 ชื่อ รุ่งนภา ภักดี · คำตอบ: <b>3 ชิ้น</b> TP69-S05-P01, TP69-S05-P02, TP69-S05-P03</td></tr>
+        <tr><th>UAT04</th><td>Check-Out เฉพาะ TP69-S05-P01 · TP69-S05-P02 และ TP69-S05-P03 ต้องยัง Pending</td></tr>
+        <tr><th>UAT05</th><td>เลือก TP69-S05-P02, TP69-S05-P03 → ย้อนกลับ 1 ครั้ง → Check-Out · TP69-S05-Q01 ในห้อง B ต้องยัง Pending</td></tr>
+        <tr><th>UAT06</th><td>หา TP69-S05-P01 และ TP69-S05-D01 ในประวัติ · ตรวจเวลา สถานะ และเหตุผล "กล่องบุบ"</td></tr></table></section>
+<section class="page"><h2>S06 · R01 · ผู้พัก</h2>
+      <table><tr><th>ห้อง C</th><td>10305 · ผู้พักในทะเบียน: วัชรพล ดวงดี (ผู้ทดสอบใช้เลขห้องนี้ ไม่ต้องเป็นคนนี้)</td></tr>
+      <tr><th>หน้าเว็บผู้พัก</th><td>https://dormitory-parcel-management-case-studies.onrender.com/resident/</td></tr></table>
+      <h3>ก่อนเริ่ม</h3><ul>
+        <li><code>node uat-dataset.mjs status</code> แถวห้อง C ต้องขึ้น <b>ready</b> (ไม่มีพัสดุ)</li>
+        <li>Google Sheet สำเนา: นำเข้า <code>google-sheet/S06-check-in.csv</code> และ <code>-check-out.csv</code></li></ul>
+      <h3>วิธีเดิม</h3><table><tr><th>ถามที่เคาน์เตอร์</th><td>ผู้ทดสอบถามว่าห้อง 10305 มีพัสดุรอกี่ชิ้น · moderator ค้นใน Sheet · คำตอบ: <b>1 ชิ้น</b> (TP69-S06-GN02)</td></tr></table>
+      <h3>ระบบใหม่</h3><table>
+        <tr><th>UAT07</th><td>ผู้ทดสอบลงทะเบียนห้อง 10305 · moderator เปิดไอคอนกระดิ่ง เลือกห้องนี้ แล้วอ่านรหัสให้</td></tr>
+        <tr><th>UAT08</th><td>moderator Check-In TP69-S06-N01 และ TP69-S06-N02 เข้าห้อง 10305 · จดเวลาที่กดบันทึก</td></tr>
+        <tr><th>UAT09</th><td>moderator Check-Out TP69-S06-N01 · คำตอบ: <b>เหลือ 1 ชิ้น</b></td></tr>
+        <tr><th>UAT10</th><td>ผู้ทดสอบกด "ยกเลิกการลงทะเบียนอุปกรณ์นี้" · moderator Check-In TP69-S06-N03 เข้าห้องนี้ มือถือต้องไม่ได้รับแจ้งเตือน</td></tr></table>
+      <h3>หลังจบ</h3><ul><li>ตรวจว่ามือถือถูกยกเลิกการลงทะเบียนแล้ว ถ้ายังไม่ได้ยกเลิก ให้เปิดไอคอนกระดิ่งแล้วเพิกถอนอุปกรณ์ของห้องนี้</li></ul></section>
+<section class="page"><h2>S07 · R02 · ผู้พัก</h2>
+      <table><tr><th>ห้อง C</th><td>10308 · ผู้พักในทะเบียน: กันตพงศ์ มณีรัตน์ (ผู้ทดสอบใช้เลขห้องนี้ ไม่ต้องเป็นคนนี้)</td></tr>
+      <tr><th>หน้าเว็บผู้พัก</th><td>https://dormitory-parcel-management-case-studies.onrender.com/resident/</td></tr></table>
+      <h3>ก่อนเริ่ม</h3><ul>
+        <li><code>node uat-dataset.mjs status</code> แถวห้อง C ต้องขึ้น <b>ready</b> (ไม่มีพัสดุ)</li>
+        <li>Google Sheet สำเนา: นำเข้า <code>google-sheet/S07-check-in.csv</code> และ <code>-check-out.csv</code></li></ul>
+      <h3>วิธีเดิม</h3><table><tr><th>ถามที่เคาน์เตอร์</th><td>ผู้ทดสอบถามว่าห้อง 10308 มีพัสดุรอกี่ชิ้น · moderator ค้นใน Sheet · คำตอบ: <b>1 ชิ้น</b> (TP69-S07-GN02)</td></tr></table>
+      <h3>ระบบใหม่</h3><table>
+        <tr><th>UAT07</th><td>ผู้ทดสอบลงทะเบียนห้อง 10308 · moderator เปิดไอคอนกระดิ่ง เลือกห้องนี้ แล้วอ่านรหัสให้</td></tr>
+        <tr><th>UAT08</th><td>moderator Check-In TP69-S07-N01 และ TP69-S07-N02 เข้าห้อง 10308 · จดเวลาที่กดบันทึก</td></tr>
+        <tr><th>UAT09</th><td>moderator Check-Out TP69-S07-N01 · คำตอบ: <b>เหลือ 1 ชิ้น</b></td></tr>
+        <tr><th>UAT10</th><td>ผู้ทดสอบกด "ยกเลิกการลงทะเบียนอุปกรณ์นี้" · moderator Check-In TP69-S07-N03 เข้าห้องนี้ มือถือต้องไม่ได้รับแจ้งเตือน</td></tr></table>
+      <h3>หลังจบ</h3><ul><li>ตรวจว่ามือถือถูกยกเลิกการลงทะเบียนแล้ว ถ้ายังไม่ได้ยกเลิก ให้เปิดไอคอนกระดิ่งแล้วเพิกถอนอุปกรณ์ของห้องนี้</li></ul></section>
+<section class="page"><h2>S08 · R03 · ผู้พัก</h2>
+      <table><tr><th>ห้อง C</th><td>10401 · ผู้พักในทะเบียน: ณัฐพล สายทอง (ผู้ทดสอบใช้เลขห้องนี้ ไม่ต้องเป็นคนนี้)</td></tr>
+      <tr><th>หน้าเว็บผู้พัก</th><td>https://dormitory-parcel-management-case-studies.onrender.com/resident/</td></tr></table>
+      <h3>ก่อนเริ่ม</h3><ul>
+        <li><code>node uat-dataset.mjs status</code> แถวห้อง C ต้องขึ้น <b>ready</b> (ไม่มีพัสดุ)</li>
+        <li>Google Sheet สำเนา: นำเข้า <code>google-sheet/S08-check-in.csv</code> และ <code>-check-out.csv</code></li></ul>
+      <h3>วิธีเดิม</h3><table><tr><th>ถามที่เคาน์เตอร์</th><td>ผู้ทดสอบถามว่าห้อง 10401 มีพัสดุรอกี่ชิ้น · moderator ค้นใน Sheet · คำตอบ: <b>1 ชิ้น</b> (TP69-S08-GN02)</td></tr></table>
+      <h3>ระบบใหม่</h3><table>
+        <tr><th>UAT07</th><td>ผู้ทดสอบลงทะเบียนห้อง 10401 · moderator เปิดไอคอนกระดิ่ง เลือกห้องนี้ แล้วอ่านรหัสให้</td></tr>
+        <tr><th>UAT08</th><td>moderator Check-In TP69-S08-N01 และ TP69-S08-N02 เข้าห้อง 10401 · จดเวลาที่กดบันทึก</td></tr>
+        <tr><th>UAT09</th><td>moderator Check-Out TP69-S08-N01 · คำตอบ: <b>เหลือ 1 ชิ้น</b></td></tr>
+        <tr><th>UAT10</th><td>ผู้ทดสอบกด "ยกเลิกการลงทะเบียนอุปกรณ์นี้" · moderator Check-In TP69-S08-N03 เข้าห้องนี้ มือถือต้องไม่ได้รับแจ้งเตือน</td></tr></table>
+      <h3>หลังจบ</h3><ul><li>ตรวจว่ามือถือถูกยกเลิกการลงทะเบียนแล้ว ถ้ายังไม่ได้ยกเลิก ให้เปิดไอคอนกระดิ่งแล้วเพิกถอนอุปกรณ์ของห้องนี้</li></ul></section>
+<section class="page"><h2>S09 · R04 · ผู้พัก</h2>
+      <table><tr><th>ห้อง C</th><td>10403 · ผู้พักในทะเบียน: วิภาวี แก้วมณี (แนน) (ผู้ทดสอบใช้เลขห้องนี้ ไม่ต้องเป็นคนนี้)</td></tr>
+      <tr><th>หน้าเว็บผู้พัก</th><td>https://dormitory-parcel-management-case-studies.onrender.com/resident/</td></tr></table>
+      <h3>ก่อนเริ่ม</h3><ul>
+        <li><code>node uat-dataset.mjs status</code> แถวห้อง C ต้องขึ้น <b>ready</b> (ไม่มีพัสดุ)</li>
+        <li>Google Sheet สำเนา: นำเข้า <code>google-sheet/S09-check-in.csv</code> และ <code>-check-out.csv</code></li></ul>
+      <h3>วิธีเดิม</h3><table><tr><th>ถามที่เคาน์เตอร์</th><td>ผู้ทดสอบถามว่าห้อง 10403 มีพัสดุรอกี่ชิ้น · moderator ค้นใน Sheet · คำตอบ: <b>1 ชิ้น</b> (TP69-S09-GN02)</td></tr></table>
+      <h3>ระบบใหม่</h3><table>
+        <tr><th>UAT07</th><td>ผู้ทดสอบลงทะเบียนห้อง 10403 · moderator เปิดไอคอนกระดิ่ง เลือกห้องนี้ แล้วอ่านรหัสให้</td></tr>
+        <tr><th>UAT08</th><td>moderator Check-In TP69-S09-N01 และ TP69-S09-N02 เข้าห้อง 10403 · จดเวลาที่กดบันทึก</td></tr>
+        <tr><th>UAT09</th><td>moderator Check-Out TP69-S09-N01 · คำตอบ: <b>เหลือ 1 ชิ้น</b></td></tr>
+        <tr><th>UAT10</th><td>ผู้ทดสอบกด "ยกเลิกการลงทะเบียนอุปกรณ์นี้" · moderator Check-In TP69-S09-N03 เข้าห้องนี้ มือถือต้องไม่ได้รับแจ้งเตือน</td></tr></table>
+      <h3>หลังจบ</h3><ul><li>ตรวจว่ามือถือถูกยกเลิกการลงทะเบียนแล้ว ถ้ายังไม่ได้ยกเลิก ให้เปิดไอคอนกระดิ่งแล้วเพิกถอนอุปกรณ์ของห้องนี้</li></ul></section>
+<section class="page"><h2>S10 · R05 · ผู้พัก</h2>
+      <table><tr><th>ห้อง C</th><td>10405 · ผู้พักในทะเบียน: สมหญิง รักษา (มายด์) (ผู้ทดสอบใช้เลขห้องนี้ ไม่ต้องเป็นคนนี้)</td></tr>
+      <tr><th>หน้าเว็บผู้พัก</th><td>https://dormitory-parcel-management-case-studies.onrender.com/resident/</td></tr></table>
+      <h3>ก่อนเริ่ม</h3><ul>
+        <li><code>node uat-dataset.mjs status</code> แถวห้อง C ต้องขึ้น <b>ready</b> (ไม่มีพัสดุ)</li>
+        <li>Google Sheet สำเนา: นำเข้า <code>google-sheet/S10-check-in.csv</code> และ <code>-check-out.csv</code></li></ul>
+      <h3>วิธีเดิม</h3><table><tr><th>ถามที่เคาน์เตอร์</th><td>ผู้ทดสอบถามว่าห้อง 10405 มีพัสดุรอกี่ชิ้น · moderator ค้นใน Sheet · คำตอบ: <b>1 ชิ้น</b> (TP69-S10-GN02)</td></tr></table>
+      <h3>ระบบใหม่</h3><table>
+        <tr><th>UAT07</th><td>ผู้ทดสอบลงทะเบียนห้อง 10405 · moderator เปิดไอคอนกระดิ่ง เลือกห้องนี้ แล้วอ่านรหัสให้</td></tr>
+        <tr><th>UAT08</th><td>moderator Check-In TP69-S10-N01 และ TP69-S10-N02 เข้าห้อง 10405 · จดเวลาที่กดบันทึก</td></tr>
+        <tr><th>UAT09</th><td>moderator Check-Out TP69-S10-N01 · คำตอบ: <b>เหลือ 1 ชิ้น</b></td></tr>
+        <tr><th>UAT10</th><td>ผู้ทดสอบกด "ยกเลิกการลงทะเบียนอุปกรณ์นี้" · moderator Check-In TP69-S10-N03 เข้าห้องนี้ มือถือต้องไม่ได้รับแจ้งเตือน</td></tr></table>
+      <h3>หลังจบ</h3><ul><li>ตรวจว่ามือถือถูกยกเลิกการลงทะเบียนแล้ว ถ้ายังไม่ได้ยกเลิก ให้เปิดไอคอนกระดิ่งแล้วเพิกถอนอุปกรณ์ของห้องนี้</li></ul></section>
+<section class="page"><h2>S11 (reserve) · U06 (reserve) · Staff</h2>
+      <table><tr><th>ห้อง A</th><td>10407 · ธนกร แก้วมณี (ไอซ์)</td></tr>
+      <tr><th>ห้อง B</th><td>10408 · ปิยะพงษ์ ธรรมรักษ์</td></tr></table>
+      <h3>ก่อนเริ่ม</h3><ul>
+        <li>รัน <code>node uat-dataset.mjs status</code> แถวของ session นี้ต้องขึ้น <b>ready</b> (A = P01-P03, B = Q01)</li>
+        <li>Google Sheet สำเนา: นำเข้า <code>google-sheet/S11-check-in.csv</code></li>
+        <li>เตรียมกล่อง: TP69-S11-P01, TP69-S11-P02, TP69-S11-P03 บนชั้น (TP69-S11-Q01 อยู่ในระบบแล้ว ไม่ต้องมีกล่อง) ·TP69-S11-N01, TP69-S11-N02 และฉลากชำรุด TP69-S11-D01 แยกไว้</li></ul>
+      <h3>วิธีเดิม (Google Forms/Sheets)</h3><table>
+        <tr><th>Check-In 2 ชิ้น</th><td>TP69-S11-GN01, TP69-S11-GN02 เข้าห้อง B 10408</td></tr>
+        <tr><th>ดูจำนวน Pending</th><td>ห้อง A 10407 · คำตอบที่ถูก: <b>3 ชิ้น</b> (TP69-S11-GP01, TP69-S11-GP02, TP69-S11-GP03)</td></tr>
+        <tr><th>Check-Out 1 ชิ้น</th><td>TP69-S11-GP01 จากห้อง A</td></tr></table>
+      <h3>ระบบใหม่</h3><table>
+        <tr><th>UAT01</th><td>สแกน TP69-S11-N01, TP69-S11-N02 เข้าห้อง B 10408 · ต้องได้ 2 รายการ ไม่ซ้ำ</td></tr>
+        <tr><th>UAT02</th><td>ฉลากชำรุด เลขที่ยืนยันแล้วคือ <b>TP69-S11-D01</b> · ห้อง B · เหตุผล "กล่องบุบ"</td></tr>
+        <tr><th>UAT03</th><td>บอกผู้ทดสอบ: ห้อง 10407 ชื่อ ธนกร แก้วมณี (ไอซ์) · คำตอบ: <b>3 ชิ้น</b> TP69-S11-P01, TP69-S11-P02, TP69-S11-P03</td></tr>
+        <tr><th>UAT04</th><td>Check-Out เฉพาะ TP69-S11-P01 · TP69-S11-P02 และ TP69-S11-P03 ต้องยัง Pending</td></tr>
+        <tr><th>UAT05</th><td>เลือก TP69-S11-P02, TP69-S11-P03 → ย้อนกลับ 1 ครั้ง → Check-Out · TP69-S11-Q01 ในห้อง B ต้องยัง Pending</td></tr>
+        <tr><th>UAT06</th><td>หา TP69-S11-P01 และ TP69-S11-D01 ในประวัติ · ตรวจเวลา สถานะ และเหตุผล "กล่องบุบ"</td></tr></table></section>
+<section class="page"><h2>S12 (reserve) · R06 (reserve) · ผู้พัก</h2>
+      <table><tr><th>ห้อง C</th><td>10410 · ผู้พักในทะเบียน: ปวีณา มั่นคง (เจ) (ผู้ทดสอบใช้เลขห้องนี้ ไม่ต้องเป็นคนนี้)</td></tr>
+      <tr><th>หน้าเว็บผู้พัก</th><td>https://dormitory-parcel-management-case-studies.onrender.com/resident/</td></tr></table>
+      <h3>ก่อนเริ่ม</h3><ul>
+        <li><code>node uat-dataset.mjs status</code> แถวห้อง C ต้องขึ้น <b>ready</b> (ไม่มีพัสดุ)</li>
+        <li>Google Sheet สำเนา: นำเข้า <code>google-sheet/S12-check-in.csv</code> และ <code>-check-out.csv</code></li></ul>
+      <h3>วิธีเดิม</h3><table><tr><th>ถามที่เคาน์เตอร์</th><td>ผู้ทดสอบถามว่าห้อง 10410 มีพัสดุรอกี่ชิ้น · moderator ค้นใน Sheet · คำตอบ: <b>1 ชิ้น</b> (TP69-S12-GN02)</td></tr></table>
+      <h3>ระบบใหม่</h3><table>
+        <tr><th>UAT07</th><td>ผู้ทดสอบลงทะเบียนห้อง 10410 · moderator เปิดไอคอนกระดิ่ง เลือกห้องนี้ แล้วอ่านรหัสให้</td></tr>
+        <tr><th>UAT08</th><td>moderator Check-In TP69-S12-N01 และ TP69-S12-N02 เข้าห้อง 10410 · จดเวลาที่กดบันทึก</td></tr>
+        <tr><th>UAT09</th><td>moderator Check-Out TP69-S12-N01 · คำตอบ: <b>เหลือ 1 ชิ้น</b></td></tr>
+        <tr><th>UAT10</th><td>ผู้ทดสอบกด "ยกเลิกการลงทะเบียนอุปกรณ์นี้" · moderator Check-In TP69-S12-N03 เข้าห้องนี้ มือถือต้องไม่ได้รับแจ้งเตือน</td></tr></table>
+      <h3>หลังจบ</h3><ul><li>ตรวจว่ามือถือถูกยกเลิกการลงทะเบียนแล้ว ถ้ายังไม่ได้ยกเลิก ให้เปิดไอคอนกระดิ่งแล้วเพิกถอนอุปกรณ์ของห้องนี้</li></ul></section>
+<section class="page"><h2>PILOT · PILOT-STAFF · Staff</h2>
+      <table><tr><th>ห้อง A</th><td>10502 · วัชรพล มณีรัตน์</td></tr>
+      <tr><th>ห้อง B</th><td>10503 · นภัสสร จันทร์เพ็ญ (ฟ้า)</td></tr></table>
+      <h3>ก่อนเริ่ม</h3><ul>
+        <li>รัน <code>node uat-dataset.mjs status</code> แถวของ session นี้ต้องขึ้น <b>ready</b> (A = P01-P03, B = Q01)</li>
+        <li>Google Sheet สำเนา: นำเข้า <code>google-sheet/PS-check-in.csv</code></li>
+        <li>เตรียมกล่อง: TP69-PS-P01, TP69-PS-P02, TP69-PS-P03 บนชั้น (TP69-PS-Q01 อยู่ในระบบแล้ว ไม่ต้องมีกล่อง) ·TP69-PS-N01, TP69-PS-N02 และฉลากชำรุด TP69-PS-D01 แยกไว้</li></ul>
+      <h3>วิธีเดิม (Google Forms/Sheets)</h3><table>
+        <tr><th>Check-In 2 ชิ้น</th><td>TP69-PS-GN01, TP69-PS-GN02 เข้าห้อง B 10503</td></tr>
+        <tr><th>ดูจำนวน Pending</th><td>ห้อง A 10502 · คำตอบที่ถูก: <b>3 ชิ้น</b> (TP69-PS-GP01, TP69-PS-GP02, TP69-PS-GP03)</td></tr>
+        <tr><th>Check-Out 1 ชิ้น</th><td>TP69-PS-GP01 จากห้อง A</td></tr></table>
+      <h3>ระบบใหม่</h3><table>
+        <tr><th>UAT01</th><td>สแกน TP69-PS-N01, TP69-PS-N02 เข้าห้อง B 10503 · ต้องได้ 2 รายการ ไม่ซ้ำ</td></tr>
+        <tr><th>UAT02</th><td>ฉลากชำรุด เลขที่ยืนยันแล้วคือ <b>TP69-PS-D01</b> · ห้อง B · เหตุผล "กล่องบุบ"</td></tr>
+        <tr><th>UAT03</th><td>บอกผู้ทดสอบ: ห้อง 10502 ชื่อ วัชรพล มณีรัตน์ · คำตอบ: <b>3 ชิ้น</b> TP69-PS-P01, TP69-PS-P02, TP69-PS-P03</td></tr>
+        <tr><th>UAT04</th><td>Check-Out เฉพาะ TP69-PS-P01 · TP69-PS-P02 และ TP69-PS-P03 ต้องยัง Pending</td></tr>
+        <tr><th>UAT05</th><td>เลือก TP69-PS-P02, TP69-PS-P03 → ย้อนกลับ 1 ครั้ง → Check-Out · TP69-PS-Q01 ในห้อง B ต้องยัง Pending</td></tr>
+        <tr><th>UAT06</th><td>หา TP69-PS-P01 และ TP69-PS-D01 ในประวัติ · ตรวจเวลา สถานะ และเหตุผล "กล่องบุบ"</td></tr></table></section>
+<section class="page"><h2>PILOT · PILOT-RESIDENT · ผู้พัก</h2>
+      <table><tr><th>ห้อง C</th><td>10506 · ผู้พักในทะเบียน: ธีรภัทร วงศ์ไพร (เจ) (ผู้ทดสอบใช้เลขห้องนี้ ไม่ต้องเป็นคนนี้)</td></tr>
+      <tr><th>หน้าเว็บผู้พัก</th><td>https://dormitory-parcel-management-case-studies.onrender.com/resident/</td></tr></table>
+      <h3>ก่อนเริ่ม</h3><ul>
+        <li><code>node uat-dataset.mjs status</code> แถวห้อง C ต้องขึ้น <b>ready</b> (ไม่มีพัสดุ)</li>
+        <li>Google Sheet สำเนา: นำเข้า <code>google-sheet/PR-check-in.csv</code> และ <code>-check-out.csv</code></li></ul>
+      <h3>วิธีเดิม</h3><table><tr><th>ถามที่เคาน์เตอร์</th><td>ผู้ทดสอบถามว่าห้อง 10506 มีพัสดุรอกี่ชิ้น · moderator ค้นใน Sheet · คำตอบ: <b>1 ชิ้น</b> (TP69-PR-GN02)</td></tr></table>
+      <h3>ระบบใหม่</h3><table>
+        <tr><th>UAT07</th><td>ผู้ทดสอบลงทะเบียนห้อง 10506 · moderator เปิดไอคอนกระดิ่ง เลือกห้องนี้ แล้วอ่านรหัสให้</td></tr>
+        <tr><th>UAT08</th><td>moderator Check-In TP69-PR-N01 และ TP69-PR-N02 เข้าห้อง 10506 · จดเวลาที่กดบันทึก</td></tr>
+        <tr><th>UAT09</th><td>moderator Check-Out TP69-PR-N01 · คำตอบ: <b>เหลือ 1 ชิ้น</b></td></tr>
+        <tr><th>UAT10</th><td>ผู้ทดสอบกด "ยกเลิกการลงทะเบียนอุปกรณ์นี้" · moderator Check-In TP69-PR-N03 เข้าห้องนี้ มือถือต้องไม่ได้รับแจ้งเตือน</td></tr></table>
+      <h3>หลังจบ</h3><ul><li>ตรวจว่ามือถือถูกยกเลิกการลงทะเบียนแล้ว ถ้ายังไม่ได้ยกเลิก ให้เปิดไอคอนกระดิ่งแล้วเพิกถอนอุปกรณ์ของห้องนี้</li></ul></section></body></html>

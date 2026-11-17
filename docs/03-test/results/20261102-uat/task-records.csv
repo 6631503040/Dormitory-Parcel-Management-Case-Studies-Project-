@@ -1,0 +1,101 @@
+﻿Timestamp,Session,Participant ID,Build / version,Task,Method,Status,Unassisted success,Time (seconds),Errors (count),Assistance,Actual result and observations,Evidence / defect ID
+2026-11-04 17:30:48.211000,S06,R01,-,UAT07 Resident registration (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,0.0,0.0,None,,
+2026-11-04 17:30:07.785000,S07,R02,,UAT07 Resident registration (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,0.0,0.0,None,,
+2026-11-04 16:37:11.155000,S08,R03,-,UAT07 Resident registration (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,0.0,0.0,None,-,-
+2026-11-05 15:48:12.580000,S09,R04,,UAT07 Resident registration (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,0.0,0.0,None,,
+2026-11-04 16:36:51.517000,S10,R05,-,UAT07 Resident registration (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,0.0,0.0,None,-,-
+2026-11-04 17:35:22.507000,S06,R01,,UAT10 Turn off notifications (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,0.0,0.0,None,,
+2026-11-04 17:35:59.760000,S07,R02,,UAT10 Turn off notifications (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,0.0,0.0,None,,
+2026-11-04 16:47:03.053000,S08,R03,-,UAT10 Turn off notifications (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,0.0,0.0,None,-,-
+2026-11-05 15:49:56.783000,S09,R04,,UAT10 Turn off notifications (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,0.0,0.0,None,,
+2026-11-04 16:42:37.734000,S10,R05,-,UAT10 Turn off notifications (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,0.0,0.0,None,-,-
+2026-11-04 17:01:15.196000,S03,U03,,UAT03 Pending lookup (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,4.0,0.0,None,,
+2026-11-04 17:01:11.238000,S01,U01,-,UAT03 Pending lookup (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,5.0,0.0,None,,
+2026-11-04 17:13:46.849000,S05,U05,,UAT03 Pending lookup (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,5.0,0.0,None,,
+2026-11-04 17:11:30.109000,S04,U04,,UAT03 Pending lookup (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,6.0,0.0,None,,
+2026-11-04 17:01:15.604000,S02,U02,-,UAT03 Pending lookup (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,8.0,0.0,None,,
+2026-11-04 17:33:39.538000,S06,R01,-,UAT08 Parcel arrival (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,10.0,0.0,None,,
+2026-11-04 16:39:30.118000,S10,R05,-,UAT08 Parcel arrival (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,10.0,0.0,None,-,-
+2026-11-04 16:43:46.916000,S08,R03,-,UAT08 Parcel arrival (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,11.0,0.0,None,-,-
+2026-11-05 15:48:46.127000,S09,R04,,UAT08 Parcel arrival (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,12.0,0.0,None,,
+2026-11-04 17:30:38.843000,S07,R02,,UAT08 Parcel arrival (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,13.0,0.0,None,,
+2026-11-04 17:00:09.814000,S01,U01,-,UAT02 Manual fallback and damage (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,19.0,0.0,None,,
+2026-11-04 16:59:21.379000,S02,U02,-,UAT01 Scanner Check-In (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,20.0,0.0,None,-,
+2026-11-04 16:59:20.823000,S01,U01,-,UAT01 Scanner Check-In (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,21.0,0.0,None,,
+2026-11-04 17:00:21.746000,S02,U02,-,UAT02 Manual fallback and damage (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,22.0,0.0,None,,
+2026-11-04 17:13:22.330000,S05,U05,,UAT02 Manual fallback and damage (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,22.0,0.0,None,,
+2026-11-04 17:01:48.199000,S01,U01,-,UAT04 Selective collection (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,22.0,0.0,None,,
+2026-11-04 17:09:39.962000,S04,U04,,UAT01 Scanner Check-In (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,23.0,0.0,None,,
+2026-11-04 17:10:06.985000,S04,U04,,UAT02 Manual fallback and damage (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,24.0,0.0,None,,
+2026-11-04 17:00:18.234000,S03,U03,,UAT02 Manual fallback and damage (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,25.0,0.0,None,,
+2026-11-04 17:01:50.895000,S02,U02,-,UAT04 Selective collection (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,25.0,0.0,None,,
+2026-11-04 17:01:53.516000,S03,U03,,UAT04 Selective collection (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,25.0,0.0,None,,
+2026-11-04 16:59:23.068000,S03,U03,-,UAT01 Scanner Check-In (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,26.0,0.0,None,,
+2026-11-04 17:11:52.944000,S04,U04,,UAT04 Selective collection (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,26.0,0.0,None,,
+2026-11-04 17:14:09.300000,S05,U05,,UAT04 Selective collection (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,26.0,0.0,None,,
+2026-11-04 17:31:42.268000,S07,R02,,UAT09 Pickup update (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,26.0,0.0,None,,
+2026-11-05 15:49:21.297000,S09,R04,,UAT09 Pickup update (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,27.0,0.0,None,,
+2026-11-04 17:13:02.447000,S05,U05,,UAT01 Scanner Check-In (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,28.0,0.0,None,,
+2026-11-04 16:46:14.243000,S08,R03,-,UAT09 Pickup update (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,28.0,0.0,None,-,-
+2026-11-04 17:04:08.274000,S03,U03,,UAT06 Collection evidence (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,30.0,0.0,None,,
+2026-11-04 17:34:15.159000,S06,R01,,UAT09 Pickup update (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,30.0,0.0,None,,
+2026-11-04 17:03:41.033000,S01,U01,-,UAT06 Collection evidence (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,33.0,0.0,None,,
+2026-11-04 16:41:44.840000,S10,R05,-,UAT09 Pickup update (Resident),"Existing method (Google Forms/Sheets, or asking at the desk)",Fail,Yes,34.0,0.0,None,-,-
+2026-11-04 17:12:41.108000,S04,U04,,UAT06 Collection evidence (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,36.0,0.0,None,,
+2026-11-04 17:04:00.700000,S02,U02,-,UAT06 Collection evidence (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,40.0,0.0,None,,
+2026-11-04 17:15:38.915000,S05,U05,,UAT06 Collection evidence (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,40.0,0.0,None,,
+2026-11-04 17:02:30.486000,S01,U01,-,UAT05 Full-room collection and cancellation (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,44.0,0.0,None,,
+2026-11-04 17:02:47.904000,S03,U03,,UAT05 Full-room collection and cancellation (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,48.0,0.0,None,,
+2026-11-04 17:12:20.093000,S04,U04,,UAT05 Full-room collection and cancellation (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,48.0,0.0,None,,
+2026-11-04 17:15:14.994000,S05,U05,,UAT05 Full-room collection and cancellation (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,48.0,0.0,None,,
+2026-11-04 17:02:30.607000,S02,U02,-,UAT05 Full-room collection and cancellation (Staff),"Existing method (Google Forms/Sheets, or asking at the desk)",Pass,Yes,50.0,0.0,None,,
+2026-11-04 16:51:17.826000,S10,R05,9344cff,UAT07 Resident registration (Resident),New system,Pass,Yes,20.0,0.0,None,-,-
+2026-11-04 17:03:56.902000,S10,R05,9344cff,UAT10 Turn off notifications (Resident),New system,Pass,Yes,22.0,0.0,None,กดยกเลิกการเชื่อมต่อกับระบบแจ้งเตือนสำเร็จ,-
+2026-11-02 12:09:03,S01,U01,7dc4587,UAT06 Collection evidence (Staff),New system,Pass,Yes,3.0,0.0,None,ค้นหาประวัติได้ง่าย ไม่มีปัญหา,
+2026-11-04 10:07:12,S03,U03,9344cff,UAT06 Collection evidence (Staff),New system,Pass,Yes,3.0,0.0,None,ค้นหาประวัติได้ชัดเจน ไม่ติดปัญหา · ความเห็น: ใช้ง่ายกว่าระบบเดิม สแกนง่าย นำพัสดุออกได้รวดเร็ว อยากให้ตัวอักษรบนปุ่มใหญ่ขึ้นอีกนิด,UAT-D06
+2026-11-04 17:21:38.053000,S05,U05,9344cff,UAT06 Collection evidence (Staff),New system,Pass,Yes,3.0,0.0,None,ผู้ใช้ค้นหารายการและอ่านสถานะย้อนหลังได้สำเร็จ,
+2026-11-04 11:33:43,S07,R02,9344cff,UAT10 Turn off notifications (Resident),New system,Pass,Yes,3.0,0.0,None,เห็นปุ่มยกเลิกการผูกกับระบบได้ง่าย,
+2026-11-02 12:03:58,S01,U01,7dc4587,UAT03 Pending lookup (Staff),New system,Pass,Yes,4.0,0.0,None,ค้นหาพัสดุของห้องเจอครบ ไม่มีปัญหา หน้าจออ่านง่าย,
+2026-11-04 17:15:24.169000,S04,U04,9344cff,UAT06 Collection evidence (Staff),New system,Pass,Yes,4.0,0.0,None,,
+2026-11-04 17:01:56.072000,S08,R03,9344cff,UAT09 Pickup update (Resident),New system,Pass,Yes,4.0,0.0,None,ลูกหอไปรับพัสดุเรียบร้อยและเห็นพัสดุออกจากระบบได้ชัดเจน,-
+2026-11-02 12:37:30,S02,U02,7dc4587,UAT06 Collection evidence (Staff),New system,Fail,Yes,5.0,0.0,None,ผู้ทดสอบหาประวัติเจอ แต่พัสดุที่ไม่มีเลขห้องแสดงเป็น ไม่มีปัญหา ที่ถูกต้องคือ ชำรุด · ระบบแสดงสถานะผิด (ไม่ใช่ความผิดของผู้ทดสอบ),UAT-D05
+2026-11-04 11:02:30,S06,R01,9344cff,UAT09 Pickup update (Resident),New system,Pass,Yes,5.0,0.0,None,หลังรับพัสดุ เห็นว่าพัสดุออกจากรายการแจ้งเตือนแล้ว,
+2026-11-04 17:15:51.202000,S09,R04,9344cff,UAT09 Pickup update (Resident),New system,Pass,Yes,5.0,0.0,None,ลูกหอไปรับพัสดุเรียบร้อยและเห็นพัสดุออกจากระบบได้ชัดเจน,-
+2026-11-04 11:03:36,S06,R01,9344cff,UAT10 Turn off notifications (Resident),New system,Pass,Yes,6.0,0.0,None,กดยกเลิกการเชื่อมต่อกับระบบแจ้งเตือนสำเร็จ,
+2026-11-04 17:17:07.832000,S09,R04,9344cff,UAT10 Turn off notifications (Resident),New system,Pass,Yes,6.0,0.0,None,ผู้ใช้เห็นปุ่มยกเลิกผูกกับระบบได้ง่าย,-
+2026-11-04 11:01:25,S06,R01,9344cff,UAT08 Parcel arrival (Resident),New system,Pass,Yes,7.0,0.0,None,ได้รับแจ้งเตือนพัสดุเข้า เห็นพัสดุ 1 ชิ้น · [ต้องยืนยัน: แผนให้ Check-In 2 ชิ้น N01-N02],
+2026-11-04 17:14:46.930000,S05,U05,9344cff,UAT03 Pending lookup (Staff),New system,Pass,Yes,8.0,0.0,None,ผู้ใช้ค้นหาเลขห้องและตรวจสอบจำนวนพัสดุได้ชัดเจน,
+2026-11-04 17:01:20.348000,S10,R05,9344cff,UAT08 Parcel arrival (Resident),New system,Pass,Yes,8.0,0.0,None,เห็นพัสดุเข้าระบบและแจ้งเตือนชัดเจน,-
+2026-11-02 12:33:26,S02,U02,7dc4587,UAT03 Pending lookup (Staff),New system,Pass,Yes,9.0,0.0,None,เช็คจำนวนพัสดุห้อง 10202 ได้ ไม่ติดปัญหา,
+2026-11-02 12:34:35,S02,U02,7dc4587,UAT04 Selective collection (Staff),New system,Pass,Yes,9.0,1.0,None,นำพัสดุออก 1 ชิ้น ห้อง 10202 · ผู้ทดสอบพยายามพิมพ์เลขห้อง แต่หน้า Check-Out ไม่มีช่องใส่เลขห้อง · [ต้องยืนยัน: ทำสำเร็จหรือไม่],UAT-D03
+2026-11-04 11:31:29,S07,R02,9344cff,UAT08 Parcel arrival (Resident),New system,Pass,Yes,9.0,0.0,None,เห็นพัสดุเข้าระบบและแจ้งเตือนชัดเจน,
+2026-11-04 17:14:44.953000,S09,R04,9344cff,UAT08 Parcel arrival (Resident),New system,Pass,Yes,9.0,0.0,None,ลูกหอเห็นพัสดุเข้าระบบขึ้นแจ้งเตือนชัดเจน,-
+2026-11-04 10:03:07,S03,U03,9344cff,UAT03 Pending lookup (Staff),New system,Pass,Yes,11.0,0.0,None,ดูพัสดุของห้องว่ามีกี่ชิ้น เห็นจำนวนชัดเจน,
+2026-11-04 11:32:40,S07,R02,9344cff,UAT09 Pickup update (Resident),New system,Pass,Yes,11.0,0.0,None,ไปรับพัสดุแล้วเห็นพัสดุออกจากระบบชัดเจน,
+2026-11-04 17:13:45.919000,S09,R04,9344cff,UAT07 Resident registration (Resident),New system,Pass,Yes,12.0,0.0,None,ลูกหอลงทะเบียนห้อง10405 ขอยืนยันห้อง,-
+2026-11-04 17:04:09.852000,S08,R03,9344cff,UAT10 Turn off notifications (Resident),New system,Pass,Yes,13.0,0.0,None,ลูกหอกดยกเลิกการเชื่อมต่อกับระบบแจ้งเตือนสำเร็จ,-
+2026-11-04 17:13:45.501000,S04,U04,9344cff,UAT03 Pending lookup (Staff),New system,Pass,Yes,14.0,0.0,None,,
+2026-11-04 17:00:48.213000,S08,R03,9344cff,UAT08 Parcel arrival (Resident),New system,Pass,Yes,14.0,0.0,None,ลูกหอได้รับแจ้งเตือนพัสดุเข้า ลูกหอพบว่ามีพัสดุแจ้งเตือน 1 ชิ้น ,-
+2026-11-04 11:00:18,S06,R01,9344cff,UAT07 Resident registration (Resident),New system,Pass,Yes,18.0,0.0,None,ลงทะเบียนห้อง 10305 ได้รับรหัสยืนยันและกรอกเรียบร้อย,
+2026-11-04 17:13:38.628000,S05,U05,9344cff,UAT02 Manual fallback and damage (Staff),New system,Pass,Yes,20.0,0.0,None,ผู้ใช้พบตัวเลือกพัสดุมีปัญหาและบันทึกได้สำเร็จ,
+2026-11-04 17:16:52.297000,S05,U05,9344cff,UAT05 Full-room collection and cancellation (Staff),New system,Pass,Yes,20.0,0.0,None,ผู้ใช้สแกนพัสดุต่อเนื่องและตรวจสอบรายการที่นำออกได้ครบ,
+2026-11-04 11:30:20,S07,R02,9344cff,UAT07 Resident registration (Resident),New system,Pass,Yes,20.0,0.0,None,กรอกห้องและยืนยันการผูกกับระบบได้ ไม่ติดปัญหา · [ต้องยืนยัน: บันทึกระบุห้อง 1201 แต่แผน S07 คือ 10308],
+2026-11-04 16:56:55.346000,S08,R03,9344cff,UAT07 Resident registration (Resident),New system,Pass,Yes,20.0,0.0,None,ลูกหอกรอกห้อง 1203 ยืนยันการพูกระบบกับระบบได้ ไม่ติดปัญหา,-
+2026-11-04 17:02:45.661000,S10,R05,9344cff,UAT09 Pickup update (Resident),New system,Pass,Yes,22.0,0.0,None,หลังรับพัสดุ เห็นว่าพัสดุออกจากรายการแจ้งเตือนแล้ว,-
+2026-11-04 10:01:56,S03,U03,9344cff,UAT02 Manual fallback and damage (Staff),New system,Pass,Yes,23.0,0.0,None,หาปุ่มติ๊ก พัสดุมีปัญหา ได้ไม่ติดปัญหา · พิมพ์ค้นหาเลขห้องได้ไม่ติดปัญหา,
+2026-11-04 17:13:13.420000,S04,U04,9344cff,UAT02 Manual fallback and damage (Staff),New system,Pass,Yes,26.0,0.0,None,,
+2026-11-04 10:06:09,S03,U03,9344cff,UAT05 Full-room collection and cancellation (Staff),New system,Pass,Yes,26.0,0.0,None,นำพัสดุออกทั้งหมดสำเร็จ ไม่ติดปัญหา,
+2026-11-02 12:02:54,S01,U01,7dc4587,UAT02 Manual fallback and damage (Staff),New system,Pass,Yes,27.0,0.0,None,พัสดุที่ไม่มีเลขห้อง · ผู้ทดสอบมองไม่ค่อยเห็นปุ่ม พัสดุมีปัญหา แต่ทำสำเร็จ,UAT-D02
+2026-11-02 12:32:17,S02,U02,7dc4587,UAT02 Manual fallback and damage (Staff),New system,Pass,Yes,28.0,0.0,None,หาปุ่ม พัสดุชำรุด เจอ ไม่ติดปัญหา มองเห็นค่อนข้างง่าย,
+2026-11-04 17:15:37.752000,S05,U05,9344cff,UAT04 Selective collection (Staff),New system,Pass,Yes,28.0,0.0,None,ผู้ใช้สแกนเลขพัสดุ ตรวจสอบรายการ และยืนยันนำออกได้สำเร็จ,
+2026-11-04 17:14:50.102000,S04,U04,9344cff,UAT05 Full-room collection and cancellation (Staff),New system,Pass,Yes,28.0,0.0,None,,
+2026-11-04 10:00:33,S03,U03,9344cff,UAT01 Scanner Check-In (Staff),New system,Pass,Yes,33.0,0.0,None,หาปุ่ม Check-In ได้ชัดเจน ไม่ติดปัญหา,
+2026-11-04 17:12:42.430000,S05,U05,9344cff,UAT01 Scanner Check-In (Staff),New system,Pass,Yes,33.0,0.0,None,ผู้ใช้อ่านชื่อช่อง กรอกเลขห้อง สแกนเลขพัสดุ และบันทึกได้สำเร็จ,
+2026-11-04 17:14:21.573000,S04,U04,9344cff,UAT04 Selective collection (Staff),New system,Pass,Yes,34.0,0.0,None,,
+2026-11-04 17:12:35.375000,S04,U04,9344cff,UAT01 Scanner Check-In (Staff),New system,Pass,Yes,35.0,0.0,None,,
+2026-11-04 10:04:43,S03,U03,9344cff,UAT04 Selective collection (Staff),New system,Pass,Yes,36.0,0.0,None,นำพัสดุออก 1 ชิ้น ไม่ติดปัญหา,
+2026-11-02 12:30:49,S02,U02,7dc4587,UAT01 Scanner Check-In (Staff),New system,Pass,Yes,49.0,1.0,None,Check-In 1 ชิ้น · ผู้ทดสอบพิมพ์เลขห้องลงช่อง Tracking Code โดยไม่ตั้งใจแล้วกดบันทึก ระบบรับไว้ · หลังจากนั้นทำต่อได้ไม่มีปัญหา · [ต้องยืนยัน: บันทึกระบุ 12025 / 1 ชิ้น แต่แผน S02 คือ 2 ชิ้น ห้อง 10201],UAT-D04
+2026-11-02 12:36:25,S02,U02,7dc4587,UAT05 Full-room collection and cancellation (Staff),New system,Pass,Yes,50.0,0.0,None,นำพัสดุห้อง 10202 ออกทั้งหมด · พยายามพิมพ์เลขห้องก่อน (ไม่มีช่อง) สุดท้ายสแกน Tracking Code ทีละชิ้นจนสำเร็จ,UAT-D03
+2026-11-02 12:05:50,S01,U01,7dc4587,UAT04 Selective collection (Staff),New system,Pass,Yes,52.0,1.0,None,เจอพัสดุแล้วแต่ไม่รู้ว่าจะนำออกอย่างไร (หน้า Check-Out ไม่มีช่องค้นหาเลขห้อง) · [ต้องยืนยัน: ผู้ดำเนินการช่วยหรือไม่],UAT-D03
+2026-11-02 12:08:00,S01,U01,7dc4587,UAT05 Full-room collection and cancellation (Staff),New system,Pass,Yes,70.0,0.0,None,นำพัสดุออกมากกว่า 2 ชิ้นได้ · ผู้ทดสอบต้องการค้นหาด้วยเลขห้องที่หน้า Check-Out,UAT-D03
+2026-11-02 12:01:27,S01,U01,7dc4587,UAT01 Scanner Check-In (Staff),New system,Pass,Yes,87.0,1.0,None,Check-In 2 ชิ้น ห้อง 10201 · ผู้ทดสอบไม่แน่ใจว่าต้องพิมพ์เลขห้องก่อนหรือไม่ · คลิกนอกกล่อง Check-In แล้วกล่องปิดเอง ข้อมูลที่กรอกหาย ต้องสแกนใหม่ · ชิ้นที่ 2 สแกนสำเร็จ · [ต้องยืนยัน: ห้องในแผน S01 คือ 10108],UAT-D01

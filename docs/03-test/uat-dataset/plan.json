@@ -1,0 +1,636 @@
+{
+  "baseUrl": "https://dormitory-parcel-management-case-studies.onrender.com",
+  "createdAt": "2026-11-01T16:11:42.378Z",
+  "sessions": [
+    {
+      "session": "S01",
+      "participant": "U01",
+      "group": "staff",
+      "tag": "S01",
+      "roomA": {
+        "roomId": 457,
+        "buildingCode": "10",
+        "roomNumber": "107",
+        "residents": [
+          {
+            "id": 583,
+            "fullName": "รุ่งนภา มณีรัตน์",
+            "nickname": null
+          }
+        ],
+        "label": "10107"
+      },
+      "roomB": {
+        "roomId": 458,
+        "buildingCode": "10",
+        "roomNumber": "108",
+        "residents": [
+          {
+            "id": 584,
+            "fullName": "ณัฐธิดา สายทอง",
+            "nickname": null
+          }
+        ],
+        "label": "10108"
+      },
+      "codes": {
+        "seedA": [
+          "TP69-S01-P01",
+          "TP69-S01-P02",
+          "TP69-S01-P03"
+        ],
+        "seedB": [
+          "TP69-S01-Q01"
+        ],
+        "scanIn": [
+          "TP69-S01-N01",
+          "TP69-S01-N02"
+        ],
+        "damaged": "TP69-S01-D01",
+        "gA": [
+          "TP69-S01-GP01",
+          "TP69-S01-GP02",
+          "TP69-S01-GP03"
+        ],
+        "gB": [
+          "TP69-S01-GQ01"
+        ],
+        "gScanIn": [
+          "TP69-S01-GN01",
+          "TP69-S01-GN02"
+        ]
+      }
+    },
+    {
+      "session": "S02",
+      "participant": "U02",
+      "group": "staff",
+      "tag": "S02",
+      "roomA": {
+        "roomId": 460,
+        "buildingCode": "10",
+        "roomNumber": "110",
+        "residents": [
+          {
+            "id": 586,
+            "fullName": "ปิยะพงษ์ แก้วมณี",
+            "nickname": null
+          }
+        ],
+        "label": "10110"
+      },
+      "roomB": {
+        "roomId": 461,
+        "buildingCode": "10",
+        "roomNumber": "201",
+        "residents": [
+          {
+            "id": 587,
+            "fullName": "สิรวิชญ์ ธรรมรักษ์",
+            "nickname": "ฟ้า"
+          }
+        ],
+        "label": "10201"
+      },
+      "codes": {
+        "seedA": [
+          "TP69-S02-P01",
+          "TP69-S02-P02",
+          "TP69-S02-P03"
+        ],
+        "seedB": [
+          "TP69-S02-Q01"
+        ],
+        "scanIn": [
+          "TP69-S02-N01",
+          "TP69-S02-N02"
+        ],
+        "damaged": "TP69-S02-D01",
+        "gA": [
+          "TP69-S02-GP01",
+          "TP69-S02-GP02",
+          "TP69-S02-GP03"
+        ],
+        "gB": [
+          "TP69-S02-GQ01"
+        ],
+        "gScanIn": [
+          "TP69-S02-GN01",
+          "TP69-S02-GN02"
+        ]
+      }
+    },
+    {
+      "session": "S03",
+      "participant": "U03",
+      "group": "staff",
+      "tag": "S03",
+      "roomA": {
+        "roomId": 462,
+        "buildingCode": "10",
+        "roomNumber": "202",
+        "residents": [
+          {
+            "id": 588,
+            "fullName": "กิตติพงษ์ สุขใจ",
+            "nickname": null
+          }
+        ],
+        "label": "10202"
+      },
+      "roomB": {
+        "roomId": 465,
+        "buildingCode": "10",
+        "roomNumber": "205",
+        "residents": [
+          {
+            "id": 592,
+            "fullName": "มนัสนันท์ เจริญสุข",
+            "nickname": null
+          }
+        ],
+        "label": "10205"
+      },
+      "codes": {
+        "seedA": [
+          "TP69-S03-P01",
+          "TP69-S03-P02",
+          "TP69-S03-P03"
+        ],
+        "seedB": [
+          "TP69-S03-Q01"
+        ],
+        "scanIn": [
+          "TP69-S03-N01",
+          "TP69-S03-N02"
+        ],
+        "damaged": "TP69-S03-D01",
+        "gA": [
+          "TP69-S03-GP01",
+          "TP69-S03-GP02",
+          "TP69-S03-GP03"
+        ],
+        "gB": [
+          "TP69-S03-GQ01"
+        ],
+        "gScanIn": [
+          "TP69-S03-GN01",
+          "TP69-S03-GN02"
+        ]
+      }
+    },
+    {
+      "session": "S04",
+      "participant": "U04",
+      "group": "staff",
+      "tag": "S04",
+      "roomA": {
+        "roomId": 466,
+        "buildingCode": "10",
+        "roomNumber": "206",
+        "residents": [
+          {
+            "id": 593,
+            "fullName": "ชนิดา สุขใจ",
+            "nickname": "เจ"
+          }
+        ],
+        "label": "10206"
+      },
+      "roomB": {
+        "roomId": 469,
+        "buildingCode": "10",
+        "roomNumber": "209",
+        "residents": [
+          {
+            "id": 597,
+            "fullName": "อนุชา แสงทอง",
+            "nickname": null
+          }
+        ],
+        "label": "10209"
+      },
+      "codes": {
+        "seedA": [
+          "TP69-S04-P01",
+          "TP69-S04-P02",
+          "TP69-S04-P03"
+        ],
+        "seedB": [
+          "TP69-S04-Q01"
+        ],
+        "scanIn": [
+          "TP69-S04-N01",
+          "TP69-S04-N02"
+        ],
+        "damaged": "TP69-S04-D01",
+        "gA": [
+          "TP69-S04-GP01",
+          "TP69-S04-GP02",
+          "TP69-S04-GP03"
+        ],
+        "gB": [
+          "TP69-S04-GQ01"
+        ],
+        "gScanIn": [
+          "TP69-S04-GN01",
+          "TP69-S04-GN02"
+        ]
+      }
+    },
+    {
+      "session": "S05",
+      "participant": "U05",
+      "group": "staff",
+      "tag": "S05",
+      "roomA": {
+        "roomId": 470,
+        "buildingCode": "10",
+        "roomNumber": "210",
+        "residents": [
+          {
+            "id": 598,
+            "fullName": "รุ่งนภา ภักดี",
+            "nickname": null
+          }
+        ],
+        "label": "10210"
+      },
+      "roomB": {
+        "roomId": 474,
+        "buildingCode": "10",
+        "roomNumber": "304",
+        "residents": [
+          {
+            "id": 603,
+            "fullName": "ธนกร วงศ์ไพร",
+            "nickname": null
+          }
+        ],
+        "label": "10304"
+      },
+      "codes": {
+        "seedA": [
+          "TP69-S05-P01",
+          "TP69-S05-P02",
+          "TP69-S05-P03"
+        ],
+        "seedB": [
+          "TP69-S05-Q01"
+        ],
+        "scanIn": [
+          "TP69-S05-N01",
+          "TP69-S05-N02"
+        ],
+        "damaged": "TP69-S05-D01",
+        "gA": [
+          "TP69-S05-GP01",
+          "TP69-S05-GP02",
+          "TP69-S05-GP03"
+        ],
+        "gB": [
+          "TP69-S05-GQ01"
+        ],
+        "gScanIn": [
+          "TP69-S05-GN01",
+          "TP69-S05-GN02"
+        ]
+      }
+    },
+    {
+      "session": "S06",
+      "participant": "R01",
+      "group": "resident",
+      "tag": "S06",
+      "roomC": {
+        "roomId": 475,
+        "buildingCode": "10",
+        "roomNumber": "305",
+        "residents": [
+          {
+            "id": 604,
+            "fullName": "วัชรพล ดวงดี",
+            "nickname": null
+          }
+        ],
+        "label": "10305"
+      },
+      "codes": {
+        "arrive": [
+          "TP69-S06-N01",
+          "TP69-S06-N02"
+        ],
+        "pickup": "TP69-S06-N01",
+        "afterOff": "TP69-S06-N03",
+        "gC": [
+          "TP69-S06-GN01",
+          "TP69-S06-GN02"
+        ]
+      }
+    },
+    {
+      "session": "S07",
+      "participant": "R02",
+      "group": "resident",
+      "tag": "S07",
+      "roomC": {
+        "roomId": 478,
+        "buildingCode": "10",
+        "roomNumber": "308",
+        "residents": [
+          {
+            "id": 608,
+            "fullName": "กันตพงศ์ มณีรัตน์",
+            "nickname": null
+          }
+        ],
+        "label": "10308"
+      },
+      "codes": {
+        "arrive": [
+          "TP69-S07-N01",
+          "TP69-S07-N02"
+        ],
+        "pickup": "TP69-S07-N01",
+        "afterOff": "TP69-S07-N03",
+        "gC": [
+          "TP69-S07-GN01",
+          "TP69-S07-GN02"
+        ]
+      }
+    },
+    {
+      "session": "S08",
+      "participant": "R03",
+      "group": "resident",
+      "tag": "S08",
+      "roomC": {
+        "roomId": 481,
+        "buildingCode": "10",
+        "roomNumber": "401",
+        "residents": [
+          {
+            "id": 613,
+            "fullName": "ณัฐพล สายทอง",
+            "nickname": null
+          }
+        ],
+        "label": "10401"
+      },
+      "codes": {
+        "arrive": [
+          "TP69-S08-N01",
+          "TP69-S08-N02"
+        ],
+        "pickup": "TP69-S08-N01",
+        "afterOff": "TP69-S08-N03",
+        "gC": [
+          "TP69-S08-GN01",
+          "TP69-S08-GN02"
+        ]
+      }
+    },
+    {
+      "session": "S09",
+      "participant": "R04",
+      "group": "resident",
+      "tag": "S09",
+      "roomC": {
+        "roomId": 483,
+        "buildingCode": "10",
+        "roomNumber": "403",
+        "residents": [
+          {
+            "id": 616,
+            "fullName": "วิภาวี แก้วมณี",
+            "nickname": "แนน"
+          }
+        ],
+        "label": "10403"
+      },
+      "codes": {
+        "arrive": [
+          "TP69-S09-N01",
+          "TP69-S09-N02"
+        ],
+        "pickup": "TP69-S09-N01",
+        "afterOff": "TP69-S09-N03",
+        "gC": [
+          "TP69-S09-GN01",
+          "TP69-S09-GN02"
+        ]
+      }
+    },
+    {
+      "session": "S10",
+      "participant": "R05",
+      "group": "resident",
+      "tag": "S10",
+      "roomC": {
+        "roomId": 485,
+        "buildingCode": "10",
+        "roomNumber": "405",
+        "residents": [
+          {
+            "id": 619,
+            "fullName": "สมหญิง รักษา",
+            "nickname": "มายด์"
+          }
+        ],
+        "label": "10405"
+      },
+      "codes": {
+        "arrive": [
+          "TP69-S10-N01",
+          "TP69-S10-N02"
+        ],
+        "pickup": "TP69-S10-N01",
+        "afterOff": "TP69-S10-N03",
+        "gC": [
+          "TP69-S10-GN01",
+          "TP69-S10-GN02"
+        ]
+      }
+    },
+    {
+      "session": "S11 (reserve)",
+      "participant": "U06 (reserve)",
+      "group": "staff",
+      "tag": "S11",
+      "roomA": {
+        "roomId": 487,
+        "buildingCode": "10",
+        "roomNumber": "407",
+        "residents": [
+          {
+            "id": 622,
+            "fullName": "ธนกร แก้วมณี",
+            "nickname": "ไอซ์"
+          }
+        ],
+        "label": "10407"
+      },
+      "roomB": {
+        "roomId": 488,
+        "buildingCode": "10",
+        "roomNumber": "408",
+        "residents": [
+          {
+            "id": 623,
+            "fullName": "ปิยะพงษ์ ธรรมรักษ์",
+            "nickname": null
+          }
+        ],
+        "label": "10408"
+      },
+      "codes": {
+        "seedA": [
+          "TP69-S11-P01",
+          "TP69-S11-P02",
+          "TP69-S11-P03"
+        ],
+        "seedB": [
+          "TP69-S11-Q01"
+        ],
+        "scanIn": [
+          "TP69-S11-N01",
+          "TP69-S11-N02"
+        ],
+        "damaged": "TP69-S11-D01",
+        "gA": [
+          "TP69-S11-GP01",
+          "TP69-S11-GP02",
+          "TP69-S11-GP03"
+        ],
+        "gB": [
+          "TP69-S11-GQ01"
+        ],
+        "gScanIn": [
+          "TP69-S11-GN01",
+          "TP69-S11-GN02"
+        ]
+      }
+    },
+    {
+      "session": "S12 (reserve)",
+      "participant": "R06 (reserve)",
+      "group": "resident",
+      "tag": "S12",
+      "roomC": {
+        "roomId": 490,
+        "buildingCode": "10",
+        "roomNumber": "410",
+        "residents": [
+          {
+            "id": 625,
+            "fullName": "ปวีณา มั่นคง",
+            "nickname": "เจ"
+          }
+        ],
+        "label": "10410"
+      },
+      "codes": {
+        "arrive": [
+          "TP69-S12-N01",
+          "TP69-S12-N02"
+        ],
+        "pickup": "TP69-S12-N01",
+        "afterOff": "TP69-S12-N03",
+        "gC": [
+          "TP69-S12-GN01",
+          "TP69-S12-GN02"
+        ]
+      }
+    },
+    {
+      "session": "PILOT",
+      "participant": "PILOT-STAFF",
+      "group": "staff",
+      "tag": "PS",
+      "roomA": {
+        "roomId": 492,
+        "buildingCode": "10",
+        "roomNumber": "502",
+        "residents": [
+          {
+            "id": 628,
+            "fullName": "วัชรพล มณีรัตน์",
+            "nickname": null
+          }
+        ],
+        "label": "10502"
+      },
+      "roomB": {
+        "roomId": 493,
+        "buildingCode": "10",
+        "roomNumber": "503",
+        "residents": [
+          {
+            "id": 629,
+            "fullName": "นภัสสร จันทร์เพ็ญ",
+            "nickname": "ฟ้า"
+          }
+        ],
+        "label": "10503"
+      },
+      "codes": {
+        "seedA": [
+          "TP69-PS-P01",
+          "TP69-PS-P02",
+          "TP69-PS-P03"
+        ],
+        "seedB": [
+          "TP69-PS-Q01"
+        ],
+        "scanIn": [
+          "TP69-PS-N01",
+          "TP69-PS-N02"
+        ],
+        "damaged": "TP69-PS-D01",
+        "gA": [
+          "TP69-PS-GP01",
+          "TP69-PS-GP02",
+          "TP69-PS-GP03"
+        ],
+        "gB": [
+          "TP69-PS-GQ01"
+        ],
+        "gScanIn": [
+          "TP69-PS-GN01",
+          "TP69-PS-GN02"
+        ]
+      }
+    },
+    {
+      "session": "PILOT",
+      "participant": "PILOT-RESIDENT",
+      "group": "resident",
+      "tag": "PR",
+      "roomC": {
+        "roomId": 496,
+        "buildingCode": "10",
+        "roomNumber": "506",
+        "residents": [
+          {
+            "id": 632,
+            "fullName": "ธีรภัทร วงศ์ไพร",
+            "nickname": "เจ"
+          }
+        ],
+        "label": "10506"
+      },
+      "codes": {
+        "arrive": [
+          "TP69-PR-N01",
+          "TP69-PR-N02"
+        ],
+        "pickup": "TP69-PR-N01",
+        "afterOff": "TP69-PR-N03",
+        "gC": [
+          "TP69-PR-GN01",
+          "TP69-PR-GN02"
+        ]
+      }
+    }
+  ]
+}

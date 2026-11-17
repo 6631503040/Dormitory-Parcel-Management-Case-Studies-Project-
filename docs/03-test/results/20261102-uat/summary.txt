@@ -1,0 +1,42 @@
+UAT round 1 - recomputed by analyze_uat.py from Parcel Desk – UAT results (DPMS-TP-002).xlsx
+
+## Staff responses (n = 5)
+ID     SUS    PU    PEOU  BI    TAM
+U01     67.5  4.00  3.75  4.33  4.03
+U02     77.5  4.25  4.00  4.67  4.31
+U03     92.5  5.00  4.75  4.33  4.69
+U04     67.5  4.75  4.75  4.00  4.50
+U05     82.5  5.00  5.00  4.33  4.78
+SUS   mean  77.50  SD 10.61  min  67.50  max  92.50
+PU    mean   4.60  SD  0.45  min   4.00  max   5.00
+PEOU  mean   4.45  SD  0.54  min   3.75  max   5.00
+BI    mean   4.33  SD  0.24  min   4.00  max   4.67
+TAM   mean   4.46  SD  0.30  min   4.03  max   4.78
+
+## Resident responses (n = 5)
+ID     SUS    PU    PEOU  BI    TAM
+R01     80.0  5.00  4.25  4.67  4.64
+R02     57.5  4.75  4.75  5.00  4.83
+R03     82.5  5.00  4.25  3.67  4.31
+R04     82.5  4.25  4.50  5.00  4.58
+R05     80.0  5.00  4.75  3.33  4.36
+SUS   mean  76.50  SD 10.69  min  57.50  max  82.50
+PU    mean   4.80  SD  0.33  min   4.25  max   5.00
+PEOU  mean   4.50  SD  0.25  min   4.25  max   4.75
+BI    mean   4.33  SD  0.78  min   3.33  max   5.00
+TAM   mean   4.54  SD  0.21  min   4.31  max   4.83
+
+## Task time in seconds (mean, SD, n) and new-system success rate
+Task   Existing                New system              Change   Success (new)
+UAT01   23.6 SD  3.4 n=5        47.4 SD 23.1 n=5        +101%   5/5
+UAT02   22.4 SD  2.3 n=5        24.8 SD  3.3 n=5         +11%   5/5
+UAT03    5.6 SD  1.5 n=5         9.2 SD  3.7 n=5         +64%   5/5
+UAT04   24.8 SD  1.6 n=5        31.8 SD 15.5 n=5         +28%   5/5
+UAT05   47.6 SD  2.2 n=5        38.8 SD 20.8 n=5         -18%   5/5
+UAT06   35.8 SD  4.4 n=5         3.6 SD  0.9 n=5         -90%   4/5
+UAT07  N/A (no such step)       18.0 SD  3.5 n=5         N/A    5/5
+UAT08   11.2 SD  1.3 n=5         9.4 SD  2.7 n=5         -16%   5/5
+UAT09   29.0 SD  3.2 n=5         9.4 SD  7.6 n=5         -68%   5/5
+UAT10  N/A (no such step)       10.0 SD  7.6 n=5         N/A    5/5
+
+Excluded from means (time 0 = no such step): R01 UAT07 existing, R02 UAT07 existing, R03 UAT07 existing, R04 UAT07 existing, R05 UAT07 existing, R01 UAT10 existing, R02 UAT10 existing, R03 UAT10 existing, R04 UAT10 existing, R05 UAT10 existing
