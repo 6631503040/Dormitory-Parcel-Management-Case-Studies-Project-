@@ -1,0 +1,548 @@
+{
+ "source": "Parcel Desk – UAT results (DPMS-TP-002).xlsx, sessions 2026-11-02/04 (participant IDs only)",
+ "rule": "one response per participant: first response after the session (as in docs/03-test/results/20261102-uat); latest response shown as sensitivity",
+ "groups": {
+  "Staff": {
+   "primary_latest": {
+    "n": 5,
+    "ids": [
+     "U01",
+     "U02",
+     "U03",
+     "U04",
+     "U05"
+    ],
+    "SUS": {
+     "n": 5,
+     "mean": 87.5,
+     "sd": 4.68,
+     "min": 82.5,
+     "max": 92.5,
+     "median": 90.0
+    },
+    "PU": 4.95,
+    "PEOU": 4.65,
+    "BI": 4.33,
+    "per": [
+     {
+      "id": "U01",
+      "SUS": 90.0
+     },
+     {
+      "id": "U02",
+      "SUS": 82.5
+     },
+     {
+      "id": "U03",
+      "SUS": 92.5
+     },
+     {
+      "id": "U04",
+      "SUS": 90.0
+     },
+     {
+      "id": "U05",
+      "SUS": 82.5
+     }
+    ]
+   },
+   "sensitivity_first": {
+    "n": 5,
+    "ids": [
+     "U01",
+     "U02",
+     "U03",
+     "U04",
+     "U05"
+    ],
+    "SUS": {
+     "n": 5,
+     "mean": 77.5,
+     "sd": 10.61,
+     "min": 67.5,
+     "max": 92.5,
+     "median": 77.5
+    },
+    "PU": 4.6,
+    "PEOU": 4.45,
+    "BI": 4.33,
+    "per": [
+     {
+      "id": "U01",
+      "SUS": 67.5
+     },
+     {
+      "id": "U02",
+      "SUS": 77.5
+     },
+     {
+      "id": "U03",
+      "SUS": 92.5
+     },
+     {
+      "id": "U04",
+      "SUS": 67.5
+     },
+     {
+      "id": "U05",
+      "SUS": 82.5
+     }
+    ]
+   },
+   "raw_rows": 8,
+   "raw_SUS_mean": 81.25
+  },
+  "Resident": {
+   "primary_latest": {
+    "n": 5,
+    "ids": [
+     "R01",
+     "R02",
+     "R03",
+     "R04",
+     "R05"
+    ],
+    "SUS": {
+     "n": 5,
+     "mean": 76.5,
+     "sd": 10.69,
+     "min": 57.5,
+     "max": 82.5,
+     "median": 80.0
+    },
+    "PU": 4.8,
+    "PEOU": 4.5,
+    "BI": 4.33,
+    "per": [
+     {
+      "id": "R01",
+      "SUS": 80.0
+     },
+     {
+      "id": "R02",
+      "SUS": 57.5
+     },
+     {
+      "id": "R03",
+      "SUS": 82.5
+     },
+     {
+      "id": "R04",
+      "SUS": 82.5
+     },
+     {
+      "id": "R05",
+      "SUS": 80.0
+     }
+    ]
+   },
+   "sensitivity_first": {
+    "n": 5,
+    "ids": [
+     "R01",
+     "R02",
+     "R03",
+     "R04",
+     "R05"
+    ],
+    "SUS": {
+     "n": 5,
+     "mean": 76.5,
+     "sd": 10.69,
+     "min": 57.5,
+     "max": 82.5,
+     "median": 80.0
+    },
+    "PU": 4.8,
+    "PEOU": 4.5,
+    "BI": 4.33,
+    "per": [
+     {
+      "id": "R01",
+      "SUS": 80.0
+     },
+     {
+      "id": "R02",
+      "SUS": 57.5
+     },
+     {
+      "id": "R03",
+      "SUS": 82.5
+     },
+     {
+      "id": "R04",
+      "SUS": 82.5
+     },
+     {
+      "id": "R05",
+      "SUS": 80.0
+     }
+    ]
+   },
+   "raw_rows": 5,
+   "raw_SUS_mean": 76.5
+  }
+ },
+ "tasks": {
+  "UAT01": {
+   "name": "UAT01 Scanner Check-In (Staff)",
+   "new": {
+    "n": 5,
+    "mean": 47.4,
+    "sd": 23.13,
+    "min": 33.0,
+    "max": 87.0,
+    "median": 35.0
+   },
+   "old": {
+    "n": 5,
+    "mean": 23.6,
+    "sd": 3.36,
+    "min": 20.0,
+    "max": 28.0,
+    "median": 23.0
+   },
+   "paired_n": 5,
+   "paired_diff": {
+    "n": 5,
+    "mean": 23.8,
+    "sd": 25.41,
+    "min": 5.0,
+    "max": 66.0,
+    "median": 12.0
+   },
+   "pct_change_mean": -111.2,
+   "completed": 5,
+   "n": 5,
+   "unassisted": 5,
+   "errors": 2.0,
+   "builds": [
+    "7dc4587",
+    "9344cff"
+   ],
+   "defects": [
+    "UAT-D01",
+    "UAT-D04"
+   ]
+  },
+  "UAT02": {
+   "name": "UAT02 Manual fallback and damage (Staff)",
+   "new": {
+    "n": 5,
+    "mean": 24.8,
+    "sd": 3.27,
+    "min": 20.0,
+    "max": 28.0,
+    "median": 26.0
+   },
+   "old": {
+    "n": 5,
+    "mean": 22.4,
+    "sd": 2.3,
+    "min": 19.0,
+    "max": 25.0,
+    "median": 22.0
+   },
+   "paired_n": 5,
+   "paired_diff": {
+    "n": 5,
+    "mean": 2.4,
+    "sd": 4.56,
+    "min": -2.0,
+    "max": 8.0,
+    "median": 2.0
+   },
+   "pct_change_mean": -12.1,
+   "completed": 5,
+   "n": 5,
+   "unassisted": 5,
+   "errors": 0,
+   "builds": [
+    "7dc4587",
+    "9344cff"
+   ],
+   "defects": [
+    "UAT-D02"
+   ]
+  },
+  "UAT03": {
+   "name": "UAT03 Pending lookup (Staff)",
+   "new": {
+    "n": 5,
+    "mean": 9.2,
+    "sd": 3.7,
+    "min": 4.0,
+    "max": 14.0,
+    "median": 9.0
+   },
+   "old": {
+    "n": 5,
+    "mean": 5.6,
+    "sd": 1.52,
+    "min": 4.0,
+    "max": 8.0,
+    "median": 5.0
+   },
+   "paired_n": 5,
+   "paired_diff": {
+    "n": 5,
+    "mean": 3.6,
+    "sd": 3.85,
+    "min": -1.0,
+    "max": 8.0,
+    "median": 3.0
+   },
+   "pct_change_mean": -72.2,
+   "completed": 5,
+   "n": 5,
+   "unassisted": 5,
+   "errors": 0,
+   "builds": [
+    "7dc4587",
+    "9344cff"
+   ],
+   "defects": []
+  },
+  "UAT04": {
+   "name": "UAT04 Selective collection (Staff)",
+   "new": {
+    "n": 5,
+    "mean": 31.8,
+    "sd": 15.53,
+    "min": 9.0,
+    "max": 52.0,
+    "median": 34.0
+   },
+   "old": {
+    "n": 5,
+    "mean": 24.8,
+    "sd": 1.64,
+    "min": 22.0,
+    "max": 26.0,
+    "median": 25.0
+   },
+   "paired_n": 5,
+   "paired_diff": {
+    "n": 5,
+    "mean": 7.0,
+    "sd": 16.58,
+    "min": -16.0,
+    "max": 30.0,
+    "median": 8.0
+   },
+   "pct_change_mean": -31.0,
+   "completed": 5,
+   "n": 5,
+   "unassisted": 5,
+   "errors": 2.0,
+   "builds": [
+    "7dc4587",
+    "9344cff"
+   ],
+   "defects": [
+    "UAT-D03"
+   ]
+  },
+  "UAT05": {
+   "name": "UAT05 Full-room collection and cancellation (Staff)",
+   "new": {
+    "n": 5,
+    "mean": 38.8,
+    "sd": 20.81,
+    "min": 20.0,
+    "max": 70.0,
+    "median": 28.0
+   },
+   "old": {
+    "n": 5,
+    "mean": 47.6,
+    "sd": 2.19,
+    "min": 44.0,
+    "max": 50.0,
+    "median": 48.0
+   },
+   "paired_n": 5,
+   "paired_diff": {
+    "n": 5,
+    "mean": -8.8,
+    "sd": 22.12,
+    "min": -28.0,
+    "max": 26.0,
+    "median": -20.0
+   },
+   "pct_change_mean": 17.3,
+   "completed": 5,
+   "n": 5,
+   "unassisted": 5,
+   "errors": 0,
+   "builds": [
+    "7dc4587",
+    "9344cff"
+   ],
+   "defects": [
+    "UAT-D03"
+   ]
+  },
+  "UAT06": {
+   "name": "UAT06 Collection evidence (Staff)",
+   "new": {
+    "n": 5,
+    "mean": 3.6,
+    "sd": 0.89,
+    "min": 3.0,
+    "max": 5.0,
+    "median": 3.0
+   },
+   "old": {
+    "n": 5,
+    "mean": 35.8,
+    "sd": 4.38,
+    "min": 30.0,
+    "max": 40.0,
+    "median": 36.0
+   },
+   "paired_n": 5,
+   "paired_diff": {
+    "n": 5,
+    "mean": -32.2,
+    "sd": 3.96,
+    "min": -37.0,
+    "max": -27.0,
+    "median": -32.0
+   },
+   "pct_change_mean": 90.0,
+   "completed": 4,
+   "n": 5,
+   "unassisted": 5,
+   "errors": 0,
+   "builds": [
+    "7dc4587",
+    "9344cff"
+   ],
+   "defects": [
+    "UAT-D05",
+    "UAT-D06"
+   ]
+  },
+  "UAT07": {
+   "name": "UAT07 Resident registration (Resident)",
+   "new": {
+    "n": 4,
+    "mean": 17.5,
+    "sd": 3.79,
+    "min": 12.0,
+    "max": 20.0,
+    "median": 19.0
+   },
+   "old": null,
+   "paired_n": 0,
+   "paired_diff": null,
+   "pct_change_mean": null,
+   "completed": 5,
+   "n": 5,
+   "unassisted": 5,
+   "errors": 0,
+   "builds": [
+    "9344cff"
+   ],
+   "defects": []
+  },
+  "UAT08": {
+   "name": "UAT08 Parcel arrival (Resident)",
+   "new": {
+    "n": 5,
+    "mean": 9.4,
+    "sd": 2.7,
+    "min": 7.0,
+    "max": 14.0,
+    "median": 9.0
+   },
+   "old": {
+    "n": 5,
+    "mean": 11.2,
+    "sd": 1.3,
+    "min": 10.0,
+    "max": 13.0,
+    "median": 11.0
+   },
+   "paired_n": 5,
+   "paired_diff": {
+    "n": 5,
+    "mean": -1.8,
+    "sd": 2.77,
+    "min": -4.0,
+    "max": 3.0,
+    "median": -3.0
+   },
+   "pct_change_mean": 15.7,
+   "completed": 5,
+   "n": 5,
+   "unassisted": 5,
+   "errors": 0,
+   "builds": [
+    "9344cff"
+   ],
+   "defects": []
+  },
+  "UAT09": {
+   "name": "UAT09 Pickup update (Resident)",
+   "new": {
+    "n": 5,
+    "mean": 9.4,
+    "sd": 7.57,
+    "min": 4.0,
+    "max": 22.0,
+    "median": 5.0
+   },
+   "old": {
+    "n": 5,
+    "mean": 29.0,
+    "sd": 3.16,
+    "min": 26.0,
+    "max": 34.0,
+    "median": 28.0
+   },
+   "paired_n": 5,
+   "paired_diff": {
+    "n": 5,
+    "mean": -19.6,
+    "sd": 5.77,
+    "min": -25.0,
+    "max": -12.0,
+    "median": -22.0
+   },
+   "pct_change_mean": 68.7,
+   "completed": 5,
+   "n": 5,
+   "unassisted": 5,
+   "errors": 0,
+   "builds": [
+    "9344cff"
+   ],
+   "defects": []
+  },
+  "UAT10": {
+   "name": "UAT10 Turn off notifications (Resident)",
+   "new": {
+    "n": 4,
+    "mean": 7.0,
+    "sd": 4.24,
+    "min": 3.0,
+    "max": 13.0,
+    "median": 6.0
+   },
+   "old": null,
+   "paired_n": 0,
+   "paired_diff": null,
+   "pct_change_mean": null,
+   "completed": 5,
+   "n": 5,
+   "unassisted": 5,
+   "errors": 0,
+   "builds": [
+    "9344cff"
+   ],
+   "defects": []
+  }
+ }
+}
