@@ -1,0 +1,25 @@
+{
+ "_meta": {
+  "round": 3,
+  "date": "2026-11-18",
+  "tester": "Danaiphong Songsikhwa (QA / Tester)",
+  "build": "8cd36d9 (main, after PR #63 fix/defects-20261118)",
+  "stack": "isolated: PostgreSQL 16 tmpfs :15432 (docker/docker-compose.test.yml), API + built client :18080 with Web Push keys, seed -parcels 300",
+  "scope": "Independent retest of the three cases that failed in rounds 1 and 2 (TC25, TC35, TC43), plus the defects fixed in commit c8dfddd. Not the deployed Render build."
+ },
+ "TC25": {
+  "status": "Pass",
+  "actual": "Two Parcels without a room checked in 1.1 s apart; GET /parcels?status=pending&unmatched=true (the dashboard queue's request) lists the older one first, as US-06 requires.",
+  "evidence": "e2e/regression.spec.js TC25 (no longer marked test.fail); logs/playwright.json; defect DEF-001"
+ },
+ "TC35": {
+  "status": "Pass",
+  "actual": "POST /parcels/check-out with one code from room 1101 and one from room 1102 is refused (4xx, MIXED_ROOMS); the room-1102 Parcel stays pending.",
+  "evidence": "e2e/regression.spec.js TC35; Go TestDEF002CheckOutRejectsTwoRooms; logs/playwright.json, logs/go-test-summary.txt; defect DEF-002"
+ },
+ "TC43": {
+  "status": "Pass",
+  "actual": "Signed in, then /auth/me answered 503 on reload (simulated outage): the sign-in page now shows an alert instead of looking like a signed-out session.",
+  "evidence": "e2e/regression.spec.js TC43; logs/playwright.json; defect DEF-003"
+ }
+}

@@ -1,0 +1,19 @@
+
+Running 14 tests using 1 worker
+
+  ✓   1 [chromium] › e2e/a11y.spec.js:17:1 › login page has no serious or critical axe violations (668ms)
+  ✓   2 [chromium] › e2e/a11y.spec.js:23:1 › dashboard has no serious or critical axe violations (1.1s)
+  ✓   3 [chromium] › e2e/a11y.spec.js:29:1 › Check-In dialog has no serious or critical axe violations (1.0s)
+  ✓   4 [chromium] › e2e/a11y.spec.js:37:1 › Resident page has no serious or critical axe violations (587ms)
+  ✓   5 [chromium] › e2e/a11y.spec.js:44:1 › Check-In dialog is keyboard-operable (TC47 steps 1-2) (680ms)
+  ✓   6 [chromium] › e2e/regression.spec.js:11:1 › TC25 / DEF-001: problem queue lists the oldest Parcel without a room first (US-06) (1.3s)
+  ✓   7 [chromium] › e2e/regression.spec.js:26:1 › TC35 / DEF-002: Check Out Selected rejects Tracking Codes from different rooms (228ms)
+  ✓   8 [chromium] › e2e/regression.spec.js:42:1 › TC43 / DEF-003: a server outage is not shown as being signed out (1.2s)
+  ✓   9 [chromium] › e2e/smoke.spec.js:6:1 › Staff can sign in, Check-In and Check-Out a Parcel (1.0s)
+  ✓  10 [chromium] › e2e/smoke.spec.js:37:1 › Resident page loads and asks for a room (104ms)
+  ✓  11 [firefox] › e2e/smoke.spec.js:6:1 › Staff can sign in, Check-In and Check-Out a Parcel (2.2s)
+  ✓  12 [firefox] › e2e/smoke.spec.js:37:1 › Resident page loads and asks for a room (481ms)
+  ✓  13 [mobile-chrome] › e2e/smoke.spec.js:6:1 › Staff can sign in, Check-In and Check-Out a Parcel (1.1s)
+  ✓  14 [mobile-chrome] › e2e/smoke.spec.js:37:1 › Resident page loads and asks for a room (170ms)
+
+  14 passed (13.8s)
