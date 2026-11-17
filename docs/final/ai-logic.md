@@ -80,4 +80,4 @@ Source: [product_backlog.md](../01-requirements/product_backlog.md), epic E6.
 | Accuracy of an AI feature in the product | **N/A** — no AI feature in the product | — |
 
 The trailer count is a lower bound: work done with AI help but committed without the trailer is not
-counted. `[AI Lead: add any other AI use the team tracked, e.g. prompts kept, review time]`
+counted.. `[AI Lead: add any other AI use the team tracked, e.g. prompts kept, review time]`
