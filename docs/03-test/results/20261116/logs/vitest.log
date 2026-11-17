@@ -1,0 +1,18 @@
+
+ RUN  v4.1.12 /home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype
+      Coverage enabled with v8
+
+
+ Test Files  16 passed (16)
+      Tests  159 passed (159)
+   Start at  13:39:17
+   Duration  17.05s (transform 2.59s, setup 7.12s, import 7.66s, tests 43.43s, environment 19.71s)
+
+ % Coverage report from v8
+
+=============================== Coverage summary ===============================
+Statements   : 72.18% ( 1466/2031 )
+Branches     : 69.14% ( 1078/1559 )
+Functions    : 65.68% ( 400/609 )
+Lines        : 74.63% ( 1215/1628 )
+================================================================================

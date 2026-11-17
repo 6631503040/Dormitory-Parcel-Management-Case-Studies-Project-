@@ -1,0 +1,2218 @@
+{
+ "config": {
+  "protocol_version": "v1.0.0",
+  "scanner_name": "govulncheck",
+  "scanner_version": "v1.9.0",
+  "db": "https://vuln.go.dev",
+  "db_last_modified": "2026-11-11T02:51:11Z",
+  "go_version": "go1.26.10",
+  "scan_level": "symbol",
+  "scan_mode": "source"
+ },
+ "findings": [
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10"
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-5932",
+   "fixed_version": "v0.58.1-0.20261009181718-2f1f834330b2",
+   "trace": [
+    {
+     "module": "golang.org/x/crypto",
+     "version": "v0.58.0"
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http"
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Write",
+     "receiver": "*chunkWriter",
+     "position": {
+      "filename": "src/net/http/server.go",
+      "offset": 13573,
+      "line": 376,
+      "column": 24
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "bufio",
+     "function": "Write",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/bufio/bufio.go",
+      "offset": 19028,
+      "line": 682,
+      "column": 25
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "encoding/csv",
+     "function": "Error",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/encoding/csv/writer.go",
+      "offset": 3352,
+      "line": 132,
+      "column": 21
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/store",
+     "function": "ExportResidents",
+     "receiver": "*Store",
+     "position": {
+      "filename": "internal/store/resident_import.go",
+      "offset": 16029,
+      "line": 488,
+      "column": 17
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Write",
+     "receiver": "*loggingConn",
+     "position": {
+      "filename": "src/net/http/server.go",
+      "offset": 130234,
+      "line": 4028,
+      "column": 23
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "bufio",
+     "function": "Write",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/bufio/bufio.go",
+      "offset": 19028,
+      "line": 682,
+      "column": 25
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "encoding/csv",
+     "function": "Error",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/encoding/csv/writer.go",
+      "offset": 3352,
+      "line": 132,
+      "column": 21
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/store",
+     "function": "ExportResidents",
+     "receiver": "*Store",
+     "position": {
+      "filename": "internal/store/resident_import.go",
+      "offset": 16029,
+      "line": 488,
+      "column": 17
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Read",
+     "receiver": "*persistConn",
+     "position": {
+      "filename": "src/net/http/transport.go",
+      "offset": 69205,
+      "line": 2167,
+      "column": 24
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 15300,
+      "line": 429,
+      "column": 21
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "CanonicalHeaderKey",
+     "position": {
+      "filename": "src/net/http/header.go",
+      "offset": 6575,
+      "line": 234,
+      "column": 6
+     }
+    },
+    {
+     "module": "golang.org/x/net",
+     "version": "v0.62.0",
+     "package": "golang.org/x/net/http2",
+     "function": "promoteUndeclaredTrailers",
+     "receiver": "*responseWriterState",
+     "position": {
+      "filename": "http2/server.go",
+      "offset": 88409,
+      "line": 2710,
+      "column": 44
+     }
+    },
+    {
+     "module": "golang.org/x/net",
+     "version": "v0.62.0",
+     "package": "golang.org/x/net/http2",
+     "function": "writeChunk",
+     "receiver": "*responseWriterState",
+     "position": {
+      "filename": "http2/server.go",
+      "offset": 83911,
+      "line": 2585,
+      "column": 32
+     }
+    },
+    {
+     "module": "golang.org/x/net",
+     "version": "v0.62.0",
+     "package": "golang.org/x/net/http2",
+     "function": "Write",
+     "receiver": "chunkWriter",
+     "position": {
+      "filename": "http2/server.go",
+      "offset": 82533,
+      "line": 2538,
+      "column": 28
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "bufio",
+     "function": "Write",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/bufio/bufio.go",
+      "offset": 19028,
+      "line": 682,
+      "column": 25
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "encoding/csv",
+     "function": "Error",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/encoding/csv/writer.go",
+      "offset": 3352,
+      "line": 132,
+      "column": 21
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/store",
+     "function": "ExportResidents",
+     "receiver": "*Store",
+     "position": {
+      "filename": "internal/store/resident_import.go",
+      "offset": 16029,
+      "line": 488,
+      "column": 17
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "ListenAndServe",
+     "receiver": "*Server",
+     "position": {
+      "filename": "src/net/http/server.go",
+      "offset": 111258,
+      "line": 3368,
+      "column": 18
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/cmd/server",
+     "function": "main",
+     "position": {
+      "filename": "cmd/server/main.go",
+      "offset": 2539,
+      "line": 97,
+      "column": 30
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Read",
+     "receiver": "*connReader",
+     "position": {
+      "filename": "src/net/http/server.go",
+      "offset": 25982,
+      "line": 779,
+      "column": 23
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 15300,
+      "line": 429,
+      "column": 21
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Read",
+     "receiver": "*expectContinueReader",
+     "position": {
+      "filename": "src/net/http/server.go",
+      "offset": 29341,
+      "line": 939,
+      "column": 34
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 15300,
+      "line": 429,
+      "column": 21
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Error",
+     "receiver": "transportReadFromServerError",
+     "position": {
+      "filename": "src/net/http/transport.go",
+      "offset": 36096,
+      "line": 1040,
+      "column": 39
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/notify",
+     "function": "deliver",
+     "receiver": "*Worker",
+     "position": {
+      "filename": "internal/notify/worker.go",
+      "offset": 3872,
+      "line": 129,
+      "column": 31
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/notify",
+     "function": "RunOnce",
+     "receiver": "*Worker",
+     "position": {
+      "filename": "internal/notify/worker.go",
+      "offset": 2150,
+      "line": 74,
+      "column": 23
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Read",
+     "receiver": "*readTrackingBody",
+     "position": {
+      "filename": "src/net/http/transport.go",
+      "offset": 26646,
+      "line": 767,
+      "column": 28
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 15300,
+      "line": 429,
+      "column": 21
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Get",
+     "receiver": "Header",
+     "position": {
+      "filename": "src/net/http/header.go",
+      "offset": 1515,
+      "line": 49,
+      "column": 17
+     }
+    },
+    {
+     "module": "golang.org/x/net",
+     "version": "v0.62.0",
+     "package": "golang.org/x/net/http2",
+     "function": "writeChunk",
+     "receiver": "*responseWriterState",
+     "position": {
+      "filename": "http2/server.go",
+      "offset": 84059,
+      "line": 2592,
+      "column": 31
+     }
+    },
+    {
+     "module": "golang.org/x/net",
+     "version": "v0.62.0",
+     "package": "golang.org/x/net/http2",
+     "function": "Write",
+     "receiver": "chunkWriter",
+     "position": {
+      "filename": "http2/server.go",
+      "offset": 82533,
+      "line": 2538,
+      "column": 28
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "bufio",
+     "function": "Write",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/bufio/bufio.go",
+      "offset": 19028,
+      "line": 682,
+      "column": 25
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "encoding/csv",
+     "function": "Error",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/encoding/csv/writer.go",
+      "offset": 3352,
+      "line": 132,
+      "column": 21
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/store",
+     "function": "ExportResidents",
+     "receiver": "*Store",
+     "position": {
+      "filename": "internal/store/resident_import.go",
+      "offset": 16029,
+      "line": 488,
+      "column": 17
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Close",
+     "receiver": "*maxBytesReader",
+     "position": {
+      "filename": "src/net/http/request.go",
+      "offset": 40984,
+      "line": 1253,
+      "column": 26
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "closeReqBodyLocked$1",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 269528,
+      "line": 7891,
+      "column": 19
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "closeReqBodyLocked",
+     "receiver": "*http2clientStream",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 269498,
+      "line": 7890,
+      "column": 2
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "abortStreamLocked",
+     "receiver": "*http2clientStream",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 268937,
+      "line": 7865,
+      "column": 24
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "abortStream",
+     "receiver": "*http2clientStream",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 268753,
+      "line": 7856,
+      "column": 22
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Close",
+     "receiver": "http2transportResponseBody",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 333460,
+      "line": 10052,
+      "column": 16
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11857,
+      "line": 360,
+      "column": 2
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "WriteString",
+     "receiver": "*response",
+     "position": {
+      "filename": "src/net/http/server.go",
+      "offset": 52019,
+      "line": 1634,
+      "column": 20
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "WriteString",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 11452,
+      "line": 316,
+      "column": 24
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "strings",
+     "function": "WriteTo",
+     "receiver": "*Reader",
+     "position": {
+      "filename": "src/strings/reader.go",
+      "offset": 3444,
+      "line": 139,
+      "column": 26
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14924,
+      "line": 411,
+      "column": 20
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Write",
+     "receiver": "bufioFlushWriter",
+     "position": {
+      "filename": "src/net/http/transfer.go",
+      "offset": 31668,
+      "line": 1131,
+      "column": 28
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 15342,
+      "line": 431,
+      "column": 23
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "WriteHeader",
+     "receiver": "*response",
+     "position": {
+      "filename": "src/net/http/server.go",
+      "offset": 35279,
+      "line": 1139,
+      "column": 20
+     }
+    },
+    {
+     "module": "github.com/gin-gonic/gin",
+     "version": "v1.12.0",
+     "package": "github.com/gin-gonic/gin",
+     "function": "WriteHeaderNow",
+     "receiver": "*responseWriter",
+     "position": {
+      "filename": "response_writer.go",
+      "offset": 1755,
+      "line": 80,
+      "column": 31
+     }
+    },
+    {
+     "module": "github.com/gin-gonic/gin",
+     "version": "v1.12.0",
+     "package": "github.com/gin-gonic/gin",
+     "function": "WriteString",
+     "receiver": "*responseWriter",
+     "position": {
+      "filename": "response_writer.go",
+      "offset": 2005,
+      "line": 92,
+      "column": 18
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "bufio",
+     "function": "WriteString",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/bufio/bufio.go",
+      "offset": 20885,
+      "line": 762,
+      "column": 29
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "encoding/csv",
+     "function": "Write",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/encoding/csv/writer.go",
+      "offset": 1982,
+      "line": 65,
+      "column": 32
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/store",
+     "function": "ExportResidents",
+     "receiver": "*Store",
+     "position": {
+      "filename": "internal/store/resident_import.go",
+      "offset": 15711,
+      "line": 472,
+      "column": 20
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Read",
+     "receiver": "bodyLocked",
+     "position": {
+      "filename": "src/net/http/transfer.go",
+      "offset": 29161,
+      "line": 1038,
+      "column": 22
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 15300,
+      "line": 429,
+      "column": 21
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Read",
+     "receiver": "*readWriteCloserBody",
+     "position": {
+      "filename": "src/net/http/transport.go",
+      "offset": 82130,
+      "line": 2624,
+      "column": 31
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 15300,
+      "line": 429,
+      "column": 21
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Del",
+     "receiver": "Header",
+     "position": {
+      "filename": "src/net/http/header.go",
+      "offset": 2417,
+      "line": 80,
+      "column": 17
+     }
+    },
+    {
+     "module": "golang.org/x/net",
+     "version": "v0.62.0",
+     "package": "golang.org/x/net/http2",
+     "function": "writeChunk",
+     "receiver": "*responseWriterState",
+     "position": {
+      "filename": "http2/server.go",
+      "offset": 84113,
+      "line": 2593,
+      "column": 22
+     }
+    },
+    {
+     "module": "golang.org/x/net",
+     "version": "v0.62.0",
+     "package": "golang.org/x/net/http2",
+     "function": "Write",
+     "receiver": "chunkWriter",
+     "position": {
+      "filename": "http2/server.go",
+      "offset": 82533,
+      "line": 2538,
+      "column": 28
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "bufio",
+     "function": "Write",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/bufio/bufio.go",
+      "offset": 19028,
+      "line": 682,
+      "column": 25
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "encoding/csv",
+     "function": "Error",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/encoding/csv/writer.go",
+      "offset": 3352,
+      "line": 132,
+      "column": 21
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/store",
+     "function": "ExportResidents",
+     "receiver": "*Store",
+     "position": {
+      "filename": "internal/store/resident_import.go",
+      "offset": 16029,
+      "line": 488,
+      "column": 17
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Read",
+     "receiver": "*maxBytesReader",
+     "position": {
+      "filename": "src/net/http/request.go",
+      "offset": 39941,
+      "line": 1211,
+      "column": 26
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 15300,
+      "line": 429,
+      "column": 21
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Write",
+     "receiver": "*response",
+     "position": {
+      "filename": "src/net/http/server.go",
+      "offset": 51920,
+      "line": 1630,
+      "column": 20
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "fmt",
+     "function": "Fprint",
+     "position": {
+      "filename": "src/fmt/print.go",
+      "offset": 7827,
+      "line": 263,
+      "column": 18
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/cmd/createadmin",
+     "function": "main",
+     "position": {
+      "filename": "cmd/createadmin/main.go",
+      "offset": 969,
+      "line": 32,
+      "column": 13
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Read",
+     "receiver": "*gzipReader",
+     "position": {
+      "filename": "src/net/http/transport.go",
+      "offset": 98414,
+      "line": 3196,
+      "column": 23
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 15300,
+      "line": 429,
+      "column": 21
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Close",
+     "receiver": "*expectContinueReader",
+     "position": {
+      "filename": "src/net/http/server.go",
+      "offset": 29824,
+      "line": 960,
+      "column": 34
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "closeReqBodyLocked$1",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 269528,
+      "line": 7891,
+      "column": 19
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "closeReqBodyLocked",
+     "receiver": "*http2clientStream",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 269498,
+      "line": 7890,
+      "column": 2
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "abortStreamLocked",
+     "receiver": "*http2clientStream",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 268937,
+      "line": 7865,
+      "column": 24
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "abortStream",
+     "receiver": "*http2clientStream",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 268753,
+      "line": 7856,
+      "column": 22
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Close",
+     "receiver": "http2transportResponseBody",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 333460,
+      "line": 10052,
+      "column": 16
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11857,
+      "line": 360,
+      "column": 2
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Close",
+     "receiver": "*readTrackingBody",
+     "position": {
+      "filename": "src/net/http/transport.go",
+      "offset": 26759,
+      "line": 772,
+      "column": 28
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "closeReqBodyLocked$1",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 269528,
+      "line": 7891,
+      "column": 19
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "closeReqBodyLocked",
+     "receiver": "*http2clientStream",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 269498,
+      "line": 7890,
+      "column": 2
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "abortStreamLocked",
+     "receiver": "*http2clientStream",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 268937,
+      "line": 7865,
+      "column": 24
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "abortStream",
+     "receiver": "*http2clientStream",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 268753,
+      "line": 7856,
+      "column": 22
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Close",
+     "receiver": "http2transportResponseBody",
+     "position": {
+      "filename": "src/net/http/h2_bundle.go",
+      "offset": 333460,
+      "line": 10052,
+      "column": 16
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11857,
+      "line": 360,
+      "column": 2
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Do",
+     "receiver": "*Client",
+     "position": {
+      "filename": "src/net/http/client.go",
+      "offset": 20745,
+      "line": 591,
+      "column": 18
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11807,
+      "line": 356,
+      "column": 24
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Set",
+     "receiver": "Header",
+     "position": {
+      "filename": "src/net/http/header.go",
+      "offset": 1083,
+      "line": 39,
+      "column": 17
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11422,
+      "line": 343,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Close",
+     "receiver": "*bodyEOFSignal",
+     "position": {
+      "filename": "src/net/http/transport.go",
+      "offset": 95618,
+      "line": 3092,
+      "column": 26
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11857,
+      "line": 360,
+      "column": 2
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Read",
+     "receiver": "*loggingConn",
+     "position": {
+      "filename": "src/net/http/server.go",
+      "offset": 130442,
+      "line": 4035,
+      "column": 23
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 15300,
+      "line": 429,
+      "column": 21
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Close",
+     "receiver": "*gzipReader",
+     "position": {
+      "filename": "src/net/http/transport.go",
+      "offset": 98578,
+      "line": 3206,
+      "column": 23
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11857,
+      "line": 360,
+      "column": 2
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Read",
+     "receiver": "*bodyEOFSignal",
+     "position": {
+      "filename": "src/net/http/transport.go",
+      "offset": 95240,
+      "line": 3069,
+      "column": 26
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 15300,
+      "line": 429,
+      "column": 21
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Close",
+     "receiver": "*cancelTimerBody",
+     "position": {
+      "filename": "src/net/http/client.go",
+      "offset": 33623,
+      "line": 999,
+      "column": 27
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11857,
+      "line": 360,
+      "column": 2
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Read",
+     "receiver": "*body",
+     "position": {
+      "filename": "src/net/http/transfer.go",
+      "offset": 23957,
+      "line": 831,
+      "column": 16
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 15300,
+      "line": 429,
+      "column": 21
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Write",
+     "receiver": "checkConnErrorWriter",
+     "position": {
+      "filename": "src/net/http/server.go",
+      "offset": 131068,
+      "line": 4056,
+      "column": 31
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "bufio",
+     "function": "Write",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/bufio/bufio.go",
+      "offset": 19028,
+      "line": 682,
+      "column": 25
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "encoding/csv",
+     "function": "Error",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/encoding/csv/writer.go",
+      "offset": 3352,
+      "line": 132,
+      "column": 21
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/store",
+     "function": "ExportResidents",
+     "receiver": "*Store",
+     "position": {
+      "filename": "internal/store/resident_import.go",
+      "offset": 16029,
+      "line": 488,
+      "column": 17
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "ReadFrom",
+     "receiver": "persistConnWriter",
+     "position": {
+      "filename": "src/net/http/transport.go",
+      "offset": 63676,
+      "line": 2018,
+      "column": 28
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "bufio",
+     "function": "ReadFrom",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/bufio/bufio.go",
+      "offset": 21680,
+      "line": 797,
+      "column": 34
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 15065,
+      "line": 415,
+      "column": 21
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Close",
+     "receiver": "*onceCloseListener",
+     "position": {
+      "filename": "src/net/http/server.go",
+      "offset": 128213,
+      "line": 3955,
+      "column": 30
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "close",
+     "receiver": "*onceCloseListener",
+     "position": {
+      "filename": "src/net/http/server.go",
+      "offset": 128344,
+      "line": 3960,
+      "column": 71
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "sync",
+     "function": "doSlow",
+     "receiver": "*Once",
+     "position": {
+      "filename": "src/sync/once.go",
+      "offset": 2517,
+      "line": 78,
+      "column": 4
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "sync",
+     "function": "Do",
+     "receiver": "*Once",
+     "position": {
+      "filename": "src/sync/once.go",
+      "offset": 2390,
+      "line": 69,
+      "column": 11
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/auth",
+     "function": "BurnPasswordCheck",
+     "position": {
+      "filename": "internal/auth/auth.go",
+      "offset": 1156,
+      "line": 46,
+      "column": 14
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Shutdown",
+     "receiver": "*Server",
+     "position": {
+      "filename": "src/net/http/server.go",
+      "offset": 105239,
+      "line": 3170,
+      "column": 18
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/cmd/server",
+     "function": "main$1",
+     "position": {
+      "filename": "cmd/server/main.go",
+      "offset": 2430,
+      "line": 93,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/cmd/server",
+     "function": "main",
+     "position": {
+      "filename": "cmd/server/main.go",
+      "offset": 2285,
+      "line": 89,
+      "column": 2
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "NewRequestWithContext",
+     "position": {
+      "filename": "src/net/http/request.go",
+      "offset": 30057,
+      "line": 889,
+      "column": 6
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11247,
+      "line": 335,
+      "column": 40
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Write",
+     "receiver": "persistConnWriter",
+     "position": {
+      "filename": "src/net/http/transport.go",
+      "offset": 63375,
+      "line": 2009,
+      "column": 28
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "bufio",
+     "function": "Write",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/bufio/bufio.go",
+      "offset": 19028,
+      "line": 682,
+      "column": 25
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "encoding/csv",
+     "function": "Error",
+     "receiver": "*Writer",
+     "position": {
+      "filename": "src/encoding/csv/writer.go",
+      "offset": 3352,
+      "line": 132,
+      "column": 21
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/store",
+     "function": "ExportResidents",
+     "receiver": "*Store",
+     "position": {
+      "filename": "internal/store/resident_import.go",
+      "offset": 16029,
+      "line": 488,
+      "column": 17
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Close",
+     "receiver": "*body",
+     "position": {
+      "filename": "src/net/http/transfer.go",
+      "offset": 27439,
+      "line": 971,
+      "column": 16
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11857,
+      "line": 360,
+      "column": 2
+     }
+    }
+   ]
+  },
+  {
+   "osv": "GO-2026-6859",
+   "fixed_version": "v1.26.11",
+   "trace": [
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "net/http",
+     "function": "Read",
+     "receiver": "*cancelTimerBody",
+     "position": {
+      "filename": "src/net/http/client.go",
+      "offset": 33318,
+      "line": 985,
+      "column": 27
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "copyBuffer",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 15300,
+      "line": 429,
+      "column": 21
+     }
+    },
+    {
+     "module": "stdlib",
+     "version": "v1.26.10",
+     "package": "io",
+     "function": "Copy",
+     "position": {
+      "filename": "src/io/io.go",
+      "offset": 14015,
+      "line": 388,
+      "column": 19
+     }
+    },
+    {
+     "module": "dpms/backend",
+     "package": "dpms/backend/internal/push",
+     "function": "Send",
+     "receiver": "*Sender",
+     "position": {
+      "filename": "internal/push/push.go",
+      "offset": 11896,
+      "line": 361,
+      "column": 16
+     }
+    }
+   ]
+  }
+ ],
+ "osv": {
+  "GO-2026-6859": {
+   "summary": "HTTP/1 server crash due to MaxBytesReader header race in net/http",
+   "aliases": [
+    "CVE-2026-97054"
+   ]
+  },
+  "GO-2026-5932": {
+   "summary": "The golang.org/x/crypto/openpgp package is unmaintained, unsafe by design, and has known security issues",
+   "aliases": null
+  }
+ }
+}

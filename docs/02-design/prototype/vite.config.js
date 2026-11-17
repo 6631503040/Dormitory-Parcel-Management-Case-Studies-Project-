@@ -38,5 +38,15 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.js'],
     css: false,
+    // Playwright specs (e2e/) run against a live stack with `npm run test:e2e`, not under Vitest.
+    exclude: ['**/node_modules/**', 'e2e/**'],
+    // Floor set just under the 2026-11-16 measurement (statements 72.2, branches 69.1, functions 65.7,
+    // lines 74.6) so coverage cannot silently drop; raise it as tests are added.
+    coverage: {
+      provider: 'v8',
+      include: ['src/**'],
+      exclude: ['src/**/*.test.{js,jsx}', 'src/test/**'],
+      thresholds: { statements: 70, branches: 65, functions: 62, lines: 72 },
+    },
   },
 });

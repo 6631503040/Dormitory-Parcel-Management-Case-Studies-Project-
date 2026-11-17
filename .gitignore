@@ -17,3 +17,7 @@ backend/*.exe
 /docs/02-design/*audit*.md
 /docs/02-design/frontend-ux-ui-shape-*.md
 /docs/02-design/*surface-brief.md
+
+# Playwright output (evidence worth keeping is copied into docs/03-test/results/)
+docs/02-design/prototype/e2e-results/
+docs/02-design/prototype/coverage/
