@@ -73,7 +73,8 @@ selective Check-Out (24.8 → 31.8 s) were slower in first use. Staff had months
 Sheet and minutes with DPMS, and the first two sessions ran on a build with two defects. On the
 fixed build no Staff member made an error.
 
-**Not done / open.** Directory page (US-27, API only), room-mismatch check (US-15), label OCR
+**Not done / open.** Directory page (US-27: API only; moved from Must Have to Won't Have this
+release on 18 Nov — Staff see each room's Residents in the Room Number autocomplete instead), room-mismatch check (US-15), label OCR
 (US-03); UAT defects UAT-D01 (dialog closes on outside click), UAT-D04 (room number accepted as a
 Tracking Code), UAT-D06 (button text size); 3 failing system test cases (TC25, TC35, TC43).
 
