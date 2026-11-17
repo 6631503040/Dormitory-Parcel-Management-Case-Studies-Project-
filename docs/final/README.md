@@ -55,7 +55,7 @@ Every item below is on branch **`main`**. One link per item.
 | Role statement — Sadayu Suriya (6631503040) | *pending* |
 | Role statement — Kongphop Ruentongdi (6631503103) | [6631503103-kongphop-ruentongdi.md](role-statements/6631503103-kongphop-ruentongdi.md) |
 | Role statement — Phuriphat Chantiuaong (6631503034) | [6631503034-Phuriphat-Chantiuaong.md](role-statements/6631503034-Phuriphat-Chantiuaong.md) |
-| Role statement — Danaiphong Songsikhwa (6631503106) | *pending* |
+| Role statement — Danaiphong Songsikhwa (6631503106) | [6631503106-Danaiphong-Songsikhwa.md](role-statements/6631503106-Danaiphong-Songsikhwa.md) |
 
 ## 5. Other supporting documents
 
