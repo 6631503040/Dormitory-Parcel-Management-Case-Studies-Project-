@@ -1,0 +1,174 @@
+
+> dormitory-parcel-management@1.0.0 test:e2e
+> node e2e/run.mjs
+
+#1 [internal] load local bake definitions
+#1 reading from stdin 716B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from backend.Dockerfile
+#2 transferring dockerfile: 681B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/golang:1.26-alpine
+#3 ...
+
+#4 [internal] load metadata for docker.io/library/alpine:3.21
+#4 DONE 1.0s
+
+#3 [internal] load metadata for docker.io/library/golang:1.26-alpine
+#3 DONE 1.1s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 334B done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 5.37kB done
+#6 DONE 0.0s
+
+#7 [stage-1 1/5] FROM docker.io/library/alpine:3.21@sha256:ee16d92f96db08d9d2d07da48555a27f3a69d8f0759021dbc601195ed0d2b5bd
+#7 resolve docker.io/library/alpine:3.21@sha256:ee16d92f96db08d9d2d07da48555a27f3a69d8f0759021dbc601195ed0d2b5bd done
+#7 DONE 0.0s
+
+#8 [build 1/6] FROM docker.io/library/golang:1.26-alpine@sha256:a2012b4a1d1f9f7e9f44e0d39b805a901e856b1dd80b4e6ee4338db547050308
+#8 resolve docker.io/library/golang:1.26-alpine@sha256:a2012b4a1d1f9f7e9f44e0d39b805a901e856b1dd80b4e6ee4338db547050308 0.0s done
+#8 DONE 0.0s
+
+#9 [build 3/6] COPY backend/go.mod backend/go.sum ./
+#9 CACHED
+
+#10 [build 2/6] WORKDIR /src
+#10 CACHED
+
+#11 [build 4/6] RUN go mod download
+#11 CACHED
+
+#12 [build 5/6] COPY backend/ ./
+#12 DONE 0.0s
+
+#13 [build 6/6] RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/server ./cmd/server  && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/seed ./cmd/seed  && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/vapidkeys ./cmd/vapidkeys
+#13 DONE 13.5s
+
+#14 [stage-1 2/5] RUN adduser -D -u 10001 app
+#14 CACHED
+
+#15 [stage-1 4/5] COPY --from=build /out/server /out/seed /out/vapidkeys /app/
+#15 CACHED
+
+#16 [stage-1 3/5] WORKDIR /app
+#16 CACHED
+
+#17 [stage-1 5/5] COPY db/migrations /app/migrations
+#17 CACHED
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:eae81d9b28ae57abddc0eb1f2cc261c97e3d11166196aa607156cdc1760af280 done
+#18 exporting config sha256:1db5a4037fae319bc63813501029aa0f932122eaa6742a3b15a345f2c9ad8280 done
+#18 exporting attestation manifest sha256:2faf7f4072d22052cc0e93dc21f1d3dd48f1b9d8751b0fa428d8231ede8ef21e done
+#18 exporting manifest list sha256:5307ec40199200ab12b47912677a497c0f0d08808c673cf76ab23cbfac11e5c9 done
+#18 naming to docker.io/library/dpms-quality-47582-backend:latest done
+#18 unpacking to docker.io/library/dpms-quality-47582-backend:latest done
+#18 DONE 0.0s
+
+#19 resolving provenance for metadata file
+#19 DONE 0.0s
+ dpms-quality-47582-backend  Built
+ Network dpms-quality-47582_default  Creating
+ Network dpms-quality-47582_default  Created
+ Container dpms-quality-47582-db-1  Creating
+ Container dpms-quality-47582-db-1  Created
+ Container dpms-quality-47582-backend-1  Creating
+ Container dpms-quality-47582-backend-1  Created
+ Container dpms-quality-47582-db-1  Starting
+ Container dpms-quality-47582-db-1  Started
+ Container dpms-quality-47582-db-1  Waiting
+ Container dpms-quality-47582-db-1  Healthy
+ Container dpms-quality-47582-backend-1  Starting
+ Container dpms-quality-47582-backend-1  Started
+ Container dpms-quality-47582-backend-1  Waiting
+ Container dpms-quality-47582-db-1  Waiting
+ Container dpms-quality-47582-db-1  Healthy
+ Container dpms-quality-47582-backend-1  Healthy
+
+> dormitory-parcel-management@1.0.0 build
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 1603 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                      0.55 kB │ gzip:  0.32 kB
+dist/resident/index.html             1.06 kB │ gzip:  0.56 kB
+dist/assets/resident-C-slOZab.css    3.30 kB │ gzip:  0.97 kB
+dist/assets/styles-7woLU_CG.css     49.43 kB │ gzip: 10.04 kB
+dist/assets/resident-EMvtStF3.js    13.51 kB │ gzip:  5.42 kB
+dist/assets/main-AK147izW.js        48.65 kB │ gzip: 15.25 kB
+dist/assets/styles-Bt2i1qxK.js     159.41 kB │ gzip: 52.06 kB
+✓ built in 1.33s
+[WebServer] (node:52522) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:52541) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › e2e/desk.spec.js:16:1 › rejects invalid credentials and returns to login after logout (893ms)
+  ✓  2 [chromium] › e2e/desk.spec.js:28:1 › single save, staged batch, continuous scan and explicit handover use real API/DB (4.5s)
+  ✓  3 [chromium] › e2e/desk.spec.js:69:1 › resident page shows an actionable state when push is not configured (108ms)
+QA-05 evidence {"code":"QASLOW1234","delayMs":450,"lookupRequests":["/api/v1/parcels/Q","/api/v1/parcels/A","/api/v1/parcels/S","/api/v1/parcels/L","/api/v1/parcels/O","/api/v1/parcels/W","/api/v1/parcels/1","/api/v1/parcels/2","/api/v1/parcels/3","/api/v1/parcels/4"],"remainingInput":""}
+  ✘  4 [chromium] › e2e/manual_input.spec.js:3:1 › QA-05 manual barcode typing survives a 450 ms pause between characters (7.8s)
+
+
+  1) [chromium] › e2e/manual_input.spec.js:3:1 › QA-05 manual barcode typing survives a 450 ms pause between characters 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'นำพัสดุออก', exact: true }).getByRole('cell', { name: 'QASLOW1234', exact: true })
+    Expected: visible
+    Timeout: 2000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'นำพัสดุออก', exact: true }).getByRole('cell', { name: 'QASLOW1234', exact: true }) with timeout 2000ms
+      - waiting for getByRole('dialog', { name: 'นำพัสดุออก', exact: true }).getByRole('cell', { name: 'QASLOW1234', exact: true })
+
+
+      20 |   console.log('QA-05 evidence',JSON.stringify(evidence));
+      21 |   await info.attach('manual-input-evidence',{body:JSON.stringify(evidence,null,2),contentType:'application/json'});
+    > 22 |   await expect(dialog.getByRole('cell',{name:code,exact:true})).toBeVisible({timeout:2000});
+         |                                                                 ^
+      23 | });
+      24 |
+        at /home/danaiphong/.codex/worktrees/frontend-backend-integration/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/manual_input.spec.js:22:65
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/manual_input-QA-05-manual--6ce30-ms-pause-between-characters-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/manual_input-QA-05-manual--6ce30-ms-pause-between-characters-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/manual_input-QA-05-manual--6ce30-ms-pause-between-characters-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/manual_input-QA-05-manual--6ce30-ms-pause-between-characters-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/manual_input.spec.js:3:1 › QA-05 manual barcode typing survives a 450 ms pause between characters 
+  3 passed (14.1s)
+npx exited 1
+ Container dpms-quality-47582-backend-1  Stopping
+ Container dpms-quality-47582-backend-1  Stopped
+ Container dpms-quality-47582-backend-1  Removing
+ Container dpms-quality-47582-backend-1  Removed
+ Container dpms-quality-47582-db-1  Stopping
+ Container dpms-quality-47582-db-1  Stopped
+ Container dpms-quality-47582-db-1  Removing
+ Container dpms-quality-47582-db-1  Removed
+ Network dpms-quality-47582_default  Removing
+ Network dpms-quality-47582_default  Removed

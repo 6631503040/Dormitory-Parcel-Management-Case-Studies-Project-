@@ -1,0 +1,424 @@
+
+> dormitory-parcel-management@1.0.0 test:integration
+> node e2e/run.mjs --integration
+
+ Network dpms-quality-53375_default  Creating
+ Network dpms-quality-53375_default  Created
+ Container dpms-quality-53375-db-1  Creating
+ Container dpms-quality-53375-db-1  Created
+ Container dpms-quality-53375-db-1  Starting
+ Container dpms-quality-53375-db-1  Started
+ Container dpms-quality-53375-db-1  Waiting
+ Container dpms-quality-53375-db-1  Healthy
+?   	dpms/backend/cmd/seed	[no test files]
+?   	dpms/backend/cmd/server	[no test files]
+?   	dpms/backend/cmd/vapidkeys	[no test files]
+2026-11-01T17:23:07+07:00 GET    /healthz 200 176.872µs
+2026-11-01T17:23:07+07:00 GET    /api/v1/parcels 401 136.882µs
+2026-11-01T17:23:07+07:00 GET    /api/v1/dashboard 401 49.64µs
+2026-11-01T17:23:07+07:00 GET    /api/v1/directory 401 26.432µs
+2026-11-01T17:23:07+07:00 GET    /api/v1/rooms/search?q=1 401 20.749µs
+2026-11-01T17:23:07+07:00 GET    /api/v1/auth/me 401 28.318µs
+2026-11-01T17:23:07+07:00 POST   /api/v1/parcels 401 35.495µs
+2026-11-01T17:23:07+07:00 POST   /api/v1/auth/login 401 10.490821ms
+2026-11-01T17:23:12+07:00 POST   /api/v1/auth/login 401 4.577881262s
+2026-11-01T17:23:12+07:00 POST   /api/v1/auth/login 401 843.062µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/auth/login 400 90.222µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/auth/login 200 10.472195ms
+2026-11-01T17:23:12+07:00 GET    /api/v1/auth/me 200 342.208µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/auth/login 200 9.848505ms
+2026-11-01T17:23:12+07:00 POST   /api/v1/auth/logout 204 31.121µs
+2026-11-01T17:23:12+07:00 GET    /api/v1/auth/me 401 36.136µs
+2026-11-01T17:23:12+07:00 GET    /api/v1/auth/me 401 97.22µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/auth/login 200 11.104327ms
+2026-11-01T17:23:12+07:00 GET    /api/v1/auth/me 200 351.767µs
+2026-11-01T17:23:12+07:00 GET    /api/v1/auth/me 401 251.936µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/auth/login 200 10.95443ms
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 201 4.930344ms
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 422 734.892µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 409 1.07008ms
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 422 533.401µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 201 1.737073ms
+2026-11-01T17:23:12+07:00 POST   /api/v1/auth/login 200 11.096396ms
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 400 432.585µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 400 254.139µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 400 260.055µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 400 261.669µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 400 237.465µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 400 231.71µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 400 224.655µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 400 204.73µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 400 223.615µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 400 191.784µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 400 246.487µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 415 23.57µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/auth/login 200 11.69717ms
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels 201 3.865711ms
+2026-11-01T17:23:12+07:00 GET    /api/v1/parcels?unmatched=true 200 1.687557ms
+2026-11-01T17:23:12+07:00 PATCH  /api/v1/parcels/NOROOM1/room 422 671.026µs
+2026-11-01T17:23:12+07:00 PATCH  /api/v1/parcels/NOROOM1/room 400 240.207µs
+2026-11-01T17:23:12+07:00 PATCH  /api/v1/parcels/NOPE/room 404 871.908µs
+2026-11-01T17:23:12+07:00 PATCH  /api/v1/parcels/noroom1/room 200 2.640733ms
+2026-11-01T17:23:12+07:00 GET    /api/v1/parcels?unmatched=true 200 295.589µs
+2026-11-01T17:23:12+07:00 PATCH  /api/v1/parcels/NOROOM1/room 409 684.325µs
+2026-11-01T17:23:12+07:00 POST   /api/v1/parcels/check-out 200 1.856323ms
+2026-11-01T17:23:12+07:00 GET    /api/v1/parcels/NOROOM1 200 1.675617ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/auth/login 200 12.181615ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 3.764955ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 2.537721ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 200 2.159998ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels/NOROOM9 200 1.480656ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?status=pending&unmatched=true 200 605.133µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?status=picked_up&unmatched=true 200 1.300817ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 409 640.387µs
+2026-11-01T17:23:13+07:00 PATCH  /api/v1/parcels/NOROOM9/room 409 938.319µs
+2026-11-01T17:23:13+07:00 PATCH  /api/v1/parcels/NOROOM9 409 706.165µs
+2026-11-01T17:23:13+07:00 POST   /api/v1/auth/login 200 10.633313ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 3.490466ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 1.517588ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 1.311443ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 2.451998ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?unmatched=true&unmatchedReason=no_match 200 1.976176ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?unmatched=true&unmatchedReason=ambiguous 200 1.692213ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?unmatched=true&unmatchedReason=other 200 541.533µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?unmatched=true 200 1.802174ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?unmatchedReason=bogus 400 255.635µs
+2026-11-01T17:23:13+07:00 POST   /api/v1/auth/login 200 11.22109ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/auth/login 200 9.848568ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 5.435102ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 1.582002ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 1.524213ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 200 1.786835ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 409 773.827µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?status=pending&roomId=1 200 1.445492ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 404 691.816µs
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 400 218.817µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?status=pending&roomId=1 200 1.12169ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/auth/login 200 10.491275ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 4.617536ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 1.508482ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 1.513221ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 1.451711ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 200 1.704852ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/rooms/1/check-out-all 409 888.279µs
+2026-11-01T17:23:13+07:00 POST   /api/v1/rooms/1/check-out-all 200 1.63863ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/rooms/1/check-out-all 404 519.717µs
+2026-11-01T17:23:13+07:00 POST   /api/v1/rooms/987654/check-out-all 422 361.506µs
+2026-11-01T17:23:13+07:00 POST   /api/v1/rooms/abc/check-out-all 400 180.353µs
+2026-11-01T17:23:13+07:00 POST   /api/v1/auth/login 200 11.091286ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 5.052855ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/auth/login 200 10.612155ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/auth/login 200 10.524468ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 200 12.299412ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 409 20.442103ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 409 20.467251ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 409 21.064293ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 409 21.056506ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 409 23.2396ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 409 24.959366ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 409 24.401152ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 409 25.141603ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 409 25.463774ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 409 26.631479ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 409 26.399596ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/auth/login 200 10.876881ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/auth/login 200 10.127657ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 4.607107ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels/check-out 200 2.116035ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels/chain1 200 1.382229ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels/NOSUCH 404 767.216µs
+2026-11-01T17:23:13+07:00 POST   /api/v1/auth/login 200 10.533741ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 4.303936ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 1.512302ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 1.590736ms
+2026-11-01T17:23:13+07:00 POST   /api/v1/parcels 201 2.057315ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?q=th1 200 2.550433ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?q=SPX9 200 1.659653ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?q=H100 200 631.735µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?q=101 200 2.051931ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?q=1101 200 1.66901ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?q=%E0%B8%AA%E0%B8%A1%E0%B8%8A%E0%B8%B2%E0%B8%A2 200 1.604868ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?q=warin 200 1.927093ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?q=%E0%B9%81%E0%B8%99%E0%B8%99 200 1.812351ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?q=%25 200 718.676µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?q=_ 200 594.116µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?q=spx&status=picked_up 200 754.875µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?roomId=3 200 1.509998ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?pageSize=3 200 1.838821ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?pageSize=3&page=2 200 1.275327ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?pageSize=3&page=9 200 1.166832ms
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?q=zzz 200 642.761µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?pageSize=101 400 252.939µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?pageSize=0 400 212.101µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?page=0 400 180.269µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?page=x 400 176.149µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?status=bogus 400 185.671µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?roomId=abc 400 156.216µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?unmatched=maybe 400 161.48µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?from=yesterday 400 190.649µs
+2026-11-01T17:23:13+07:00 GET    /api/v1/parcels?q=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 400 159.128µs
+2026-11-01T17:23:14+07:00 POST   /api/v1/auth/login 200 10.62737ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/rooms/search?q=101 200 1.747268ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/rooms/search?q=110 200 780.513µs
+2026-11-01T17:23:14+07:00 GET    /api/v1/rooms/search?q=%E0%B9%81%E0%B8%99%E0%B8%99 200 721.364µs
+2026-11-01T17:23:14+07:00 GET    /api/v1/rooms/search?q=%E0%B8%93%E0%B8%B1%E0%B8%90%E0%B8%9E%E0%B8%A5 200 694.391µs
+2026-11-01T17:23:14+07:00 GET    /api/v1/rooms/search?q=nomatch 200 630.821µs
+2026-11-01T17:23:14+07:00 GET    /api/v1/rooms/search?q= 200 210.593µs
+2026-11-01T17:23:14+07:00 GET    /api/v1/rooms/search?q=1&limit=21 400 233.812µs
+2026-11-01T17:23:14+07:00 GET    /api/v1/directory?q=%E0%B9%81%E0%B8%99%E0%B8%99 200 1.155659ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/directory?pageSize=2 200 877.697µs
+2026-11-01T17:23:14+07:00 POST   /api/v1/auth/login 200 11.264089ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels 201 4.661481ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels 201 1.564302ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels 201 1.518721ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels 201 1.317848ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels/check-out 200 1.635205ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/dashboard 200 2.864917ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/dashboard?date=2026-10-31 200 726.177µs
+2026-11-01T17:23:14+07:00 GET    /api/v1/dashboard?date=2026-11-02 200 642.212µs
+2026-11-01T17:23:14+07:00 GET    /api/v1/dashboard?date=2026-13-45 400 220.558µs
+2026-11-01T17:23:14+07:00 GET    /api/v1/dashboard?date=today 400 229.956µs
+2026-11-01T17:23:14+07:00 GET    /api/v1/dashboard?period=week&date=2026-10-29 200 1.694963ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/dashboard?period=week&date=2026-11-01 200 1.813892ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/dashboard?period=month&date=2026-02-14 200 776.486µs
+2026-11-01T17:23:14+07:00 GET    /api/v1/dashboard?date=2026-10-29 200 751.368µs
+2026-11-01T17:23:14+07:00 GET    /api/v1/dashboard?period=year 400 231.764µs
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels 201 1.569958ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/dashboard?period=day 200 1.763927ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/dashboard?period=week 200 1.864071ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/dashboard?period=month 200 1.733132ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/dashboard?period=month&date=2026-09-22 200 1.602502ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/auth/login 200 10.793532ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/admin/access-logs 403 383.668µs
+2026-11-01T17:23:14+07:00 POST   /api/v1/auth/login 200 10.055083ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/admin/access-logs?pageSize=2 200 1.100092ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/admin/access-logs 401 22.187µs
+2026-11-01T17:23:14+07:00 POST   /api/v1/auth/login 200 11.103031ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels 201 4.640097ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/auth/login 200 10.717455ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/auth/login 200 10.015254ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels 201 5.666113ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels 201 1.56969ms
+2026-11-01T17:23:14+07:00 PATCH  /api/v1/parcels/TYPO1 422 995.274µs
+2026-11-01T17:23:14+07:00 PATCH  /api/v1/parcels/TYPO1 400 241.881µs
+2026-11-01T17:23:14+07:00 PATCH  /api/v1/parcels/TYPO1 400 203.714µs
+2026-11-01T17:23:14+07:00 PATCH  /api/v1/parcels/TYPO1 400 281.463µs
+2026-11-01T17:23:14+07:00 PATCH  /api/v1/parcels/NOPE 404 491.952µs
+2026-11-01T17:23:14+07:00 PATCH  /api/v1/parcels/TYPO1 409 1.300462ms
+2026-11-01T17:23:14+07:00 PATCH  /api/v1/parcels/typo1 200 2.2359ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/parcels/TYPO1 404 932.152µs
+2026-11-01T17:23:14+07:00 PATCH  /api/v1/parcels/FIXED1 200 1.508853ms
+2026-11-01T17:23:14+07:00 PATCH  /api/v1/parcels/FIXED1 200 14.113ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/parcels/FIXED1 200 1.320609ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/parcels?q=1102 200 2.33582ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels/check-out 200 1.782525ms
+2026-11-01T17:23:14+07:00 PATCH  /api/v1/parcels/FIXED1 409 614.888µs
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels 201 1.294069ms
+2026-11-01T17:23:14+07:00 PATCH  /api/v1/parcels/NOROOM2 409 620.097µs
+2026-11-01T17:23:14+07:00 POST   /api/v1/auth/login 200 10.928933ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels 201 4.923877ms
+2026-11-01T17:23:14+07:00 PATCH  /api/v1/parcels/WHO1 200 1.703723ms
+2026-11-01T17:23:14+07:00 PATCH  /api/v1/parcels/WHO1 200 1.926916ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/resident/otp 201 1.69723ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/auth/login 200 11.184515ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/rooms/1/resident-otp 200 1.311625ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/resident/otp/verify 201 2.155851ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/auth/login 200 9.89869ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels 201 4.470235ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels 201 1.646081ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels 201 1.575494ms
+2026-11-01T17:23:14+07:00 GET    /api/v1/resident/me 200 1.028075ms
+2026-11-01T17:23:14+07:00 POST   /api/v1/parcels 201 1.703621ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 201 1.798609ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/auth/login 200 11.579037ms
+2026-11-01T17:23:15+07:00 GET    /api/v1/rooms/1/resident-otp 200 1.172834ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp/verify 201 2.182082ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/auth/login 200 10.508249ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/parcels 201 4.598642ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/rooms/1/check-out-all 200 2.242421ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 201 1.729223ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/auth/login 200 10.680727ms
+2026-11-01T17:23:15+07:00 GET    /api/v1/rooms/1/resident-otp 200 1.075506ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp/verify 201 2.116267ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 201 596.968µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/auth/login 200 9.715462ms
+2026-11-01T17:23:15+07:00 GET    /api/v1/rooms/2/resident-otp 200 754.572µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp/verify 201 1.09255ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/auth/login 200 9.482895ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/parcels 201 3.982706ms
+2026-11-01T17:23:15+07:00 PATCH  /api/v1/parcels/TH-MOVE 200 2.391173ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 201 1.580342ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp/verify 422 867.765µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp/verify 422 539.053µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp/verify 422 477.503µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp/verify 422 506.386µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp/verify 410 606.089µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp/verify 410 388.118µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 400 317.251µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 422 662.125µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 422 303.627µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 201 1.314325ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 201 533.651µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 201 516.027µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 429 343.247µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/auth/login 200 10.636352ms
+2026-11-01T17:23:15+07:00 GET    /api/v1/rooms/2/resident-otp 404 817.344µs
+2026-11-01T17:23:15+07:00 GET    /api/v1/rooms/1/resident-otp 401 25.24µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 201 1.975266ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/auth/login 200 10.715598ms
+2026-11-01T17:23:15+07:00 GET    /api/v1/rooms/1/resident-otp 200 1.110723ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp/verify 201 2.180461ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/auth/login 200 9.697147ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/parcels 201 4.039133ms
+2026-11-01T17:23:15+07:00 GET    /api/v1/resident/me 401 540.119µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 201 1.691633ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/auth/login 200 11.06763ms
+2026-11-01T17:23:15+07:00 GET    /api/v1/rooms/1/resident-otp 200 1.258851ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp/verify 201 1.991533ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/auth/login 200 10.092473ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/parcels 201 4.104915ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 201 1.704877ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/auth/login 200 10.976694ms
+2026-11-01T17:23:15+07:00 GET    /api/v1/rooms/1/resident-otp 200 1.094823ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp/verify 201 2.192649ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 201 560.309µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/auth/login 200 10.165508ms
+2026-11-01T17:23:15+07:00 GET    /api/v1/rooms/1/resident-otp 200 626.398µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp/verify 201 1.002023ms
+2026-11-01T17:23:15+07:00 DELETE /api/v1/resident/push/subscription 204 1.489976ms
+2026-11-01T17:23:15+07:00 GET    /api/v1/resident/me 401 349.393µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/auth/login 200 10.380114ms
+2026-11-01T17:23:15+07:00 GET    /api/v1/rooms/1/push-subscriptions 200 532.597µs
+2026-11-01T17:23:15+07:00 DELETE /api/v1/rooms/1/push-subscriptions 200 996.344µs
+2026-11-01T17:23:15+07:00 GET    /api/v1/resident/me 401 275.709µs
+2026-11-01T17:23:15+07:00 POST   /api/v1/auth/login 200 10.273912ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/parcels 201 3.437489ms
+2026-11-01T17:23:15+07:00 POST   /api/v1/resident/otp 201 1.812319ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 200 10.943393ms
+2026-11-01T17:23:16+07:00 GET    /api/v1/rooms/1/resident-otp 200 1.162831ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/resident/otp/verify 201 2.379664ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/resident/otp 201 634.277µs
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 200 10.678898ms
+2026-11-01T17:23:16+07:00 GET    /api/v1/rooms/1/resident-otp 200 825.1µs
+2026-11-01T17:23:16+07:00 POST   /api/v1/resident/otp/verify 201 1.215168ms
+2026-11-01T17:23:16+07:00 GET    /api/v1/resident/me 401 487.788µs
+2026-11-01T17:23:16+07:00 POST   /api/v1/resident/otp 201 1.985717ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 200 12.10128ms
+2026-11-01T17:23:16+07:00 GET    /api/v1/rooms/1/resident-otp 200 1.238061ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/resident/otp/verify 201 2.149046ms
+2026-11-01T17:23:16+07:00 PUT    /api/v1/resident/push/subscription 204 1.231704ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/resident/otp 201 1.988847ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/resident/otp/verify 400 502.419µs
+2026-11-01T17:23:16+07:00 GET    /api/v1/resident/push/config 503 62.023µs
+2026-11-01T17:23:16+07:00 POST   /api/v1/resident/otp 503 33.336µs
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 200 11.56065ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/logout 204 21.606µs
+2026-11-01T17:23:16+07:00 GET    /api/v1/auth/me 200 332.341µs
+--- FAIL: TestReviewLogoutMustRevokeCopiedSession (0.12s)
+    review_findings_test.go:26: logout status=204
+    review_findings_test.go:35: copied cookie replay after logout status=200
+    review_findings_test.go:37: QA-01 expected revoked session HTTP 401, got 200
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 10.992887ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 9.748972ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 10.00363ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 9.462878ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 10.034772ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 10.350011ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 10.153745ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 9.933774ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 10.292446ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 9.839635ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 10.019361ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 10.113727ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 10.023932ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 9.777433ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 9.742362ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 10.463055ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 13.732684ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 12.497392ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 9.792214ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 9.957876ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 10.378734ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 10.863413ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 9.824406ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 9.72833ms
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 401 10.109262ms
+--- FAIL: TestReviewStaffLoginShouldThrottleRepeatedFailures (0.38s)
+    review_findings_test.go:55: 25 failed requests same account/client; HTTP 429 observed=false
+    review_findings_test.go:57: QA-02 expected application-level throttle during repeated failures; all 25 attempts returned 401
+2026-11-01T17:23:16+07:00 POST   /api/v1/auth/login 200 10.865537ms
+2026-11-01T17:23:17+07:00 POST   /api/v1/parcels 201 5.101058ms
+2026-11-01T17:23:17+07:00 GET    /api/v1/parcels/REVIEW/SLASH 404 47.169µs
+--- FAIL: TestReviewAcceptedTrackingCodeMustBeRetrievable (0.12s)
+    review_findings_test.go:66: POST accepted tracking code containing slash; encoded detail GET status=404
+    review_findings_test.go:68: QA-03 expected GET 200 for accepted code, got 404
+2026-11-01T17:23:17+07:00 POST   /api/v1/auth/login 200 11.373037ms
+2026-11-01T17:23:17+07:00 POST   /api/v1/parcels 201 4.726294ms
+2026/11/01 17:23:17 internal error: GET /api/v1/parcels: ERROR: OFFSET must not be negative (SQLSTATE 2201X)
+2026-11-01T17:23:17+07:00 GET    /api/v1/parcels?page=9223372036854775807&pageSize=100 500 1.626582ms
+2026/11/01 17:23:17 internal error: GET /api/v1/directory: ERROR: OFFSET must not be negative (SQLSTATE 2201X)
+2026-11-01T17:23:17+07:00 GET    /api/v1/directory?page=9223372036854775807&pageSize=100 500 1.217125ms
+2026-11-01T17:23:17+07:00 POST   /api/v1/auth/login 200 10.059413ms
+2026/11/01 17:23:17 internal error: GET /api/v1/admin/access-logs: ERROR: OFFSET must not be negative (SQLSTATE 2201X)
+2026-11-01T17:23:17+07:00 GET    /api/v1/admin/access-logs?page=9223372036854775807&pageSize=100 500 780.243µs
+--- FAIL: TestReviewLargePageMustNotReturnInternalError (0.13s)
+    review_findings_test.go:82: /api/v1/parcels maximum integer page status=500
+    review_findings_test.go:84: QA-04 expected bounded pagination error or empty page, got 500 at /api/v1/parcels
+    review_findings_test.go:82: /api/v1/directory maximum integer page status=500
+    review_findings_test.go:84: QA-04 expected bounded pagination error or empty page, got 500 at /api/v1/directory
+    review_findings_test.go:82: /api/v1/admin/access-logs maximum integer page status=500
+    review_findings_test.go:84: QA-04 expected bounded pagination error or empty page, got 500 at /api/v1/admin/access-logs
+2026-11-01T17:23:17+07:00 POST   /api/v1/resident/otp 201 1.839585ms
+2026-11-01T17:23:17+07:00 POST   /api/v1/auth/login 200 11.037317ms
+2026-11-01T17:23:17+07:00 GET    /api/v1/rooms/1/resident-otp 200 1.263992ms
+2026-11-01T17:23:17+07:00 POST   /api/v1/resident/otp/verify 201 2.241762ms
+2026-11-01T17:23:17+07:00 POST   /api/v1/resident/otp 201 640.534µs
+2026-11-01T17:23:17+07:00 POST   /api/v1/auth/login 200 10.023972ms
+2026-11-01T17:23:17+07:00 GET    /api/v1/rooms/2/resident-otp 200 821.398µs
+2026-11-01T17:23:17+07:00 POST   /api/v1/resident/otp/verify 201 944.39µs
+2026-11-01T17:23:17+07:00 POST   /api/v1/auth/login 200 9.893354ms
+2026-11-01T17:23:17+07:00 POST   /api/v1/parcels 201 4.05254ms
+2026-11-01T17:23:17+07:00 POST   /api/v1/parcels 201 1.93169ms
+2026-11-01T17:23:17+07:00 GET    /api/v1/resident/me?roomId=2 200 1.162322ms
+2026-11-01T17:23:17+07:00 GET    /api/v1/parcels 401 28.791µs
+2026-11-01T17:23:17+07:00 GET    /api/v1/directory 401 22.043µs
+2026-11-01T17:23:17+07:00 GET    /api/v1/admin/access-logs 401 47.223µs
+2026-11-01T17:23:17+07:00 GET    /api/v1/rooms/2/resident-otp 401 52.301µs
+2026-11-01T17:23:17+07:00 POST   /api/v1/parcels/check-out 401 34.311µs
+2026-11-01T17:23:17+07:00 GET    /api/v1/resident/me?roomId=1 200 736.884µs
+2026-11-01T17:23:17+07:00 GET    /api/v1/parcels 401 22.423µs
+2026-11-01T17:23:17+07:00 GET    /api/v1/directory 401 32.279µs
+2026-11-01T17:23:17+07:00 GET    /api/v1/admin/access-logs 401 24.349µs
+2026-11-01T17:23:17+07:00 GET    /api/v1/rooms/1/resident-otp 401 24.236µs
+2026-11-01T17:23:17+07:00 POST   /api/v1/parcels/check-out 401 23.725µs
+2026-11-01T17:23:17+07:00 GET    /api/v1/resident/me 401 252.75µs
+2026-11-01T17:23:17+07:00 GET    / 200 61.465µs
+2026-11-01T17:23:17+07:00 GET    /resident/ 200 38.908µs
+2026-11-01T17:23:17+07:00 GET    /resident/sw.js 200 33.091µs
+2026-11-01T17:23:17+07:00 GET    /resident/manifest.webmanifest 200 32.474µs
+2026-11-01T17:23:17+07:00 GET    /assets/app-1a2b.js 200 34.313µs
+2026-11-01T17:23:17+07:00 GET    /resident?x=1 301 24.606µs
+2026-11-01T17:23:17+07:00 GET    /missing.js 404 25.565µs
+2026-11-01T17:23:17+07:00 GET    /assets/ 404 21.312µs
+2026-11-01T17:23:17+07:00 GET    /../secret.txt 404 18.908µs
+2026-11-01T17:23:17+07:00 GET    /assets/../../secret.txt 404 19.201µs
+2026-11-01T17:23:17+07:00 GET    /api/v1/nope 404 10.956µs
+2026-11-01T17:23:17+07:00 POST   /index.html 404 10.636µs
+2026-11-01T17:23:17+07:00 GET    / 404 15.659µs
+FAIL
+FAIL	dpms/backend/internal/api	9.864s
+?   	dpms/backend/internal/apperr	[no test files]
+ok  	dpms/backend/internal/auth	1.055s
+?   	dpms/backend/internal/config	[no test files]
+?   	dpms/backend/internal/db	[no test files]
+?   	dpms/backend/internal/notify	[no test files]
+ok  	dpms/backend/internal/push	1.012s
+?   	dpms/backend/internal/store	[no test files]
+FAIL
+go exited 1
+ Container dpms-quality-53375-db-1  Stopping
+ Container dpms-quality-53375-db-1  Stopped
+ Container dpms-quality-53375-db-1  Removing
+ Container dpms-quality-53375-db-1  Removed
+ Network dpms-quality-53375_default  Removing
+ Network dpms-quality-53375_default  Removed
