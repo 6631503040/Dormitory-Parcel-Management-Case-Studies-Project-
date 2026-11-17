@@ -270,6 +270,20 @@ func (s *Store) CheckOut(ctx context.Context, staffID int64, codes []string) ([]
 	}
 	defer tx.Rollback(ctx) //nolint:errcheck
 
+	// DEF-002: one handover is for one recipient room. Lock the rows first so a concurrent edit
+	// cannot move a Parcel between this check and the update. Parcels with no room (US-06) may
+	// still go with a room's Parcels — Staff check the name on the label for those.
+	var rooms int
+	if err := tx.QueryRow(ctx,
+		`SELECT count(DISTINCT room_id) FROM (
+		   SELECT room_id FROM parcels WHERE tracking_code = ANY($1) AND status = 'pending' FOR UPDATE
+		 ) locked`, codes).Scan(&rooms); err != nil {
+		return nil, err
+	}
+	if rooms > 1 {
+		return nil, apperr.New(apperr.MixedRooms, map[string]any{"trackingCodes": codes})
+	}
+
 	rows, err := tx.Query(ctx,
 		`UPDATE parcels SET status = 'picked_up', checked_out_by = $1, checked_out_at = now(), updated_at = now()
 		 WHERE tracking_code = ANY($2) AND status = 'pending'
@@ -638,8 +652,14 @@ func (s *Store) ListParcels(ctx context.Context, f ParcelFilter) (Page[Parcel], 
 		return out, nil
 	}
 
+	// Lists are newest first, except the queue of Pending Parcels without a room (US-06, DEF-001):
+	// it is worked oldest first, so the longest-waiting Parcel is resolved first.
+	order := ` ORDER BY p.checked_in_at DESC, p.id DESC`
+	if f.Status == "pending" && f.Unmatched != nil && *f.Unmatched {
+		order = ` ORDER BY p.checked_in_at ASC, p.id ASC`
+	}
 	limit, offset := b.arg(f.PageSize), b.arg((f.Page-1)*f.PageSize)
-	rows, err := s.pool.Query(ctx, parcelSelect+where+` ORDER BY p.checked_in_at DESC, p.id DESC LIMIT `+limit+` OFFSET `+offset, b.args...)
+	rows, err := s.pool.Query(ctx, parcelSelect+where+order+` LIMIT `+limit+` OFFSET `+offset, b.args...)
 	if err != nil {
 		return out, err
 	}

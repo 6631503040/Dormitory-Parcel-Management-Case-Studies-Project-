@@ -1,0 +1,747 @@
+go version go1.26.11 windows/amd64
+?   	dpms/backend/cmd/createadmin	[no test files]
+?   	dpms/backend/cmd/seed	[no test files]
+?   	dpms/backend/cmd/server	[no test files]
+?   	dpms/backend/cmd/vapidkeys	[no test files]
+=== RUN   TestHealth
+2026-11-18T02:42:04+07:00 GET    /healthz 200 1.0733ms
+--- PASS: TestHealth (0.49s)
+=== RUN   TestAuthRequired
+2026-11-18T02:42:04+07:00 GET    /api/v1/parcels 401 0s
+2026-11-18T02:42:04+07:00 GET    /api/v1/dashboard 401 0s
+2026-11-18T02:42:04+07:00 GET    /api/v1/directory 401 0s
+2026-11-18T02:42:04+07:00 GET    /api/v1/rooms/search?q=1 401 0s
+2026-11-18T02:42:04+07:00 GET    /api/v1/auth/me 401 0s
+2026-11-18T02:42:04+07:00 POST   /api/v1/parcels 401 0s
+--- PASS: TestAuthRequired (0.64s)
+=== RUN   TestLoginAndAccessLog
+2026-11-18T02:42:05+07:00 POST   /api/v1/auth/login 401 9.9144ms
+2026-11-18T02:42:05+07:00 POST   /api/v1/auth/login 401 428.1137ms
+2026-11-18T02:42:05+07:00 POST   /api/v1/auth/login 401 4.8811ms
+2026-11-18T02:42:05+07:00 POST   /api/v1/auth/login 400 0s
+2026-11-18T02:42:05+07:00 POST   /api/v1/auth/login 200 8.9169ms
+2026-11-18T02:42:05+07:00 GET    /api/v1/auth/me 200 5.3828ms
+2026-11-18T02:42:05+07:00 POST   /api/v1/auth/login 200 9.3067ms
+2026-11-18T02:42:05+07:00 POST   /api/v1/auth/logout 204 5.5177ms
+2026-11-18T02:42:05+07:00 GET    /api/v1/auth/me 401 0s
+--- PASS: TestLoginAndAccessLog (0.97s)
+=== RUN   TestSessionCannotBeForgedOrOutliveAccount
+2026-11-18T02:42:06+07:00 GET    /api/v1/auth/me 401 0s
+2026-11-18T02:42:06+07:00 POST   /api/v1/auth/login 200 9.7417ms
+2026-11-18T02:42:06+07:00 GET    /api/v1/auth/me 200 4.1244ms
+2026-11-18T02:42:06+07:00 GET    /api/v1/auth/me 401 2.1774ms
+--- PASS: TestSessionCannotBeForgedOrOutliveAccount (0.52s)
+=== RUN   TestCheckInValidatesRoomAgainstDirectory
+2026-11-18T02:42:06+07:00 POST   /api/v1/auth/login 200 17.8249ms
+2026-11-18T02:42:06+07:00 POST   /api/v1/parcels 201 49.6723ms
+2026-11-18T02:42:06+07:00 POST   /api/v1/parcels 422 12.4608ms
+2026-11-18T02:42:06+07:00 POST   /api/v1/parcels 409 23.4694ms
+2026-11-18T02:42:06+07:00 POST   /api/v1/parcels 422 14.2617ms
+2026-11-18T02:42:06+07:00 POST   /api/v1/parcels 201 27.6038ms
+--- PASS: TestCheckInValidatesRoomAgainstDirectory (0.84s)
+=== RUN   TestCheckInRequestValidation
+2026-11-18T02:42:07+07:00 POST   /api/v1/auth/login 200 16.3602ms
+=== RUN   TestCheckInRequestValidation/no_room_and_no_reason
+2026-11-18T02:42:07+07:00 POST   /api/v1/parcels 400 8.8296ms
+=== RUN   TestCheckInRequestValidation/room_and_reason
+2026-11-18T02:42:07+07:00 POST   /api/v1/parcels 400 4.7691ms
+=== RUN   TestCheckInRequestValidation/bad_reason
+2026-11-18T02:42:07+07:00 POST   /api/v1/parcels 400 3.8177ms
+=== RUN   TestCheckInRequestValidation/empty_code
+2026-11-18T02:42:07+07:00 POST   /api/v1/parcels 400 2.1507ms
+=== RUN   TestCheckInRequestValidation/code_with_space
+2026-11-18T02:42:07+07:00 POST   /api/v1/parcels 400 3.2341ms
+=== RUN   TestCheckInRequestValidation/code_too_long
+2026-11-18T02:42:07+07:00 POST   /api/v1/parcels 400 2.2212ms
+=== RUN   TestCheckInRequestValidation/room_id_zero
+2026-11-18T02:42:07+07:00 POST   /api/v1/parcels 400 1.6698ms
+=== RUN   TestCheckInRequestValidation/room_as_text
+2026-11-18T02:42:07+07:00 POST   /api/v1/parcels 400 2.4666ms
+=== RUN   TestCheckInRequestValidation/resident_without_room
+2026-11-18T02:42:07+07:00 POST   /api/v1/parcels 400 2.1594ms
+=== RUN   TestCheckInRequestValidation/unknown_field
+2026-11-18T02:42:07+07:00 POST   /api/v1/parcels 400 2.8643ms
+=== RUN   TestCheckInRequestValidation/note_too_long
+2026-11-18T02:42:07+07:00 POST   /api/v1/parcels 400 3.2103ms
+2026-11-18T02:42:07+07:00 POST   /api/v1/parcels 415 0s
+--- PASS: TestCheckInRequestValidation (0.65s)
+    --- PASS: TestCheckInRequestValidation/no_room_and_no_reason (0.01s)
+    --- PASS: TestCheckInRequestValidation/room_and_reason (0.01s)
+    --- PASS: TestCheckInRequestValidation/bad_reason (0.00s)
+    --- PASS: TestCheckInRequestValidation/empty_code (0.00s)
+    --- PASS: TestCheckInRequestValidation/code_with_space (0.00s)
+    --- PASS: TestCheckInRequestValidation/code_too_long (0.00s)
+    --- PASS: TestCheckInRequestValidation/room_id_zero (0.00s)
+    --- PASS: TestCheckInRequestValidation/room_as_text (0.00s)
+    --- PASS: TestCheckInRequestValidation/resident_without_room (0.00s)
+    --- PASS: TestCheckInRequestValidation/unknown_field (0.00s)
+    --- PASS: TestCheckInRequestValidation/note_too_long (0.00s)
+=== RUN   TestUnmatchedParcelLifecycle
+2026-11-18T02:42:08+07:00 POST   /api/v1/auth/login 200 13.7839ms
+2026-11-18T02:42:08+07:00 POST   /api/v1/parcels 201 24.4401ms
+2026-11-18T02:42:08+07:00 GET    /api/v1/parcels?unmatched=true 200 9.5007ms
+2026-11-18T02:42:08+07:00 PATCH  /api/v1/parcels/NOROOM1/room 422 6.5768ms
+2026-11-18T02:42:08+07:00 PATCH  /api/v1/parcels/NOROOM1/room 400 3.3877ms
+2026-11-18T02:42:08+07:00 PATCH  /api/v1/parcels/NOPE/room 404 13.3814ms
+2026-11-18T02:42:08+07:00 PATCH  /api/v1/parcels/noroom1/room 200 16.9249ms
+2026-11-18T02:42:08+07:00 GET    /api/v1/parcels?unmatched=true 200 5.4348ms
+2026-11-18T02:42:08+07:00 PATCH  /api/v1/parcels/NOROOM1/room 409 9.516ms
+2026-11-18T02:42:08+07:00 POST   /api/v1/parcels/check-out 200 17.4081ms
+2026-11-18T02:42:08+07:00 GET    /api/v1/parcels/NOROOM1 200 10.443ms
+--- PASS: TestUnmatchedParcelLifecycle (0.70s)
+=== RUN   TestCheckOutParcelWithoutRoom
+2026-11-18T02:42:08+07:00 POST   /api/v1/auth/login 200 14.4248ms
+2026-11-18T02:42:08+07:00 POST   /api/v1/parcels 201 21.4696ms
+2026-11-18T02:42:08+07:00 POST   /api/v1/parcels 201 18.3253ms
+2026-11-18T02:42:08+07:00 POST   /api/v1/parcels/check-out 200 15.9651ms
+2026-11-18T02:42:08+07:00 GET    /api/v1/parcels/NOROOM9 200 12.0158ms
+2026-11-18T02:42:09+07:00 GET    /api/v1/parcels?status=pending&unmatched=true 200 4.7266ms
+2026-11-18T02:42:09+07:00 GET    /api/v1/parcels?status=picked_up&unmatched=true 200 7.6897ms
+2026-11-18T02:42:09+07:00 POST   /api/v1/parcels/check-out 409 9.8216ms
+2026-11-18T02:42:09+07:00 PATCH  /api/v1/parcels/NOROOM9/room 409 13.0068ms
+2026-11-18T02:42:09+07:00 PATCH  /api/v1/parcels/NOROOM9 409 7.3069ms
+--- PASS: TestCheckOutParcelWithoutRoom (0.65s)
+=== RUN   TestUnmatchedReasonFilter
+2026-11-18T02:42:09+07:00 POST   /api/v1/auth/login 200 13.57ms
+2026-11-18T02:42:09+07:00 POST   /api/v1/parcels 201 25.1802ms
+2026-11-18T02:42:09+07:00 POST   /api/v1/parcels 201 12.4247ms
+2026-11-18T02:42:09+07:00 POST   /api/v1/parcels 201 12.489ms
+2026-11-18T02:42:09+07:00 POST   /api/v1/parcels 201 16.5248ms
+2026-11-18T02:42:09+07:00 GET    /api/v1/parcels?unmatched=true&unmatchedReason=no_match 200 11.2164ms
+2026-11-18T02:42:09+07:00 GET    /api/v1/parcels?unmatched=true&unmatchedReason=ambiguous 200 6.5875ms
+2026-11-18T02:42:09+07:00 GET    /api/v1/parcels?unmatched=true&unmatchedReason=other 200 4.9111ms
+2026-11-18T02:42:09+07:00 GET    /api/v1/parcels?unmatched=true 200 9.8659ms
+2026-11-18T02:42:09+07:00 GET    /api/v1/parcels?unmatchedReason=bogus 400 3.3974ms
+--- PASS: TestUnmatchedReasonFilter (0.65s)
+=== RUN   TestCheckOutSelectedIsAtomic
+2026-11-18T02:42:10+07:00 POST   /api/v1/auth/login 200 15.2696ms
+2026-11-18T02:42:10+07:00 POST   /api/v1/auth/login 200 8.8733ms
+2026-11-18T02:42:10+07:00 POST   /api/v1/parcels 201 28.7409ms
+2026-11-18T02:42:10+07:00 POST   /api/v1/parcels 201 14.1957ms
+2026-11-18T02:42:10+07:00 POST   /api/v1/parcels 201 12.4948ms
+2026-11-18T02:42:10+07:00 POST   /api/v1/parcels/check-out 200 21.3992ms
+2026-11-18T02:42:10+07:00 POST   /api/v1/parcels/check-out 409 10.1118ms
+2026-11-18T02:42:10+07:00 GET    /api/v1/parcels?status=pending&roomId=1 200 9.4434ms
+2026-11-18T02:42:10+07:00 POST   /api/v1/parcels/check-out 404 10.9106ms
+2026-11-18T02:42:10+07:00 POST   /api/v1/parcels/check-out 400 2.1936ms
+2026-11-18T02:42:10+07:00 GET    /api/v1/parcels?status=pending&roomId=1 200 7.5085ms
+--- PASS: TestCheckOutSelectedIsAtomic (0.68s)
+=== RUN   TestCheckOutAllForRoom
+2026-11-18T02:42:10+07:00 POST   /api/v1/auth/login 200 12.1921ms
+2026-11-18T02:42:10+07:00 POST   /api/v1/parcels 201 28.9747ms
+2026-11-18T02:42:10+07:00 POST   /api/v1/parcels 201 16.8914ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels 201 12.5268ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels 201 15.0012ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels/check-out 200 16.4751ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/rooms/1/check-out-all 409 11.1998ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/rooms/1/check-out-all 200 13.8295ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/rooms/1/check-out-all 404 9.7996ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/rooms/987654/check-out-all 422 10.0114ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/rooms/abc/check-out-all 400 4.1085ms
+--- PASS: TestCheckOutAllForRoom (0.73s)
+=== RUN   TestConcurrentCheckOutOnlyOneWins
+2026-11-18T02:42:11+07:00 POST   /api/v1/auth/login 200 11.2955ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels 201 20.8368ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/auth/login 200 6.6004ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/auth/login 200 6.6122ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels/check-out 200 21.133ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels/check-out 409 26.1372ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels/check-out 409 36.0818ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels/check-out 409 34.6168ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels/check-out 409 36.0175ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels/check-out 409 36.5579ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels/check-out 409 36.8503ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels/check-out 409 36.8503ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels/check-out 409 38.251ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels/check-out 409 39.3441ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels/check-out 409 40.4805ms
+2026-11-18T02:42:11+07:00 POST   /api/v1/parcels/check-out 409 40.4302ms
+--- PASS: TestConcurrentCheckOutOnlyOneWins (0.56s)
+=== RUN   TestParcelDetailIsChainOfCustody
+2026-11-18T02:42:12+07:00 POST   /api/v1/auth/login 200 10.6843ms
+2026-11-18T02:42:12+07:00 POST   /api/v1/auth/login 200 7.684ms
+2026-11-18T02:42:12+07:00 POST   /api/v1/parcels 201 19.0789ms
+2026-11-18T02:42:12+07:00 POST   /api/v1/parcels/check-out 200 14.0197ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels/chain1 200 7.3184ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels/NOSUCH 404 2.8045ms
+--- PASS: TestParcelDetailIsChainOfCustody (0.50s)
+=== RUN   TestSearchAndPagination
+2026-11-18T02:42:12+07:00 POST   /api/v1/auth/login 200 10.7801ms
+2026-11-18T02:42:12+07:00 POST   /api/v1/parcels 201 20.3362ms
+2026-11-18T02:42:12+07:00 POST   /api/v1/parcels 201 9.3418ms
+2026-11-18T02:42:12+07:00 POST   /api/v1/parcels 201 11.7106ms
+2026-11-18T02:42:12+07:00 POST   /api/v1/parcels 201 8.7951ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?q=th1 200 10.2973ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?q=SPX9 200 5.7776ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?q=H100 200 3.8491ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?q=101 200 5.2784ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?q=1101 200 5.1321ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?q=%E0%B8%AA%E0%B8%A1%E0%B8%8A%E0%B8%B2%E0%B8%A2 200 6.601ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?q=warin 200 5.3928ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?q=%E0%B9%81%E0%B8%99%E0%B8%99 200 7.1016ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?q=%25 200 3.1957ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?q=_ 200 2.6984ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?q=spx&status=picked_up 200 5.1508ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?roomId=3 200 8.1594ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?pageSize=3 200 7.5427ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?pageSize=3&page=2 200 5.8474ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?pageSize=3&page=9 200 5.1857ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?q=zzz 200 3.2573ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?pageSize=101 400 1.6053ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?pageSize=0 400 1.6098ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?page=0 400 2.1776ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?page=x 400 2.1781ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?status=bogus 400 1.6296ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?roomId=abc 400 2.2524ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?unmatched=maybe 400 1.6038ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?from=yesterday 400 1.6091ms
+2026-11-18T02:42:12+07:00 GET    /api/v1/parcels?q=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 400 1.6088ms
+--- PASS: TestSearchAndPagination (0.62s)
+=== RUN   TestRoomAutocompleteAndDirectory
+2026-11-18T02:42:13+07:00 POST   /api/v1/auth/login 200 9.9572ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/rooms/search?q=101 200 7.5201ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/rooms/search?q=110 200 3.2972ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/rooms/search?q=%E0%B9%81%E0%B8%99%E0%B8%99 200 3.292ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/rooms/search?q=%E0%B8%93%E0%B8%B1%E0%B8%90%E0%B8%9E%E0%B8%A5 200 3.2571ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/rooms/search?q=nomatch 200 5.0094ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/rooms/search?q= 200 1.6135ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/rooms/search?q=1&limit=21 400 1.619ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/directory?q=%E0%B9%81%E0%B8%99%E0%B8%99 200 5.5073ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/directory?pageSize=2 200 5.5568ms
+--- PASS: TestRoomAutocompleteAndDirectory (0.48s)
+=== RUN   TestDashboardCounts
+2026-11-18T02:42:13+07:00 POST   /api/v1/auth/login 200 10.473ms
+2026-11-18T02:42:13+07:00 POST   /api/v1/parcels 201 20.3039ms
+2026-11-18T02:42:13+07:00 POST   /api/v1/parcels 201 8.4592ms
+2026-11-18T02:42:13+07:00 POST   /api/v1/parcels 201 12.1393ms
+2026-11-18T02:42:13+07:00 POST   /api/v1/parcels 201 8.2497ms
+2026-11-18T02:42:13+07:00 POST   /api/v1/parcels/check-out 200 11.4079ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/dashboard 200 10.4026ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/dashboard?date=2026-11-17 200 3.6383ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/dashboard?date=2026-11-19 200 4.0424ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/dashboard?date=2026-13-45 400 1.6798ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/dashboard?date=today 400 1.6855ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/dashboard?period=week&date=2026-10-29 200 3.9131ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/dashboard?period=week&date=2026-11-01 200 3.8193ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/dashboard?period=month&date=2026-02-14 200 3.3633ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/dashboard?date=2026-10-29 200 3.8064ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/dashboard?period=year 400 2.1927ms
+2026-11-18T02:42:13+07:00 POST   /api/v1/parcels 201 9.734ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/dashboard?period=day 200 6.0328ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/dashboard?period=week 200 6.0541ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/dashboard?period=month 200 5.3685ms
+2026-11-18T02:42:13+07:00 GET    /api/v1/dashboard?period=month&date=2026-10-09 200 7.5993ms
+--- PASS: TestDashboardCounts (0.59s)
+=== RUN   TestRBACAdminOnlyAccessLogs
+2026-11-18T02:42:14+07:00 POST   /api/v1/auth/login 200 11.2789ms
+2026-11-18T02:42:14+07:00 GET    /api/v1/admin/access-logs 403 5.0298ms
+2026-11-18T02:42:14+07:00 POST   /api/v1/auth/login 200 7.8755ms
+2026-11-18T02:42:14+07:00 GET    /api/v1/admin/access-logs?pageSize=2 200 7.8304ms
+2026-11-18T02:42:14+07:00 GET    /api/v1/admin/access-logs 401 0s
+--- PASS: TestRBACAdminOnlyAccessLogs (0.46s)
+=== RUN   TestDatabaseEnforcesInvariants
+2026-11-18T02:42:14+07:00 POST   /api/v1/auth/login 200 13.3297ms
+2026-11-18T02:42:14+07:00 POST   /api/v1/parcels 201 23.1706ms
+--- PASS: TestDatabaseEnforcesInvariants (0.51s)
+=== RUN   TestDEF002CheckOutRejectsTwoRooms
+2026-11-18T02:42:15+07:00 POST   /api/v1/auth/login 200 10.5401ms
+2026-11-18T02:42:15+07:00 POST   /api/v1/parcels 201 20.0578ms
+2026-11-18T02:42:15+07:00 POST   /api/v1/parcels 201 10.6011ms
+2026-11-18T02:42:15+07:00 POST   /api/v1/parcels 201 13.1321ms
+2026-11-18T02:42:15+07:00 POST   /api/v1/parcels/check-out 409 5.0779ms
+2026-11-18T02:42:15+07:00 GET    /api/v1/parcels/ROOM-A1 200 6.9856ms
+2026-11-18T02:42:15+07:00 GET    /api/v1/parcels/ROOM-B1 200 4.5772ms
+2026-11-18T02:42:15+07:00 POST   /api/v1/parcels/check-out 200 12.8441ms
+--- PASS: TestDEF002CheckOutRejectsTwoRooms (0.53s)
+=== RUN   TestDEF001UnmatchedQueueOldestFirst
+2026-11-18T02:42:15+07:00 POST   /api/v1/auth/login 200 10.9896ms
+2026-11-18T02:42:15+07:00 POST   /api/v1/parcels 201 17.7534ms
+2026-11-18T02:42:15+07:00 POST   /api/v1/parcels 201 10.5001ms
+2026-11-18T02:42:15+07:00 POST   /api/v1/parcels 201 9.4595ms
+2026-11-18T02:42:15+07:00 GET    /api/v1/parcels?status=pending&unmatched=true 200 7.2956ms
+2026-11-18T02:42:15+07:00 GET    /api/v1/parcels?unmatched=true 200 6.7661ms
+--- PASS: TestDEF001UnmatchedQueueOldestFirst (0.52s)
+=== RUN   TestQA08OTPIssuedBeforeRevokeCannotRegister
+2026-11-18T02:42:16+07:00 POST   /api/v1/resident/otp 201 7.4078ms
+2026-11-18T02:42:16+07:00 POST   /api/v1/auth/login 200 8.6525ms
+2026-11-18T02:42:16+07:00 GET    /api/v1/rooms/1/resident-otp 200 9.8223ms
+2026-11-18T02:42:16+07:00 POST   /api/v1/auth/login 200 6.3297ms
+2026-11-18T02:42:16+07:00 DELETE /api/v1/rooms/1/push-subscriptions 200 14.1281ms
+2026-11-18T02:42:16+07:00 POST   /api/v1/resident/otp/verify 410 4.6826ms
+2026-11-18T02:42:16+07:00 POST   /api/v1/resident/otp 201 4.991ms
+2026-11-18T02:42:16+07:00 POST   /api/v1/auth/login 200 5.6054ms
+2026-11-18T02:42:16+07:00 GET    /api/v1/rooms/3/resident-otp 200 5.4933ms
+2026-11-18T02:42:16+07:00 POST   /api/v1/auth/login 200 5.9278ms
+2026-11-18T02:42:16+07:00 POST   /api/v1/admin/residents/import 200 18.946ms
+2026-11-18T02:42:16+07:00 POST   /api/v1/resident/otp/verify 410 2.6864ms
+2026-11-18T02:42:16+07:00 POST   /api/v1/resident/otp 201 4.4001ms
+2026-11-18T02:42:16+07:00 POST   /api/v1/auth/login 200 8.6945ms
+2026-11-18T02:42:16+07:00 GET    /api/v1/rooms/1/resident-otp 200 6.2627ms
+2026-11-18T02:42:16+07:00 POST   /api/v1/resident/otp/verify 201 13.4868ms
+--- PASS: TestQA08OTPIssuedBeforeRevokeCannotRegister (0.63s)
+=== RUN   TestEditParcel
+2026-11-18T02:42:16+07:00 POST   /api/v1/auth/login 200 10.63ms
+2026-11-18T02:42:16+07:00 POST   /api/v1/auth/login 200 6.3357ms
+2026-11-18T02:42:16+07:00 POST   /api/v1/parcels 201 18.6439ms
+2026-11-18T02:42:16+07:00 POST   /api/v1/parcels 201 11.0389ms
+2026-11-18T02:42:16+07:00 PATCH  /api/v1/parcels/TYPO1 422 6.027ms
+2026-11-18T02:42:17+07:00 PATCH  /api/v1/parcels/TYPO1 400 1.6248ms
+2026-11-18T02:42:17+07:00 PATCH  /api/v1/parcels/TYPO1 400 1.6034ms
+2026-11-18T02:42:17+07:00 PATCH  /api/v1/parcels/TYPO1 400 1.6401ms
+2026-11-18T02:42:17+07:00 PATCH  /api/v1/parcels/NOPE 404 4.8705ms
+2026-11-18T02:42:17+07:00 PATCH  /api/v1/parcels/TYPO1 409 10.592ms
+2026-11-18T02:42:17+07:00 PATCH  /api/v1/parcels/typo1 200 12.0678ms
+2026-11-18T02:42:17+07:00 GET    /api/v1/parcels/TYPO1 404 3.2549ms
+2026-11-18T02:42:17+07:00 PATCH  /api/v1/parcels/FIXED1 200 7.5309ms
+2026-11-18T02:42:17+07:00 PATCH  /api/v1/parcels/FIXED1 200 21.2728ms
+2026-11-18T02:42:17+07:00 GET    /api/v1/parcels/FIXED1 200 7.7759ms
+2026-11-18T02:42:17+07:00 GET    /api/v1/parcels?q=1102 200 10.7818ms
+2026-11-18T02:42:17+07:00 POST   /api/v1/parcels/check-out 200 14.2655ms
+2026-11-18T02:42:17+07:00 PATCH  /api/v1/parcels/FIXED1 409 5.9214ms
+2026-11-18T02:42:17+07:00 POST   /api/v1/parcels 201 10.5722ms
+2026-11-18T02:42:17+07:00 PATCH  /api/v1/parcels/NOROOM2 409 5.5243ms
+--- PASS: TestEditParcel (0.62s)
+=== RUN   TestEditParcelRoomDropsRecipientFromOldRoom
+2026-11-18T02:42:17+07:00 POST   /api/v1/auth/login 200 9.8532ms
+2026-11-18T02:42:17+07:00 POST   /api/v1/parcels 201 21.1854ms
+2026-11-18T02:42:17+07:00 PATCH  /api/v1/parcels/WHO1 200 10.7311ms
+2026-11-18T02:42:17+07:00 PATCH  /api/v1/parcels/WHO1 200 11.4733ms
+--- PASS: TestEditParcelRoomDropsRecipientFromOldRoom (0.49s)
+=== RUN   TestPush_RegisterNotifyAndStatus
+2026-11-18T02:42:18+07:00 POST   /api/v1/resident/otp 201 7.1606ms
+2026-11-18T02:42:18+07:00 POST   /api/v1/auth/login 200 10.5821ms
+2026-11-18T02:42:18+07:00 GET    /api/v1/rooms/1/resident-otp 200 8.3974ms
+2026-11-18T02:42:18+07:00 POST   /api/v1/resident/otp/verify 201 11.1741ms
+2026-11-18T02:42:18+07:00 POST   /api/v1/auth/login 200 6.3252ms
+2026-11-18T02:42:18+07:00 POST   /api/v1/parcels 201 16.6481ms
+2026-11-18T02:42:18+07:00 POST   /api/v1/parcels 201 8.9781ms
+2026-11-18T02:42:18+07:00 POST   /api/v1/parcels 201 11.157ms
+2026-11-18T02:42:18+07:00 GET    /api/v1/resident/me 200 4.5671ms
+2026-11-18T02:42:18+07:00 POST   /api/v1/parcels 201 9.8958ms
+--- PASS: TestPush_RegisterNotifyAndStatus (0.55s)
+=== RUN   TestPush_PickedUpBeforeDeliveryIsCancelled
+2026-11-18T02:42:18+07:00 POST   /api/v1/resident/otp 201 9.5351ms
+2026-11-18T02:42:18+07:00 POST   /api/v1/auth/login 200 9.4859ms
+2026-11-18T02:42:18+07:00 GET    /api/v1/rooms/1/resident-otp 200 8.5587ms
+2026-11-18T02:42:18+07:00 POST   /api/v1/resident/otp/verify 201 11.7041ms
+2026-11-18T02:42:18+07:00 POST   /api/v1/auth/login 200 8.3715ms
+2026-11-18T02:42:18+07:00 POST   /api/v1/parcels 201 15.5102ms
+2026-11-18T02:42:18+07:00 POST   /api/v1/rooms/1/check-out-all 200 10.4792ms
+--- PASS: TestPush_PickedUpBeforeDeliveryIsCancelled (0.50s)
+=== RUN   TestPush_EditedRoomNotifiesNewRoomOnly
+2026-11-18T02:42:19+07:00 POST   /api/v1/resident/otp 201 8.3885ms
+2026-11-18T02:42:19+07:00 POST   /api/v1/auth/login 200 9.1532ms
+2026-11-18T02:42:19+07:00 GET    /api/v1/rooms/1/resident-otp 200 11.9384ms
+2026-11-18T02:42:19+07:00 POST   /api/v1/resident/otp/verify 201 14.7121ms
+2026-11-18T02:42:19+07:00 POST   /api/v1/resident/otp 201 5.492ms
+2026-11-18T02:42:19+07:00 POST   /api/v1/auth/login 200 7.6028ms
+2026-11-18T02:42:19+07:00 GET    /api/v1/rooms/2/resident-otp 200 5.3473ms
+2026-11-18T02:42:19+07:00 POST   /api/v1/resident/otp/verify 201 7.9281ms
+2026-11-18T02:42:19+07:00 POST   /api/v1/auth/login 200 7.118ms
+2026-11-18T02:42:19+07:00 POST   /api/v1/parcels 201 22.8494ms
+2026-11-18T02:42:19+07:00 PATCH  /api/v1/parcels/TH-MOVE 200 17.7924ms
+--- PASS: TestPush_EditedRoomNotifiesNewRoomOnly (0.58s)
+=== RUN   TestPush_OTPMustBeReadByStaffAndLocksOut
+2026-11-18T02:42:19+07:00 POST   /api/v1/resident/otp 201 7.2933ms
+2026-11-18T02:42:19+07:00 POST   /api/v1/resident/otp/verify 422 5.8288ms
+2026-11-18T02:42:19+07:00 POST   /api/v1/resident/otp/verify 422 4.015ms
+2026-11-18T02:42:19+07:00 POST   /api/v1/resident/otp/verify 422 4.8841ms
+2026-11-18T02:42:19+07:00 POST   /api/v1/resident/otp/verify 422 4.3458ms
+2026-11-18T02:42:19+07:00 POST   /api/v1/resident/otp/verify 410 5.7391ms
+2026-11-18T02:42:19+07:00 POST   /api/v1/resident/otp/verify 410 2.1035ms
+--- PASS: TestPush_OTPMustBeReadByStaffAndLocksOut (0.47s)
+=== RUN   TestPush_ClaimValidationAndRateLimit
+2026-11-18T02:42:20+07:00 POST   /api/v1/resident/otp 400 0s
+2026-11-18T02:42:20+07:00 POST   /api/v1/resident/otp 422 2.7206ms
+2026-11-18T02:42:20+07:00 POST   /api/v1/resident/otp 422 2.2133ms
+2026-11-18T02:42:20+07:00 POST   /api/v1/resident/otp 422 1.7029ms
+2026-11-18T02:42:20+07:00 POST   /api/v1/resident/otp 422 1.0499ms
+2026-11-18T02:42:20+07:00 POST   /api/v1/resident/otp 201 7.4227ms
+2026-11-18T02:42:20+07:00 POST   /api/v1/resident/otp 201 4.9314ms
+2026-11-18T02:42:20+07:00 POST   /api/v1/resident/otp 201 4.1849ms
+2026-11-18T02:42:20+07:00 POST   /api/v1/resident/otp 429 2.177ms
+2026-11-18T02:42:20+07:00 POST   /api/v1/auth/login 200 10.9074ms
+2026-11-18T02:42:20+07:00 GET    /api/v1/rooms/2/resident-otp 404 5.7695ms
+2026-11-18T02:42:20+07:00 GET    /api/v1/rooms/1/resident-otp 401 0s
+--- PASS: TestPush_ClaimValidationAndRateLimit (0.46s)
+=== RUN   TestPush_GoneSubscriptionIsDropped
+2026-11-18T02:42:20+07:00 POST   /api/v1/resident/otp 201 7.6725ms
+2026-11-18T02:42:20+07:00 POST   /api/v1/auth/login 200 10.4378ms
+2026-11-18T02:42:20+07:00 GET    /api/v1/rooms/1/resident-otp 200 8.2913ms
+2026-11-18T02:42:20+07:00 POST   /api/v1/resident/otp/verify 201 11.9918ms
+2026-11-18T02:42:20+07:00 POST   /api/v1/auth/login 200 8.321ms
+2026-11-18T02:42:20+07:00 POST   /api/v1/parcels 201 15.0082ms
+2026-11-18T02:42:20+07:00 GET    /api/v1/resident/me 401 1.6304ms
+--- PASS: TestPush_GoneSubscriptionIsDropped (0.50s)
+=== RUN   TestPush_ServerErrorIsRetriedLater
+2026-11-18T02:42:21+07:00 POST   /api/v1/resident/otp 201 10.6986ms
+2026-11-18T02:42:21+07:00 POST   /api/v1/auth/login 200 11.0359ms
+2026-11-18T02:42:21+07:00 GET    /api/v1/rooms/1/resident-otp 200 8.2167ms
+2026-11-18T02:42:21+07:00 POST   /api/v1/resident/otp/verify 201 13.9118ms
+2026-11-18T02:42:21+07:00 POST   /api/v1/auth/login 200 6.8ms
+2026-11-18T02:42:21+07:00 POST   /api/v1/parcels 201 15.2892ms
+--- PASS: TestPush_ServerErrorIsRetriedLater (0.51s)
+=== RUN   TestPush_UnsubscribeAndStaffRevoke
+2026-11-18T02:42:21+07:00 POST   /api/v1/resident/otp 201 7.0603ms
+2026-11-18T02:42:21+07:00 POST   /api/v1/auth/login 200 11.0869ms
+2026-11-18T02:42:21+07:00 GET    /api/v1/rooms/1/resident-otp 200 10.3715ms
+2026-11-18T02:42:21+07:00 POST   /api/v1/resident/otp/verify 201 11.5901ms
+2026-11-18T02:42:21+07:00 POST   /api/v1/resident/otp 201 2.9ms
+2026-11-18T02:42:21+07:00 POST   /api/v1/auth/login 200 6.736ms
+2026-11-18T02:42:21+07:00 GET    /api/v1/rooms/1/resident-otp 200 4.2252ms
+2026-11-18T02:42:21+07:00 POST   /api/v1/resident/otp/verify 201 7.6775ms
+2026-11-18T02:42:21+07:00 DELETE /api/v1/resident/push/subscription 204 9.5ms
+2026-11-18T02:42:21+07:00 GET    /api/v1/resident/me 401 1.8144ms
+2026-11-18T02:42:21+07:00 POST   /api/v1/auth/login 200 7.2503ms
+2026-11-18T02:42:21+07:00 GET    /api/v1/rooms/1/push-subscriptions 200 3.8616ms
+2026-11-18T02:42:21+07:00 DELETE /api/v1/rooms/1/push-subscriptions 200 9.6955ms
+2026-11-18T02:42:21+07:00 GET    /api/v1/resident/me 401 1.6077ms
+2026-11-18T02:42:21+07:00 POST   /api/v1/auth/login 200 7.3261ms
+2026-11-18T02:42:21+07:00 POST   /api/v1/parcels 201 16.8812ms
+--- PASS: TestPush_UnsubscribeAndStaffRevoke (0.56s)
+=== RUN   TestPush_ReRegisteringSameBrowserReplacesOldRow
+2026-11-18T02:42:22+07:00 POST   /api/v1/resident/otp 201 8.2046ms
+2026-11-18T02:42:22+07:00 POST   /api/v1/auth/login 200 9.3791ms
+2026-11-18T02:42:22+07:00 GET    /api/v1/rooms/1/resident-otp 200 8.8016ms
+2026-11-18T02:42:22+07:00 POST   /api/v1/resident/otp/verify 201 13.3722ms
+2026-11-18T02:42:22+07:00 POST   /api/v1/resident/otp 201 3.7208ms
+2026-11-18T02:42:22+07:00 POST   /api/v1/auth/login 200 7.4613ms
+2026-11-18T02:42:22+07:00 GET    /api/v1/rooms/1/resident-otp 200 6.4684ms
+2026-11-18T02:42:22+07:00 POST   /api/v1/resident/otp/verify 201 7.6549ms
+2026-11-18T02:42:22+07:00 GET    /api/v1/resident/me 401 2.164ms
+--- PASS: TestPush_ReRegisteringSameBrowserReplacesOldRow (0.50s)
+=== RUN   TestPush_UpdateSubscription
+2026-11-18T02:42:22+07:00 POST   /api/v1/resident/otp 201 7.6928ms
+2026-11-18T02:42:22+07:00 POST   /api/v1/auth/login 200 8.6065ms
+2026-11-18T02:42:22+07:00 GET    /api/v1/rooms/1/resident-otp 200 9.4059ms
+2026-11-18T02:42:22+07:00 POST   /api/v1/resident/otp/verify 201 12.4222ms
+2026-11-18T02:42:22+07:00 PUT    /api/v1/resident/push/subscription 204 7.1113ms
+--- PASS: TestPush_UpdateSubscription (0.46s)
+=== RUN   TestPush_DefaultAllowlistAndNotConfigured
+2026-11-18T02:42:23+07:00 POST   /api/v1/resident/otp 201 8.6628ms
+2026-11-18T02:42:23+07:00 POST   /api/v1/resident/otp/verify 400 0s
+2026-11-18T02:42:23+07:00 GET    /api/v1/resident/push/config 503 0s
+2026-11-18T02:42:23+07:00 POST   /api/v1/resident/otp 503 0s
+--- PASS: TestPush_DefaultAllowlistAndNotConfigured (0.91s)
+=== RUN   TestQA01LogoutRevokesCopiedSession
+2026-11-18T02:42:24+07:00 POST   /api/v1/auth/login 200 11.3347ms
+2026-11-18T02:42:24+07:00 POST   /api/v1/auth/login 200 6.5681ms
+2026-11-18T02:42:24+07:00 POST   /api/v1/auth/login 200 8.3256ms
+2026-11-18T02:42:24+07:00 GET    /api/v1/auth/me 200 4.3478ms
+2026-11-18T02:42:24+07:00 POST   /api/v1/auth/logout 204 5.0585ms
+2026-11-18T02:42:24+07:00 GET    /api/v1/auth/me 401 1.7106ms
+2026-11-18T02:42:24+07:00 GET    /api/v1/auth/me 200 2.165ms
+2026-11-18T02:42:24+07:00 GET    /api/v1/auth/me 200 1.0925ms
+2026-11-18T02:42:24+07:00 POST   /api/v1/auth/login 200 8.5539ms
+2026-11-18T02:42:24+07:00 GET    /api/v1/auth/me 200 2.282ms
+2026-11-18T02:42:24+07:00 POST   /api/v1/auth/logout 204 0s
+--- PASS: TestQA01LogoutRevokesCopiedSession (0.48s)
+=== RUN   TestQA02LoginThrottlesRepeatedFailures
+2026-11-18T02:42:24+07:00 POST   /api/v1/auth/login 401 10.946ms
+2026-11-18T02:42:24+07:00 POST   /api/v1/auth/login 401 5.1605ms
+2026-11-18T02:42:24+07:00 POST   /api/v1/auth/login 401 5.1458ms
+2026-11-18T02:42:24+07:00 POST   /api/v1/auth/login 401 5.9974ms
+2026-11-18T02:42:24+07:00 POST   /api/v1/auth/login 401 6.8418ms
+2026-11-18T02:42:24+07:00 POST   /api/v1/auth/login 429 6.4738ms
+2026-11-18T02:42:24+07:00 POST   /api/v1/auth/login 429 5.5333ms
+2026-11-18T02:42:24+07:00 POST   /api/v1/auth/login 200 12.6335ms
+--- PASS: TestQA02LoginThrottlesRepeatedFailures (0.74s)
+=== RUN   TestQA03TrackingCodeMustBeRetrievable
+2026-11-18T02:42:25+07:00 POST   /api/v1/auth/login 200 22.9528ms
+=== RUN   TestQA03TrackingCodeMustBeRetrievable/REVIEW/SLASH
+2026-11-18T02:42:25+07:00 POST   /api/v1/parcels 400 11.3423ms
+=== RUN   TestQA03TrackingCodeMustBeRetrievable/BACK\SLASH
+2026-11-18T02:42:25+07:00 POST   /api/v1/parcels 400 3.9281ms
+=== RUN   TestQA03TrackingCodeMustBeRetrievable/Q?1
+2026-11-18T02:42:25+07:00 POST   /api/v1/parcels 400 5.7708ms
+=== RUN   TestQA03TrackingCodeMustBeRetrievable/HASH#1
+2026-11-18T02:42:25+07:00 POST   /api/v1/parcels 400 7.0503ms
+=== RUN   TestQA03TrackingCodeMustBeRetrievable/PCT%2F
+2026-11-18T02:42:25+07:00 POST   /api/v1/parcels 400 5.0251ms
+=== RUN   TestQA03TrackingCodeMustBeRetrievable/.
+2026-11-18T02:42:25+07:00 POST   /api/v1/parcels 400 4.4237ms
+=== RUN   TestQA03TrackingCodeMustBeRetrievable/..
+2026-11-18T02:42:25+07:00 POST   /api/v1/parcels 400 6.9607ms
+2026-11-18T02:42:25+07:00 POST   /api/v1/parcels 201 32.2808ms
+2026-11-18T02:42:25+07:00 GET    /api/v1/parcels/TH-123.456_A 200 9.8709ms
+2026-11-18T02:42:25+07:00 POST   /api/v1/parcels 201 13.8225ms
+2026-11-18T02:42:25+07:00 GET    /api/v1/parcels/SPX+77 200 11.4756ms
+2026-11-18T02:42:25+07:00 POST   /api/v1/parcels 201 16.6614ms
+2026-11-18T02:42:25+07:00 GET    /api/v1/parcels/A.B 200 8.7372ms
+--- PASS: TestQA03TrackingCodeMustBeRetrievable (0.84s)
+    --- PASS: TestQA03TrackingCodeMustBeRetrievable/REVIEW/SLASH (0.01s)
+    --- PASS: TestQA03TrackingCodeMustBeRetrievable/BACK\SLASH (0.00s)
+    --- PASS: TestQA03TrackingCodeMustBeRetrievable/Q?1 (0.01s)
+    --- PASS: TestQA03TrackingCodeMustBeRetrievable/HASH#1 (0.01s)
+    --- PASS: TestQA03TrackingCodeMustBeRetrievable/PCT%2F (0.01s)
+    --- PASS: TestQA03TrackingCodeMustBeRetrievable/. (0.00s)
+    --- PASS: TestQA03TrackingCodeMustBeRetrievable/.. (0.01s)
+=== RUN   TestQA04HugePageIsAValidationError
+2026-11-18T02:42:26+07:00 POST   /api/v1/auth/login 200 12.9873ms
+2026-11-18T02:42:26+07:00 POST   /api/v1/auth/login 200 9.7557ms
+2026-11-18T02:42:26+07:00 POST   /api/v1/parcels 201 29.8089ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/parcels?page=9223372036854775807&pageSize=100 400 2.4111ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/parcels?page=92233720368547758&pageSize=100 400 3.2414ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/parcels?page=100001&pageSize=100 400 3.8581ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/parcels?page=0&pageSize=100 400 3.4954ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/parcels?page=-1&pageSize=100 400 3.865ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/parcels?page=100000&pageSize=100 200 11.215ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/directory?page=9223372036854775807&pageSize=100 400 2.7796ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/directory?page=92233720368547758&pageSize=100 400 2.8179ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/directory?page=100001&pageSize=100 400 3.2069ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/directory?page=0&pageSize=100 400 3.2882ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/directory?page=-1&pageSize=100 400 3.481ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/directory?page=100000&pageSize=100 200 11.0932ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/admin/access-logs?page=9223372036854775807&pageSize=100 400 3.8503ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/admin/access-logs?page=92233720368547758&pageSize=100 400 2.7813ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/admin/access-logs?page=100001&pageSize=100 400 3.2795ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/admin/access-logs?page=0&pageSize=100 400 3.2604ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/admin/access-logs?page=-1&pageSize=100 400 3.4633ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/admin/access-logs?page=100000&pageSize=100 200 8.2514ms
+--- PASS: TestQA04HugePageIsAValidationError (0.68s)
+=== RUN   TestRBACMatrix
+2026-11-18T02:42:26+07:00 POST   /api/v1/auth/login 200 23.0469ms
+2026-11-18T02:42:26+07:00 POST   /api/v1/auth/login 200 14.8968ms
+=== RUN   TestRBACMatrix/GET_/api/v1/auth/me
+2026-11-18T02:42:26+07:00 GET    /api/v1/auth/me 401 0s
+2026-11-18T02:42:26+07:00 GET    /api/v1/auth/me 200 10.4888ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/auth/me 200 4.4154ms
+=== RUN   TestRBACMatrix/GET_/api/v1/rooms/search?q=101
+2026-11-18T02:42:26+07:00 GET    /api/v1/rooms/search?q=101 401 0s
+2026-11-18T02:42:26+07:00 GET    /api/v1/rooms/search?q=101 200 18.0086ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/rooms/search?q=101 200 10.6132ms
+=== RUN   TestRBACMatrix/GET_/api/v1/directory
+2026-11-18T02:42:26+07:00 GET    /api/v1/directory 401 0s
+2026-11-18T02:42:26+07:00 GET    /api/v1/directory 200 15.5599ms
+2026-11-18T02:42:26+07:00 GET    /api/v1/directory 200 8.7647ms
+=== RUN   TestRBACMatrix/POST_/api/v1/parcels
+2026-11-18T02:42:26+07:00 POST   /api/v1/parcels 401 0s
+2026-11-18T02:42:26+07:00 POST   /api/v1/parcels 400 3.7751ms
+2026-11-18T02:42:26+07:00 POST   /api/v1/parcels 400 3.2374ms
+=== RUN   TestRBACMatrix/GET_/api/v1/parcels
+2026-11-18T02:42:26+07:00 GET    /api/v1/parcels 401 0s
+2026-11-18T02:42:26+07:00 GET    /api/v1/parcels 200 12.9858ms
+2026-11-18T02:42:27+07:00 GET    /api/v1/parcels 200 5.5187ms
+=== RUN   TestRBACMatrix/POST_/api/v1/parcels/check-out
+2026-11-18T02:42:27+07:00 POST   /api/v1/parcels/check-out 401 0s
+2026-11-18T02:42:27+07:00 POST   /api/v1/parcels/check-out 400 3.2513ms
+2026-11-18T02:42:27+07:00 POST   /api/v1/parcels/check-out 400 4.3059ms
+=== RUN   TestRBACMatrix/GET_/api/v1/parcels/RBAC-NONE
+2026-11-18T02:42:27+07:00 GET    /api/v1/parcels/RBAC-NONE 401 0s
+2026-11-18T02:42:27+07:00 GET    /api/v1/parcels/RBAC-NONE 404 11.7149ms
+2026-11-18T02:42:27+07:00 GET    /api/v1/parcels/RBAC-NONE 404 7.6045ms
+=== RUN   TestRBACMatrix/PATCH_/api/v1/parcels/RBAC-NONE
+2026-11-18T02:42:27+07:00 PATCH  /api/v1/parcels/RBAC-NONE 401 0s
+2026-11-18T02:42:27+07:00 PATCH  /api/v1/parcels/RBAC-NONE 400 5.0911ms
+2026-11-18T02:42:27+07:00 PATCH  /api/v1/parcels/RBAC-NONE 400 5.5781ms
+=== RUN   TestRBACMatrix/PATCH_/api/v1/parcels/RBAC-NONE/room
+2026-11-18T02:42:27+07:00 PATCH  /api/v1/parcels/RBAC-NONE/room 401 0s
+2026-11-18T02:42:27+07:00 PATCH  /api/v1/parcels/RBAC-NONE/room 400 5.1141ms
+2026-11-18T02:42:27+07:00 PATCH  /api/v1/parcels/RBAC-NONE/room 400 4.6201ms
+=== RUN   TestRBACMatrix/POST_/api/v1/rooms/1/check-out-all
+2026-11-18T02:42:27+07:00 POST   /api/v1/rooms/1/check-out-all 401 561.5µs
+2026-11-18T02:42:27+07:00 POST   /api/v1/rooms/1/check-out-all 404 18.1856ms
+2026-11-18T02:42:27+07:00 POST   /api/v1/rooms/1/check-out-all 404 8.1553ms
+=== RUN   TestRBACMatrix/GET_/api/v1/rooms/1/resident-otp
+2026-11-18T02:42:27+07:00 GET    /api/v1/rooms/1/resident-otp 401 0s
+2026-11-18T02:42:27+07:00 GET    /api/v1/rooms/1/resident-otp 404 7.8883ms
+2026-11-18T02:42:27+07:00 GET    /api/v1/rooms/1/resident-otp 404 5.6429ms
+=== RUN   TestRBACMatrix/GET_/api/v1/rooms/1/push-subscriptions
+2026-11-18T02:42:27+07:00 GET    /api/v1/rooms/1/push-subscriptions 401 0s
+2026-11-18T02:42:27+07:00 GET    /api/v1/rooms/1/push-subscriptions 200 7.9052ms
+2026-11-18T02:42:27+07:00 GET    /api/v1/rooms/1/push-subscriptions 200 11.8188ms
+=== RUN   TestRBACMatrix/DELETE_/api/v1/rooms/1/push-subscriptions
+2026-11-18T02:42:27+07:00 DELETE /api/v1/rooms/1/push-subscriptions 401 0s
+2026-11-18T02:42:27+07:00 DELETE /api/v1/rooms/1/push-subscriptions 200 26.6173ms
+2026-11-18T02:42:27+07:00 DELETE /api/v1/rooms/1/push-subscriptions 200 10.9857ms
+=== RUN   TestRBACMatrix/GET_/api/v1/dashboard
+2026-11-18T02:42:27+07:00 GET    /api/v1/dashboard 401 0s
+2026-11-18T02:42:27+07:00 GET    /api/v1/dashboard 200 14.2557ms
+2026-11-18T02:42:27+07:00 GET    /api/v1/dashboard 200 4.0374ms
+=== RUN   TestRBACMatrix/GET_/api/v1/admin/access-logs
+2026-11-18T02:42:27+07:00 GET    /api/v1/admin/access-logs 401 0s
+2026-11-18T02:42:27+07:00 GET    /api/v1/admin/access-logs 403 2.7818ms
+2026-11-18T02:42:27+07:00 GET    /api/v1/admin/access-logs 200 7.1944ms
+=== RUN   TestRBACMatrix/GET_/api/v1/admin/staff
+2026-11-18T02:42:27+07:00 GET    /api/v1/admin/staff 401 0s
+2026-11-18T02:42:27+07:00 GET    /api/v1/admin/staff 403 3.8611ms
+2026-11-18T02:42:27+07:00 GET    /api/v1/admin/staff 200 9.5957ms
+=== RUN   TestRBACMatrix/POST_/api/v1/admin/staff
+2026-11-18T02:42:27+07:00 POST   /api/v1/admin/staff 401 0s
+2026-11-18T02:42:27+07:00 POST   /api/v1/admin/staff 403 2.7046ms
+2026-11-18T02:42:27+07:00 POST   /api/v1/admin/staff 400 2.1358ms
+=== RUN   TestRBACMatrix/GET_/api/v1/admin/residents/export
+2026-11-18T02:42:27+07:00 GET    /api/v1/admin/residents/export 401 0s
+2026-11-18T02:42:27+07:00 GET    /api/v1/admin/residents/export 403 2.8492ms
+2026-11-18T02:42:27+07:00 GET    /api/v1/admin/residents/export 200 4.9709ms
+=== RUN   TestRBACMatrix/POST_/api/v1/admin/residents/import/preview
+2026-11-18T02:42:27+07:00 POST   /api/v1/admin/residents/import/preview 401 0s
+2026-11-18T02:42:27+07:00 POST   /api/v1/admin/residents/import/preview 403 1.6677ms
+2026-11-18T02:42:27+07:00 POST   /api/v1/admin/residents/import/preview 400 3.0553ms
+=== RUN   TestRBACMatrix/POST_/api/v1/admin/residents/import
+2026-11-18T02:42:27+07:00 POST   /api/v1/admin/residents/import 401 0s
+2026-11-18T02:42:27+07:00 POST   /api/v1/admin/residents/import 403 2.3159ms
+2026-11-18T02:42:27+07:00 POST   /api/v1/admin/residents/import 400 1.706ms
+=== RUN   TestRBACMatrix/GET_/api/v1/resident/me
+2026-11-18T02:42:27+07:00 GET    /api/v1/resident/me 401 0s
+2026-11-18T02:42:27+07:00 GET    /api/v1/resident/me 401 0s
+2026-11-18T02:42:27+07:00 GET    /api/v1/resident/me 401 1.6603ms
+=== RUN   TestRBACMatrix/PUT_/api/v1/resident/push/subscription
+2026-11-18T02:42:27+07:00 PUT    /api/v1/resident/push/subscription 401 0s
+2026-11-18T02:42:27+07:00 PUT    /api/v1/resident/push/subscription 401 0s
+2026-11-18T02:42:27+07:00 PUT    /api/v1/resident/push/subscription 401 1.6709ms
+=== RUN   TestRBACMatrix/DELETE_/api/v1/resident/push/subscription
+2026-11-18T02:42:27+07:00 DELETE /api/v1/resident/push/subscription 401 0s
+2026-11-18T02:42:27+07:00 DELETE /api/v1/resident/push/subscription 401 534.8µs
+2026-11-18T02:42:27+07:00 DELETE /api/v1/resident/push/subscription 401 1.0847ms
+--- PASS: TestRBACMatrix (0.95s)
+    --- PASS: TestRBACMatrix/GET_/api/v1/auth/me (0.02s)
+    --- PASS: TestRBACMatrix/GET_/api/v1/rooms/search?q=101 (0.04s)
+    --- PASS: TestRBACMatrix/GET_/api/v1/directory (0.03s)
+    --- PASS: TestRBACMatrix/POST_/api/v1/parcels (0.01s)
+    --- PASS: TestRBACMatrix/GET_/api/v1/parcels (0.02s)
+    --- PASS: TestRBACMatrix/POST_/api/v1/parcels/check-out (0.01s)
+    --- PASS: TestRBACMatrix/GET_/api/v1/parcels/RBAC-NONE (0.02s)
+    --- PASS: TestRBACMatrix/PATCH_/api/v1/parcels/RBAC-NONE (0.02s)
+    --- PASS: TestRBACMatrix/PATCH_/api/v1/parcels/RBAC-NONE/room (0.01s)
+    --- PASS: TestRBACMatrix/POST_/api/v1/rooms/1/check-out-all (0.03s)
+    --- PASS: TestRBACMatrix/GET_/api/v1/rooms/1/resident-otp (0.02s)
+    --- PASS: TestRBACMatrix/GET_/api/v1/rooms/1/push-subscriptions (0.02s)
+    --- PASS: TestRBACMatrix/DELETE_/api/v1/rooms/1/push-subscriptions (0.04s)
+    --- PASS: TestRBACMatrix/GET_/api/v1/dashboard (0.02s)
+    --- PASS: TestRBACMatrix/GET_/api/v1/admin/access-logs (0.01s)
+    --- PASS: TestRBACMatrix/GET_/api/v1/admin/staff (0.02s)
+    --- PASS: TestRBACMatrix/POST_/api/v1/admin/staff (0.01s)
+    --- PASS: TestRBACMatrix/GET_/api/v1/admin/residents/export (0.01s)
+    --- PASS: TestRBACMatrix/POST_/api/v1/admin/residents/import/preview (0.01s)
+    --- PASS: TestRBACMatrix/POST_/api/v1/admin/residents/import (0.01s)
+    --- PASS: TestRBACMatrix/GET_/api/v1/resident/me (0.00s)
+    --- PASS: TestRBACMatrix/PUT_/api/v1/resident/push/subscription (0.00s)
+    --- PASS: TestRBACMatrix/DELETE_/api/v1/resident/push/subscription (0.00s)
+=== RUN   TestRBACCannotEscalate
+2026-11-18T02:42:27+07:00 POST   /api/v1/auth/login 401 6.5279ms
+2026-11-18T02:42:27+07:00 POST   /api/v1/auth/login 200 9.9245ms
+2026-11-18T02:42:27+07:00 POST   /api/v1/admin/staff 403 5.1243ms
+--- PASS: TestRBACCannotEscalate (0.61s)
+=== RUN   TestResidentImportPreviewThenApply
+2026-11-18T02:42:28+07:00 POST   /api/v1/auth/login 200 16.2702ms
+2026-11-18T02:42:28+07:00 POST   /api/v1/parcels 201 24.0399ms
+2026-11-18T02:42:28+07:00 POST   /api/v1/admin/residents/import/preview 200 10.3996ms
+2026-11-18T02:42:28+07:00 POST   /api/v1/admin/residents/import 200 20.9057ms
+2026-11-18T02:42:28+07:00 POST   /api/v1/admin/residents/import/preview 200 4.3064ms
+--- PASS: TestResidentImportPreviewThenApply (0.58s)
+=== RUN   TestResidentImportRevokesPushInVacatedRooms
+2026-11-18T02:42:29+07:00 POST   /api/v1/resident/otp 201 10.8736ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/auth/login 200 16.1861ms
+2026-11-18T02:42:29+07:00 GET    /api/v1/rooms/1/resident-otp 200 11.0223ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/resident/otp/verify 201 17.8635ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/resident/otp 201 5.6921ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/auth/login 200 7.1108ms
+2026-11-18T02:42:29+07:00 GET    /api/v1/rooms/2/resident-otp 200 6.1209ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/resident/otp/verify 201 9.9254ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/resident/otp 201 5.6226ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/auth/login 200 7.0598ms
+2026-11-18T02:42:29+07:00 GET    /api/v1/rooms/3/resident-otp 200 8.411ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/resident/otp/verify 201 11.0626ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/auth/login 200 7.2387ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/admin/residents/import/preview 200 15.1485ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/auth/login 200 7.8042ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/parcels 201 22.1727ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/admin/residents/import 200 17.3897ms
+2026-11-18T02:42:29+07:00 GET    /api/v1/resident/me 401 2.7697ms
+2026-11-18T02:42:29+07:00 GET    /api/v1/resident/me 401 2.0324ms
+2026-11-18T02:42:29+07:00 GET    /api/v1/resident/me 200 3.8397ms
+--- PASS: TestResidentImportRevokesPushInVacatedRooms (0.75s)
+=== RUN   TestResidentImportRejectsBadFile
+2026-11-18T02:42:29+07:00 POST   /api/v1/auth/login 200 15.3116ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/admin/residents/import/preview 200 13.8995ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/admin/residents/import 422 2.3162ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/admin/residents/import/preview 200 8.5371ms
+2026-11-18T02:42:29+07:00 POST   /api/v1/admin/residents/import/preview 200 5.9675ms
+--- PASS: TestResidentImportRejectsBadFile (0.55s)
+=== RUN   TestResidentExportRoundTrips
+2026-11-18T02:42:30+07:00 POST   /api/v1/auth/login 200 11.2272ms
+2026-11-18T02:42:30+07:00 GET    /api/v1/admin/residents/export 200 7.0719ms
+2026-11-18T02:42:30+07:00 POST   /api/v1/admin/residents/import/preview 200 9.2378ms
+--- PASS: TestResidentExportRoundTrips (0.61s)
+=== RUN   TestOnlyAdminManagesResidents
+2026-11-18T02:42:30+07:00 POST   /api/v1/auth/login 200 10.973ms
+2026-11-18T02:42:30+07:00 GET    /api/v1/admin/residents/export 403 3.9107ms
+2026-11-18T02:42:30+07:00 POST   /api/v1/admin/residents/import/preview 403 2.8945ms
+2026-11-18T02:42:30+07:00 POST   /api/v1/admin/residents/import 403 2.2348ms
+--- PASS: TestOnlyAdminManagesResidents (0.53s)
+=== RUN   TestAdminRegistersStaff
+2026-11-18T02:42:31+07:00 POST   /api/v1/auth/login 200 8.7461ms
+2026-11-18T02:42:31+07:00 POST   /api/v1/admin/staff 201 254.5004ms
+2026-11-18T02:42:31+07:00 POST   /api/v1/auth/login 200 258.9434ms
+2026-11-18T02:42:32+07:00 POST   /api/v1/admin/staff 201 246.8062ms
+2026-11-18T02:42:32+07:00 POST   /api/v1/admin/staff 409 247.3531ms
+2026-11-18T02:42:32+07:00 GET    /api/v1/admin/staff?pageSize=2 200 12.7257ms
+--- PASS: TestAdminRegistersStaff (1.54s)
+=== RUN   TestRegisterStaffValidation
+2026-11-18T02:42:32+07:00 POST   /api/v1/auth/login 200 12.7418ms
+=== RUN   TestRegisterStaffValidation/missing_username
+2026-11-18T02:42:32+07:00 POST   /api/v1/admin/staff 400 6.1125ms
+=== RUN   TestRegisterStaffValidation/bad_username
+2026-11-18T02:42:32+07:00 POST   /api/v1/admin/staff 400 2.3008ms
+=== RUN   TestRegisterStaffValidation/missing_name
+2026-11-18T02:42:32+07:00 POST   /api/v1/admin/staff 400 2.7324ms
+=== RUN   TestRegisterStaffValidation/short_password
+2026-11-18T02:42:32+07:00 POST   /api/v1/admin/staff 400 1.6388ms
+=== RUN   TestRegisterStaffValidation/bad_role
+2026-11-18T02:42:32+07:00 POST   /api/v1/admin/staff 400 2.7927ms
+--- PASS: TestRegisterStaffValidation (0.48s)
+    --- PASS: TestRegisterStaffValidation/missing_username (0.01s)
+    --- PASS: TestRegisterStaffValidation/bad_username (0.00s)
+    --- PASS: TestRegisterStaffValidation/missing_name (0.00s)
+    --- PASS: TestRegisterStaffValidation/short_password (0.00s)
+    --- PASS: TestRegisterStaffValidation/bad_role (0.00s)
+=== RUN   TestOnlyAdminRegistersStaff
+2026-11-18T02:42:33+07:00 POST   /api/v1/auth/login 200 16.0593ms
+2026-11-18T02:42:33+07:00 POST   /api/v1/admin/staff 403 4.4522ms
+2026-11-18T02:42:33+07:00 POST   /api/v1/auth/login 200 6.2617ms
+2026-11-18T02:42:33+07:00 GET    /api/v1/admin/staff 403 1.6235ms
+2026-11-18T02:42:33+07:00 POST   /api/v1/admin/staff 401 0s
+--- PASS: TestOnlyAdminRegistersStaff (0.48s)
+=== RUN   TestServesBuiltClient
+2026-11-18T02:42:33+07:00 GET    / 200 11.1677ms
+2026-11-18T02:42:33+07:00 GET    /resident/ 200 11.0965ms
+2026-11-18T02:42:33+07:00 GET    /resident/sw.js 200 551µs
+2026-11-18T02:42:33+07:00 GET    /resident/manifest.webmanifest 200 542.1µs
+2026-11-18T02:42:33+07:00 GET    /assets/app-1a2b.js 200 0s
+2026-11-18T02:42:33+07:00 GET    /resident?x=1 301 0s
+2026-11-18T02:42:33+07:00 GET    /missing.js 404 0s
+2026-11-18T02:42:33+07:00 GET    /assets/ 404 0s
+2026-11-18T02:42:33+07:00 GET    /../secret.txt 404 1.0086ms
+2026-11-18T02:42:33+07:00 GET    /assets/../../secret.txt 404 0s
+2026-11-18T02:42:33+07:00 GET    /api/v1/nope 404 0s
+2026-11-18T02:42:33+07:00 POST   /index.html 404 0s
+--- PASS: TestServesBuiltClient (0.04s)
+=== RUN   TestNoWebDirServesAPIOnly
+2026-11-18T02:42:33+07:00 GET    / 404 0s
+--- PASS: TestNoWebDirServesAPIOnly (0.00s)
+PASS
+ok  	dpms/backend/internal/api	30.276s
+?   	dpms/backend/internal/apperr	[no test files]
+=== RUN   TestPasswordHashing
+--- PASS: TestPasswordHashing (0.00s)
+=== RUN   TestSessionTokens
+--- PASS: TestSessionTokens (0.00s)
+PASS
+ok  	dpms/backend/internal/auth	0.650s
+?   	dpms/backend/internal/config	[no test files]
+?   	dpms/backend/internal/db	[no test files]
+?   	dpms/backend/internal/notify	[no test files]
+=== RUN   TestEncrypt_RFC8291Vector
+--- PASS: TestEncrypt_RFC8291Vector (0.00s)
+=== RUN   TestParseKeys_RoundTripAndMismatch
+--- PASS: TestParseKeys_RoundTripAndMismatch (0.00s)
+=== RUN   TestDefaultEndpointAllowed
+--- PASS: TestDefaultEndpointAllowed (0.00s)
+=== RUN   TestSend_HeadersVAPIDAndPayload
+--- PASS: TestSend_HeadersVAPIDAndPayload (0.00s)
+=== RUN   TestSubscriptionValidate
+--- PASS: TestSubscriptionValidate (0.00s)
+PASS
+ok  	dpms/backend/internal/push	2.467s
+?   	dpms/backend/internal/store	[no test files]

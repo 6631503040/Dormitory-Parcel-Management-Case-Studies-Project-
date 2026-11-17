@@ -443,6 +443,10 @@ func (s *Store) ApplyResidentImport(ctx context.Context, staffID int64, data str
 		batch.Queue(`UPDATE push_notifications SET status = 'cancelled' WHERE status = 'queued' AND subscription_id IN (`+vacatedSubs+`)`, p.vacated)
 		batch.Queue(`UPDATE push_subscriptions SET unsubscribed_at = now(), unsubscribed_reason = 'staff', unsubscribed_by_staff_id = $2
 			WHERE id IN (`+vacatedSubs+`)`, p.vacated, staffID)
+		// QA-08: a code handed out before the move-out must not register a device afterwards.
+		batch.Queue(`UPDATE resident_otp_challenges c SET consumed_at = now()
+			FROM rooms r JOIN buildings b ON b.id = r.building_id
+			WHERE c.room_id = r.id AND b.code || r.room_number = ANY($1) AND c.consumed_at IS NULL`, p.vacated)
 	}
 	sum := p.summary
 	batch.Queue(`INSERT INTO resident_imports (staff_id, row_count, added, moved, moved_out, rooms_created) VALUES ($1, $2, $3, $4, $5, $6)`,

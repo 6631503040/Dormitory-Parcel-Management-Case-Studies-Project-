@@ -16,6 +16,7 @@ export default function ParcelHubApp() {
   useFonts();
   const [staff, setStaff] = useState(null);
   const [booting, setBooting] = useState(true);
+  const [bootError, setBootError] = useState("");
   const [page, setPage] = useState("dashboard");
   const [modal, setModal] = useState(null);
   const [historyCode, setHistoryCode] = useState(null);
@@ -34,7 +35,13 @@ export default function ParcelHubApp() {
       .then((res) => {
         if (!cancelled) setStaff(res.staff);
       })
-      .catch(() => {})
+      // 401 = simply not signed in. Anything else (server or database down, no network) is an
+      // outage and must say so, not pass for a signed-out session (DEF-003).
+      .catch((err) => {
+        if (!cancelled && err?.status !== 401) {
+          setBootError(errorMessage({ code: err?.code === "NETWORK_ERROR" ? "NETWORK_ERROR" : "SERVER_UNAVAILABLE" }));
+        }
+      })
       .finally(() => {
         if (cancelled) return;
         setBooting(false);
@@ -97,7 +104,7 @@ export default function ParcelHubApp() {
   if (!staff) {
     return (
       <>
-        <LoginPage onLogin={setStaff} />
+        <LoginPage onLogin={(s) => { setBootError(""); setStaff(s); }} notice={bootError} />
         <Banner message={banner?.message} tone={banner?.tone} notificationId={banner?.id} onClose={() => setBanner(null)} />
       </>
     );
