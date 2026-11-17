@@ -5,7 +5,7 @@ import { loginAPI, loginUI, roomId, checkInAPI, uid } from './helpers';
 // Each test states the expected behaviour from the Test Plan. While a defect is open its test is
 // marked test.fail() (an expected failure keeps CI green and documents the defect); once the fix lands
 // the test passes "unexpectedly", Playwright reports that as a failure, and the marker must be removed.
-const KNOWN_OPEN = new Set(['DEF-001', 'DEF-002', 'DEF-003']); // docs/03-test/defects.md
+const KNOWN_OPEN = new Set([]); // docs/03-test/defects.md
 const openDefect = (id) => test.fail(KNOWN_OPEN.has(id), `${id} is open — see docs/03-test/defects.md`);
 
 test('TC25 / DEF-001: problem queue lists the oldest Parcel without a room first (US-06)', async ({ request }) => {

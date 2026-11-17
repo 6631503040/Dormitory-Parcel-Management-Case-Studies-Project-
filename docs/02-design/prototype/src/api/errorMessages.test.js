@@ -31,7 +31,7 @@ describe("errorMessage()", () => {
     const codes = [
       "VALIDATION_ERROR", "UNAUTHENTICATED", "INVALID_CREDENTIALS", "FORBIDDEN", "NOT_FOUND",
       "ROOM_NOT_IN_DIRECTORY", "RESIDENT_NOT_IN_ROOM", "PARCEL_NOT_FOUND", "PARCEL_HAS_ROOM",
-      "NO_PENDING_PARCELS", "NETWORK_ERROR", "INTERNAL_ERROR",
+      "NO_PENDING_PARCELS", "MIXED_ROOMS", "NETWORK_ERROR", "INTERNAL_ERROR",
     ];
     const messages = codes.map((code) => errorMessage({ code, params: {} }));
     expect(new Set(messages).size).toBe(messages.length);

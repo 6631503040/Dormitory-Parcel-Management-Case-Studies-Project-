@@ -323,6 +323,11 @@ func (s *Store) RevokeRoomPushSubscriptions(ctx context.Context, staffID, roomID
 		 FROM push_subscriptions s WHERE s.id = n.subscription_id AND s.room_id = $1 AND n.status = 'queued'`, roomID); err != nil {
 		return 0, err
 	}
+	// QA-08: a code issued before the revoke must not register a new device afterwards.
+	if _, err := tx.Exec(ctx,
+		`UPDATE resident_otp_challenges SET consumed_at = now() WHERE room_id = $1 AND consumed_at IS NULL`, roomID); err != nil {
+		return 0, err
+	}
 	if err := tx.Commit(ctx); err != nil {
 		return 0, err
 	}

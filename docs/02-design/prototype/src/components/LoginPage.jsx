@@ -3,7 +3,9 @@ import { Package, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { api } from "../api/client";
 import { errorMessage } from "../api/errorMessages";
 
-export default function LoginPage({ onLogin }) {
+// `notice` is a message from outside the form — e.g. the server could not be reached when the app
+// opened (DEF-003). The form's own error replaces it once Staff try to sign in.
+export default function LoginPage({ onLogin, notice = "" }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -53,7 +55,7 @@ export default function LoginPage({ onLogin }) {
                 <button type="button" disabled={submitting} className="icon-button login-password-toggle" aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"} onClick={() => setShowPassword((value) => !value)}>{showPassword ? <EyeOff size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}</button>
               </div>
             </div>
-            <div className="login-feedback">{error && <p id="login-error" className="field-error" role="alert">{error}</p>}</div>
+            <div className="login-feedback">{(error || notice) && <p id="login-error" className="field-error" role="alert">{error || notice}</p>}</div>
             <button type="submit" disabled={submitting} className="desk-button desk-button-primary">{submitting ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}{!submitting && <ArrowRight size={18} aria-hidden="true" />}</button>
           </form>
         </div>

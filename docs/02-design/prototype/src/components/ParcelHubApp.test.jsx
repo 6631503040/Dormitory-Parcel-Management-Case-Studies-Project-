@@ -29,6 +29,21 @@ describe("ParcelHubApp", () => {
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
+  it("DEF-003: says the server is down instead of passing an outage off as signed out", async () => {
+    mockQuietBackend();
+    server.use(http.get("/api/v1/auth/me", () => HttpResponse.json({ code: "INTERNAL_ERROR" }, { status: 503 })));
+    render(<ParcelHubApp />);
+    expect(await screen.findByRole("button", { name: "เข้าสู่ระบบ" })).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("ระบบขัดข้องชั่วคราว");
+  });
+
+  it("DEF-003: a network failure on start says the server cannot be reached", async () => {
+    mockQuietBackend();
+    server.use(http.get("/api/v1/auth/me", () => HttpResponse.error()));
+    render(<ParcelHubApp />);
+    expect(await screen.findByRole("alert")).toHaveTextContent("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+  });
+
   it("goes straight to the Dashboard when a session cookie is already valid", async () => {
     mockQuietBackend();
     server.use(http.get("/api/v1/auth/me", () => HttpResponse.json({ staff: makeStaff({ fullName: "Somsri Rattanakul" }) })));

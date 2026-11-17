@@ -23,6 +23,7 @@ const (
 	ParcelHasRoom         = "PARCEL_HAS_ROOM"
 	NoPendingParcels      = "NO_PENDING_PARCELS"
 	PendingCountChanged   = "PENDING_COUNT_CHANGED"
+	MixedRooms            = "MIXED_ROOMS"
 	AmbiguousRoom         = "AMBIGUOUS_ROOM"
 	UsernameTaken         = "USERNAME_TAKEN"
 	ResidentImportInvalid = "RESIDENT_IMPORT_INVALID"
@@ -52,6 +53,7 @@ var statusByCode = map[string]int{
 	ParcelHasRoom:         http.StatusConflict,
 	NoPendingParcels:      http.StatusNotFound,
 	PendingCountChanged:   http.StatusConflict,
+	MixedRooms:            http.StatusConflict,
 	AmbiguousRoom:         http.StatusUnprocessableEntity,
 	UsernameTaken:         http.StatusConflict,
 	ResidentImportInvalid: http.StatusUnprocessableEntity,

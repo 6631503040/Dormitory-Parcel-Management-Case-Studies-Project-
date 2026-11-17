@@ -1,0 +1,9 @@
+
+ RUN  v4.1.12 <repo>/docs/02-design/prototype
+
+
+ Test Files  16 passed (16)
+      Tests  161 passed (161)
+   Start at  02:42:41
+   Duration  30.40s (transform 4.03s, setup 17.02s, import 18.03s, tests 72.41s, environment 75.66s)
+
