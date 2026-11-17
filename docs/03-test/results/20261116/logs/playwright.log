@@ -1,0 +1,127 @@
+
+Running 14 tests using 1 worker
+
+  ✓   1 [chromium] › e2e/a11y.spec.js:17:1 › login page has no serious or critical axe violations (1.5s)
+  ✓   2 [chromium] › e2e/a11y.spec.js:23:1 › dashboard has no serious or critical axe violations (2.3s)
+  ✓   3 [chromium] › e2e/a11y.spec.js:29:1 › Check-In dialog has no serious or critical axe violations (2.1s)
+  ✓   4 [chromium] › e2e/a11y.spec.js:37:1 › Resident page has no serious or critical axe violations (1.2s)
+  ✓   5 [chromium] › e2e/a11y.spec.js:44:1 › Check-In dialog is keyboard-operable (TC47 steps 1-2) (943ms)
+  ✘   6 [chromium] › e2e/regression.spec.js:7:1 › TC25 / DEF-001: problem queue lists the oldest Parcel without a room first (US-06) (1.5s)
+  ✘   7 [chromium] › e2e/regression.spec.js:21:1 › TC35 / DEF-002: Check Out Selected rejects Tracking Codes from different rooms (404ms)
+  ✘   8 [chromium] › e2e/regression.spec.js:36:1 › TC43 / DEF-003: a server outage is not shown as being signed out (1.8s)
+  ✓   9 [chromium] › e2e/smoke.spec.js:6:1 › Staff can sign in, Check-In and Check-Out a Parcel (2.1s)
+  ✓  10 [chromium] › e2e/smoke.spec.js:37:1 › Resident page loads and asks for a room (207ms)
+  ✓  11 [firefox] › e2e/smoke.spec.js:6:1 › Staff can sign in, Check-In and Check-Out a Parcel (3.8s)
+  ✓  12 [firefox] › e2e/smoke.spec.js:37:1 › Resident page loads and asks for a room (1.0s)
+  ✓  13 [mobile-chrome] › e2e/smoke.spec.js:6:1 › Staff can sign in, Check-In and Check-Out a Parcel (1.7s)
+  ✓  14 [mobile-chrome] › e2e/smoke.spec.js:37:1 › Resident page loads and asks for a room (342ms)
+
+
+  1) [chromium] › e2e/regression.spec.js:7:1 › TC25 / DEF-001: problem queue lists the oldest Parcel without a room first (US-06) 
+
+    Error: order: TC25-NEW-MWIWHBAS9266, TC25-OLD-MWIWHBAS1079, TC25-NEW-MWIWF2TX868, TC25-OLD-MWIWF2TX8891, TH7531577693
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 0
+    Received:   1
+
+      16 |   const page = await (await request.get('/api/v1/parcels?status=pending&unmatched=true&pageSize=100')).json();
+      17 |   const codes = page.items.map((p) => p.trackingCode);
+    > 18 |   expect(codes.indexOf(older), `order: ${codes.slice(0, 5).join(', ')}`).toBeLessThan(codes.indexOf(newer));
+         |                                                                          ^
+      19 | });
+      20 |
+      21 | test('TC35 / DEF-002: Check Out Selected rejects Tracking Codes from different rooms', async ({ request }) => {
+        at /home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js:18:74
+
+    Error Context: e2e-results/artifacts/regression-TC25-DEF-001-pr-01e0b-without-a-room-first-US-06--chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    e2e-results/artifacts/regression-TC25-DEF-001-pr-01e0b-without-a-room-first-US-06--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace e2e-results/artifacts/regression-TC25-DEF-001-pr-01e0b-without-a-room-first-US-06--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › e2e/regression.spec.js:21:1 › TC35 / DEF-002: Check Out Selected rejects Tracking Codes from different rooms 
+
+    Error: mixed-room request must be rejected
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 400
+    Received:    200
+
+      30 |   const r = await request.post('/api/v1/parcels/check-out', { data: { trackingCodes: [a, b] } });
+      31 |   const statusB = (await (await request.get(`/api/v1/parcels/${b}`)).json()).status;
+    > 32 |   expect.soft(r.status(), 'mixed-room request must be rejected').toBeGreaterThanOrEqual(400);
+         |                                                                  ^
+      33 |   expect(statusB, "room B's Parcel must stay Pending").toBe('pending');
+      34 | });
+      35 |
+        at /home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js:32:66
+
+    Error: room B's Parcel must stay Pending
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "pending"
+    Received: "picked_up"
+
+      31 |   const statusB = (await (await request.get(`/api/v1/parcels/${b}`)).json()).status;
+      32 |   expect.soft(r.status(), 'mixed-room request must be rejected').toBeGreaterThanOrEqual(400);
+    > 33 |   expect(statusB, "room B's Parcel must stay Pending").toBe('pending');
+         |                                                        ^
+      34 | });
+      35 |
+      36 | test('TC43 / DEF-003: a server outage is not shown as being signed out', async ({ page }) => {
+        at /home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js:33:56
+
+    Error Context: e2e-results/artifacts/regression-TC35-DEF-002-Ch-e4cc7--Codes-from-different-rooms-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    e2e-results/artifacts/regression-TC35-DEF-002-Ch-e4cc7--Codes-from-different-rooms-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace e2e-results/artifacts/regression-TC35-DEF-002-Ch-e4cc7--Codes-from-different-rooms-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › e2e/regression.spec.js:36:1 › TC43 / DEF-003: a server outage is not shown as being signed out 
+
+    Error: outage looks like a signed-out session (sign-in page, no error)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      44 |   const onSignIn = await page.locator('#username').isVisible();
+      45 |   const hasAlert = await page.getByRole('alert').count();
+    > 46 |   expect(onSignIn && hasAlert === 0, 'outage looks like a signed-out session (sign-in page, no error)').toBe(false);
+         |                                                                                                         ^
+      47 | });
+      48 |
+        at /home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js:46:105
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    e2e-results/artifacts/regression-TC43-DEF-003-a--82e36-t-shown-as-being-signed-out-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: e2e-results/artifacts/regression-TC43-DEF-003-a--82e36-t-shown-as-being-signed-out-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    e2e-results/artifacts/regression-TC43-DEF-003-a--82e36-t-shown-as-being-signed-out-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace e2e-results/artifacts/regression-TC43-DEF-003-a--82e36-t-shown-as-being-signed-out-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [chromium] › e2e/regression.spec.js:7:1 › TC25 / DEF-001: problem queue lists the oldest Parcel without a room first (US-06) 
+    [chromium] › e2e/regression.spec.js:21:1 › TC35 / DEF-002: Check Out Selected rejects Tracking Codes from different rooms 
+    [chromium] › e2e/regression.spec.js:36:1 › TC43 / DEF-003: a server outage is not shown as being signed out 
+  11 passed (25.8s)

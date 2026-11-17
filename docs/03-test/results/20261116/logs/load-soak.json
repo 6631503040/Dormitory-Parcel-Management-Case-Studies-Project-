@@ -1,0 +1,167 @@
+{
+  "profile": "soak",
+  "base": "http://localhost:18080",
+  "tag": "SONHDA",
+  "seconds": 1800.5,
+  "plan": [
+    [
+      "soak",
+      10,
+      1800.0
+    ]
+  ],
+  "windows5min": {
+    "0-5min": {
+      "n": 179475,
+      "p50": 4.6,
+      "p95": 82.3,
+      "p99": 124.5,
+      "max": 183.1,
+      "errors": 0,
+      "errorStatuses": []
+    },
+    "5-10min": {
+      "n": 95047,
+      "p50": 4.6,
+      "p95": 166.6,
+      "p99": 214.3,
+      "max": 278.8,
+      "errors": 0,
+      "errorStatuses": []
+    },
+    "10-15min": {
+      "n": 74693,
+      "p50": 4.6,
+      "p95": 218.6,
+      "p99": 277.9,
+      "max": 348.2,
+      "errors": 0,
+      "errorStatuses": []
+    },
+    "15-20min": {
+      "n": 62542,
+      "p50": 4.7,
+      "p95": 264.0,
+      "p99": 333.9,
+      "max": 410.1,
+      "errors": 0,
+      "errorStatuses": []
+    },
+    "20-25min": {
+      "n": 54163,
+      "p50": 5.0,
+      "p95": 312.1,
+      "p99": 388.8,
+      "max": 478.3,
+      "errors": 0,
+      "errorStatuses": []
+    },
+    "25-30min": {
+      "n": 49976,
+      "p50": 4.8,
+      "p95": 335.4,
+      "p99": 423.5,
+      "max": 513.3,
+      "errors": 0,
+      "errorStatuses": []
+    },
+    "30-35min": {
+      "n": 32,
+      "p50": 2.7,
+      "p95": 274.6,
+      "p99": 284.6,
+      "max": 284.6,
+      "errors": 0,
+      "errorStatuses": []
+    }
+  },
+  "overall": {
+    "check_in": {
+      "n": 64491,
+      "p50": 3.6,
+      "p95": 4.7,
+      "p99": 6.1,
+      "max": 26.4,
+      "errors": 0,
+      "errorStatuses": []
+    },
+    "check_out": {
+      "n": 64491,
+      "p50": 3.3,
+      "p95": 4.2,
+      "p99": 5.4,
+      "max": 28.3,
+      "errors": 0,
+      "errorStatuses": []
+    },
+    "dashboard": {
+      "n": 64491,
+      "p50": 20.0,
+      "p95": 39.7,
+      "p99": 54.4,
+      "max": 77.5,
+      "errors": 0,
+      "errorStatuses": []
+    },
+    "detail": {
+      "n": 64491,
+      "p50": 2.6,
+      "p95": 3.4,
+      "p99": 4.3,
+      "max": 18.9,
+      "errors": 0,
+      "errorStatuses": []
+    },
+    "list": {
+      "n": 64491,
+      "p50": 5.1,
+      "p95": 6.7,
+      "p99": 29.1,
+      "max": 46.4,
+      "errors": 0,
+      "errorStatuses": []
+    },
+    "room_lookup": {
+      "n": 64491,
+      "p50": 4.0,
+      "p95": 5.4,
+      "p99": 6.4,
+      "max": 17.9,
+      "errors": 0,
+      "errorStatuses": []
+    },
+    "search_code": {
+      "n": 64491,
+      "p50": 117.5,
+      "p95": 336.4,
+      "p99": 406.5,
+      "max": 491.6,
+      "errors": 0,
+      "errorStatuses": []
+    },
+    "search_name": {
+      "n": 64491,
+      "p50": 67.1,
+      "p95": 293.3,
+      "p99": 384.0,
+      "max": 513.3,
+      "errors": 0,
+      "errorStatuses": []
+    },
+    "ALL": {
+      "n": 515928,
+      "p50": 4.7,
+      "p95": 214.3,
+      "p99": 332.9,
+      "max": 513.3,
+      "errors": 0,
+      "errorStatuses": []
+    }
+  },
+  "integrity": {
+    "created": 64491,
+    "unique": 64491,
+    "sampled": 200,
+    "problems": []
+  }
+}

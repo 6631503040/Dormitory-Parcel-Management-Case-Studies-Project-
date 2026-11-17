@@ -1,0 +1,69 @@
+{
+ "_meta": {
+  "round": 2,
+  "date": "2026-11-16",
+  "build": "9344cff (Fix-UI 67b599b: identical backend, db and client source)",
+  "stack": "isolated: PostgreSQL 16 tmpfs :15432 (docker/docker-compose.test.yml), API+client :18080, seed -parcels 200",
+  "scope": "Re-execution of the 12 round-1 cases that were Fail or Blocked. The 52 round-1 Pass cases were NOT re-executed one by one; regression evidence for them is the automated suites run on this build (Go 52+2 top-level tests, Vitest 159, Playwright 11 + 3 expected failures)."
+ },
+ "TC07": {
+  "status": "Blocked",
+  "actual": "Not re-executed: still no physical barcode scanner.",
+  "evidence": "Needs the project scanner and labels N01-N10"
+ },
+ "TC08": {
+  "status": "Blocked",
+  "actual": "Not re-executed: still no physical barcode scanner. Keyboard path covered by Playwright smoke (type + Enter, room chosen from directory, saved).",
+  "evidence": "e2e/smoke.spec.js"
+ },
+ "TC09": {
+  "status": "Blocked",
+  "actual": "Not re-executed: needs scanner disconnect/reconnect and a deteriorated label.",
+  "evidence": "Needs the project scanner"
+ },
+ "TC25": {
+  "status": "Fail",
+  "actual": "Two Parcels without a room checked in 1.1 s apart; GET /parcels?status=pending&unmatched=true (the dashboard queue's request) lists the newer one first. US-06 requires oldest first.",
+  "evidence": "e2e/regression.spec.js TC25; defect DEF-001"
+ },
+ "TC35": {
+  "status": "Fail",
+  "actual": "POST /parcels/check-out with one code from room 1101 and one from room 1102 returned 200; the room-1102 Parcel became picked_up.",
+  "evidence": "e2e/regression.spec.js TC35; defect DEF-002"
+ },
+ "TC43": {
+  "status": "Fail",
+  "actual": "Signed in, then /auth/me answered 503 on reload (simulated outage): the sign-in page appeared with no error message. Source unchanged since round 1 (ParcelHubApp.jsx first /auth/me .catch(() => {})).",
+  "evidence": "e2e/regression.spec.js TC43; shots/TC43-outage-shows-sign-in.png; defect DEF-003"
+ },
+ "TC46": {
+  "status": "Blocked",
+  "actual": "Not re-executed: the Resident part needs a real registered phone.",
+  "evidence": "Needs Android/iPhone over HTTPS"
+ },
+ "TC47": {
+  "status": "Blocked",
+  "actual": "Steps 1-2 now automated and passing: focus starts in the Tracking Code field; 12 Tab presses never reach content behind the dialog (native modal hands focus to browser UI once, then wraps); Escape closes and returns focus to 'รับพัสดุเข้า'. Step 3 (real Thai IME) still not available headless.",
+  "evidence": "e2e/a11y.spec.js 'keyboard-operable'"
+ },
+ "TC52": {
+  "status": "Blocked",
+  "actual": "Not re-executed: needs registered Android and iPhone to observe arrival, wording and the 90 s target.",
+  "evidence": "Needs real devices"
+ },
+ "TC55": {
+  "status": "Blocked",
+  "actual": "Not re-executed: needs a real phone in airplane mode.",
+  "evidence": "Needs real device"
+ },
+ "TC56": {
+  "status": "Blocked",
+  "actual": "Retry, gone-subscription and cancel-before-send are covered by passing Go tests with a fake push service (TestPush_ServerErrorIsRetriedLater, TestPush_GoneSubscriptionIsDropped, TestPush_PickedUpBeforeDeliveryIsCancelled). Duplicate and out-of-order delivery are still not simulated, so the case stays Blocked.",
+  "evidence": "logs/go-test.jsonl"
+ },
+ "TC60": {
+  "status": "Blocked",
+  "actual": "Still no Staff Directory page (US-27 not built). GET /directory exists and is covered by TestRoomAutocompleteAndDirectory.",
+  "evidence": "Backlog US-27"
+ }
+}

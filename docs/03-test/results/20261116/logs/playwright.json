@@ -1,0 +1,868 @@
+{
+  "config": {
+    "argv": [
+      "/home/danaiphong/.nvm/versions/node/v24.18.1/bin/node",
+      "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/node_modules/.bin/playwright",
+      "test"
+    ],
+    "configFile": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/playwright.config.js",
+    "rootDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e-results/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e-results/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e",
+        "testIgnore": [
+          "/regression|a11y/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e-results/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-chrome",
+        "name": "mobile-chrome",
+        "testDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/smoke/"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e-results/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "chromium",
+        "testDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e",
+        "snapshotDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://localhost:18080",
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "locale": "th-TH",
+          "timezoneId": "Asia/Bangkok",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.8154.6 Safari/537.36",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "chromium"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e-results/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "firefox",
+        "testDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e",
+        "snapshotDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e",
+        "testIgnore": {},
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://localhost:18080",
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "locale": "th-TH",
+          "timezoneId": "Asia/Bangkok",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "firefox"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "firefox"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e-results/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile-chrome",
+        "testDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e",
+        "snapshotDir": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e",
+        "testIgnore": [],
+        "testMatch": {},
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://localhost:18080",
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "locale": "th-TH",
+          "timezoneId": "Asia/Bangkok",
+          "userAgent": "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.8154.6 Mobile Safari/537.36",
+          "viewport": {
+            "width": 412,
+            "height": 839
+          },
+          "screen": {
+            "width": 412,
+            "height": 915
+          },
+          "deviceScaleFactor": 2.625,
+          "isMobile": true,
+          "hasTouch": true,
+          "defaultBrowserType": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile-chrome"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../../03-test/results/20261116/logs/playwright.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.65.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "a11y.spec.js",
+      "file": "a11y.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "login page has no serious or critical axe violations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "axe",
+                  "description": "login: no violations"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1489,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T06:46:23.054Z",
+                  "annotations": [
+                    {
+                      "type": "axe",
+                      "description": "login: no violations"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "axe-login.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2629bfe6b43df460208f-f72699c1ae8333037f24",
+          "file": "a11y.spec.js",
+          "line": 17,
+          "column": 1
+        },
+        {
+          "title": "dashboard has no serious or critical axe violations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "axe",
+                  "description": "dashboard: no violations"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2295,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T06:46:24.638Z",
+                  "annotations": [
+                    {
+                      "type": "axe",
+                      "description": "dashboard: no violations"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "axe-dashboard.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2629bfe6b43df460208f-3ed19177a5b16b014d1a",
+          "file": "a11y.spec.js",
+          "line": 23,
+          "column": 1
+        },
+        {
+          "title": "Check-In dialog has no serious or critical axe violations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "axe",
+                  "description": "check-in-dialog: no violations"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2080,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T06:46:26.948Z",
+                  "annotations": [
+                    {
+                      "type": "axe",
+                      "description": "check-in-dialog: no violations"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "axe-check-in-dialog.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2629bfe6b43df460208f-f0c71774aa73463a61bc",
+          "file": "a11y.spec.js",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "Resident page has no serious or critical axe violations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "axe",
+                  "description": "resident: no violations"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1166,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T06:46:29.041Z",
+                  "annotations": [
+                    {
+                      "type": "axe",
+                      "description": "resident: no violations"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "axe-resident.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2629bfe6b43df460208f-45e206eda27b2b11bb73",
+          "file": "a11y.spec.js",
+          "line": 37,
+          "column": 1
+        },
+        {
+          "title": "Check-In dialog is keyboard-operable (TC47 steps 1-2)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 943,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T06:46:30.219Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2629bfe6b43df460208f-f668774ac5d9eaad7e8b",
+          "file": "a11y.spec.js",
+          "line": 44,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "regression.spec.js",
+      "file": "regression.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "TC25 / DEF-001: problem queue lists the oldest Parcel without a room first (US-06)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1533,
+                  "error": {
+                    "message": "Error: order: TC25-NEW-MWIWHBAS9266, TC25-OLD-MWIWHBAS1079, TC25-NEW-MWIWF2TX868, TC25-OLD-MWIWF2TX8891, TH7531577693\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m0\u001b[39m\nReceived:   \u001b[31m1\u001b[39m",
+                    "stack": "Error: order: TC25-NEW-MWIWHBAS9266, TC25-OLD-MWIWHBAS1079, TC25-NEW-MWIWF2TX868, TC25-OLD-MWIWF2TX8891, TH7531577693\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m0\u001b[39m\nReceived:   \u001b[31m1\u001b[39m\n    at /home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js:18:74",
+                    "location": {
+                      "file": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js",
+                      "column": 74,
+                      "line": 18
+                    },
+                    "snippet": "  16 |   const page = await (await request.get('/api/v1/parcels?status=pending&unmatched=true&pageSize=100')).json();\n  17 |   const codes = page.items.map((p) => p.trackingCode);\n> 18 |   expect(codes.indexOf(older), `order: ${codes.slice(0, 5).join(', ')}`).toBeLessThan(codes.indexOf(newer));\n     |                                                                          ^\n  19 | });\n  20 |\n  21 | test('TC35 / DEF-002: Check Out Selected rejects Tracking Codes from different rooms', async ({ request }) => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js",
+                        "column": 74,
+                        "line": 18
+                      },
+                      "message": "Error: order: TC25-NEW-MWIWHBAS9266, TC25-OLD-MWIWHBAS1079, TC25-NEW-MWIWF2TX868, TC25-OLD-MWIWF2TX8891, TH7531577693\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m0\u001b[39m\nReceived:   \u001b[31m1\u001b[39m\n\n  16 |   const page = await (await request.get('/api/v1/parcels?status=pending&unmatched=true&pageSize=100')).json();\n  17 |   const codes = page.items.map((p) => p.trackingCode);\n> 18 |   expect(codes.indexOf(older), `order: ${codes.slice(0, 5).join(', ')}`).toBeLessThan(codes.indexOf(newer));\n     |                                                                          ^\n  19 | });\n  20 |\n  21 | test('TC35 / DEF-002: Check Out Selected rejects Tracking Codes from different rooms', async ({ request }) => {\n    at /home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js:18:74"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T06:46:31.183Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e-results/artifacts/regression-TC25-DEF-001-pr-01e0b-without-a-room-first-US-06--chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e-results/artifacts/regression-TC25-DEF-001-pr-01e0b-without-a-room-first-US-06--chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js",
+                    "column": 74,
+                    "line": 18
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3fc0d7e29e853a8f9411-6e67b86b7fd9b8ca7aa8",
+          "file": "regression.spec.js",
+          "line": 7,
+          "column": 1
+        },
+        {
+          "title": "TC35 / DEF-002: Check Out Selected rejects Tracking Codes from different rooms",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 404,
+                  "error": {
+                    "message": "Error: mixed-room request must be rejected\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m400\u001b[39m\nReceived:    \u001b[31m200\u001b[39m",
+                    "stack": "Error: mixed-room request must be rejected\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m400\u001b[39m\nReceived:    \u001b[31m200\u001b[39m\n    at /home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js:32:66",
+                    "location": {
+                      "file": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js",
+                      "column": 66,
+                      "line": 32
+                    },
+                    "snippet": "  30 |   const r = await request.post('/api/v1/parcels/check-out', { data: { trackingCodes: [a, b] } });\n  31 |   const statusB = (await (await request.get(`/api/v1/parcels/${b}`)).json()).status;\n> 32 |   expect.soft(r.status(), 'mixed-room request must be rejected').toBeGreaterThanOrEqual(400);\n     |                                                                  ^\n  33 |   expect(statusB, \"room B's Parcel must stay Pending\").toBe('pending');\n  34 | });\n  35 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js",
+                        "column": 66,
+                        "line": 32
+                      },
+                      "message": "Error: mixed-room request must be rejected\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m400\u001b[39m\nReceived:    \u001b[31m200\u001b[39m\n\n  30 |   const r = await request.post('/api/v1/parcels/check-out', { data: { trackingCodes: [a, b] } });\n  31 |   const statusB = (await (await request.get(`/api/v1/parcels/${b}`)).json()).status;\n> 32 |   expect.soft(r.status(), 'mixed-room request must be rejected').toBeGreaterThanOrEqual(400);\n     |                                                                  ^\n  33 |   expect(statusB, \"room B's Parcel must stay Pending\").toBe('pending');\n  34 | });\n  35 |\n    at /home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js:32:66"
+                    },
+                    {
+                      "location": {
+                        "file": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js",
+                        "column": 56,
+                        "line": 33
+                      },
+                      "message": "Error: room B's Parcel must stay Pending\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"p\u001b[7mending\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"p\u001b[7micked_up\u001b[27m\"\u001b[39m\n\n  31 |   const statusB = (await (await request.get(`/api/v1/parcels/${b}`)).json()).status;\n  32 |   expect.soft(r.status(), 'mixed-room request must be rejected').toBeGreaterThanOrEqual(400);\n> 33 |   expect(statusB, \"room B's Parcel must stay Pending\").toBe('pending');\n     |                                                        ^\n  34 | });\n  35 |\n  36 | test('TC43 / DEF-003: a server outage is not shown as being signed out', async ({ page }) => {\n    at /home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js:33:56"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T06:46:33.261Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e-results/artifacts/regression-TC35-DEF-002-Ch-e4cc7--Codes-from-different-rooms-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e-results/artifacts/regression-TC35-DEF-002-Ch-e4cc7--Codes-from-different-rooms-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js",
+                    "column": 66,
+                    "line": 32
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3fc0d7e29e853a8f9411-ba7dbed217ff8d068e49",
+          "file": "regression.spec.js",
+          "line": 21,
+          "column": 1
+        },
+        {
+          "title": "TC43 / DEF-003: a server outage is not shown as being signed out",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1764,
+                  "error": {
+                    "message": "Error: outage looks like a signed-out session (sign-in page, no error)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m",
+                    "stack": "Error: outage looks like a signed-out session (sign-in page, no error)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m\n    at /home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js:46:105",
+                    "location": {
+                      "file": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js",
+                      "column": 105,
+                      "line": 46
+                    },
+                    "snippet": "  44 |   const onSignIn = await page.locator('#username').isVisible();\n  45 |   const hasAlert = await page.getByRole('alert').count();\n> 46 |   expect(onSignIn && hasAlert === 0, 'outage looks like a signed-out session (sign-in page, no error)').toBe(false);\n     |                                                                                                         ^\n  47 | });\n  48 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js",
+                        "column": 105,
+                        "line": 46
+                      },
+                      "message": "Error: outage looks like a signed-out session (sign-in page, no error)\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m\n\n  44 |   const onSignIn = await page.locator('#username').isVisible();\n  45 |   const hasAlert = await page.getByRole('alert').count();\n> 46 |   expect(onSignIn && hasAlert === 0, 'outage looks like a signed-out session (sign-in page, no error)').toBe(false);\n     |                                                                                                         ^\n  47 | });\n  48 |\n    at /home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js:46:105"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T06:46:34.156Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e-results/artifacts/regression-TC43-DEF-003-a--82e36-t-shown-as-being-signed-out-chromium/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e-results/artifacts/regression-TC43-DEF-003-a--82e36-t-shown-as-being-signed-out-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e-results/artifacts/regression-TC43-DEF-003-a--82e36-t-shown-as-being-signed-out-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/danaiphong/CascadeProjects/Dormitory-Parcel-Management-Case-Studies-Project/docs/02-design/prototype/e2e/regression.spec.js",
+                    "column": 105,
+                    "line": 46
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3fc0d7e29e853a8f9411-51619d4ce730e55555d4",
+          "file": "regression.spec.js",
+          "line": 36,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "smoke.spec.js",
+      "file": "smoke.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Staff can sign in, Check-In and Check-Out a Parcel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2136,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T06:46:36.718Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            },
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3818,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T06:46:39.698Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            },
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-chrome",
+              "projectName": "mobile-chrome",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1692,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T06:46:46.022Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2c14808d47b386fba9eb-19ad3a101b2fed66a9b2",
+          "file": "smoke.spec.js",
+          "line": 6,
+          "column": 1
+        },
+        {
+          "title": "Resident page loads and asks for a room",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 207,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T06:46:38.962Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            },
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1035,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T06:46:44.120Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            },
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-chrome",
+              "projectName": "mobile-chrome",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 342,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T06:46:47.811Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2c14808d47b386fba9eb-52d609052ddc612b930e",
+          "file": "smoke.spec.js",
+          "line": 37,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T06:46:22.426Z",
+    "duration": 25787.31,
+    "expected": 11,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}
