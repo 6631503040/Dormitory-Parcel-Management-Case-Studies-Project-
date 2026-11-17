@@ -51,11 +51,11 @@ Every item below is on branch **`main`**. One link per item.
 | Case study (Problem, Process, Outcome + live URL) | [case-study.md](case-study.md) |
 | AI logic (Where, How, Prove, Measure) | [ai-logic.md](ai-logic.md) |
 | Comparison table (incl. AI row) | [comparison-table.md](comparison-table.md) |
-| Role statement — Supawan Kongsapcharoen (6631503042) | *pending* |
-| Role statement — Sadayu Suriya (6631503040) | [6631503040-Sadayu-Suriya.md](role-statements/6631503040-Sadayu-Suriya.md) |
-| Role statement — Kongphop Ruentongdi (6631503103) | *pending* |
+| Role statement — Supawan Kongsapcharoen (6631503042) | [6631503042-Supawan-Kongsapcharoen.md](role-statements/6631503042-Supawan-Kongsapcharoen.md) |
+| Role statement — Sadayu Suriya (6631503040) | *pending* |
+| Role statement — Kongphop Ruentongdi (6631503103) | [6631503103-kongphop-ruentongdi.md](role-statements/6631503103-kongphop-ruentongdi.md) |
 | Role statement — Phuriphat Chantiuaong (6631503034) | [6631503034-Phuriphat-Chantiuaong.md](role-statements/6631503034-Phuriphat-Chantiuaong.md) |
-| Role statement — Danaiphong Songsikhwa (6631503106) | *pending* |
+| Role statement — Danaiphong Songsikhwa (6631503106) | [6631503106-Danaiphong-Songsikhwa.md](role-statements/6631503106-Danaiphong-Songsikhwa.md) |
 
 ## 5. Other supporting documents
 
