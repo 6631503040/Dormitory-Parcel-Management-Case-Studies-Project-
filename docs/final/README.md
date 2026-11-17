@@ -41,6 +41,10 @@ Every item below is on branch **`main`**. One link per item.
 | SUS / TAM responses | [staff-responses.csv](../03-test/results/20261102-uat/staff-responses.csv) · [resident-responses.csv](../03-test/results/20261102-uat/resident-responses.csv) |
 | SUS / TAM results and the script that computes them | [UAT results](../03-test/results/20261102-uat/README.md) · [analyze_uat.py](../03-test/results/20261102-uat/analyze_uat.py) |
 | Issue log — UAT (severity, fix commit, retest) | [UAT results § Defects](../03-test/results/20261102-uat/README.md#defects-found-issue-log) |
+| Issue log — all defects (severity, priority, status, test) | [docs/03-test/defects.md](../03-test/defects.md) |
+| Test Result Report (TC01–TC64 per round, UAT, defects) | [docs/03-test/Test-Result-Report.docx](../03-test/Test-Result-Report.docx) |
+| Regression round 2 (16 Nov) — summary and logs | [docs/03-test/results/20261116/TEST-SUMMARY.md](../03-test/results/20261116/TEST-SUMMARY.md) |
+| Defect fixes and retest (18 Nov) — DEF-001…004, QA-08 | [docs/03-test/results/20261118-fix/README.md](../03-test/results/20261118-fix/README.md) |
 | Issue log — QA and security review (QA-01…07) | [BUGS_AND_SECURITY_TODO_2026-11-01.md](../03-test/BUGS_AND_SECURITY_TODO_2026-11-01.md) |
 | Test instruments (UAT dataset, forms) | [docs/03-test/README.md](../03-test/README.md) |
 
@@ -52,7 +56,7 @@ Every item below is on branch **`main`**. One link per item.
 | AI logic (Where, How, Prove, Measure) | [ai-logic.md](ai-logic.md) |
 | Comparison table (incl. AI row) | [comparison-table.md](comparison-table.md) |
 | Role statement — Supawan Kongsapcharoen (6631503042) | [6631503042-Supawan-Kongsapcharoen.md](role-statements/6631503042-Supawan-Kongsapcharoen.md) |
-| Role statement — Sadayu Suriya (6631503040) | *pending* |
+| Role statement — Sadayu Suriya (6631503040) | [6631503040-Sadayu-Suriya.md](role-statements/6631503040-Sadayu-Suriya.md) |
 | Role statement — Kongphop Ruentongdi (6631503103) | [6631503103-kongphop-ruentongdi.md](role-statements/6631503103-kongphop-ruentongdi.md) |
 | Role statement — Phuriphat Chantiuaong (6631503034) | [6631503034-Phuriphat-Chantiuaong.md](role-statements/6631503034-Phuriphat-Chantiuaong.md) |
 | Role statement — Danaiphong Songsikhwa (6631503106) | [6631503106-Danaiphong-Songsikhwa.md](role-statements/6631503106-Danaiphong-Songsikhwa.md) |
