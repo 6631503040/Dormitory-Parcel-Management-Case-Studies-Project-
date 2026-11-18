@@ -58,13 +58,13 @@ the defect.
 | AI-assisted code is correct | 159 Vitest tests + 52 Go tests (integration against a real PostgreSQL, 0 skipped) | — | **211 / 211 pass** on build `9344cff` | [unit results](../03-test/results/20261102-unit/README.md) |
 | AI-assisted fixes of the 1 Nov QA review (commit `b0a35e6`, Claude co-authored) | QA-01…QA-05: regression tests in `qa_review_test.go`, `Modals.CheckOut.test.jsx`, `errorMessages.test.js`. QA-06, QA-07: dependency scans (`npm audit`, `govulncheck`) | Each test **fails** on the code before the fix (e.g. a copied cookie still works after logout → `200`). Scans: `npm audit` 10 packages, `govulncheck` 18 advisories with a call trace | Each test **passes** after the fix (→ `401`). Scans: `npm audit` 0, `govulncheck` 0 called advisories | [BUGS_AND_SECURITY_TODO](../03-test/BUGS_AND_SECURITY_TODO_2026-11-01.md) |
 | AI-assisted UAT fix (commit `5da15cc`, Claude co-authored) | UAT tasks UAT04–UAT06 with real Staff | U01, U02 on the old build: 4 errors, UAT06 Fail (UAT-D03, UAT-D05) | U03–U05 on the fixed build: 0 errors, UAT06 Pass | [UAT results](../03-test/results/20261102-uat/README.md) |
-| System as a whole | 64 system test cases (TC01–TC64) on synthetic data | — | 52 Pass / 3 Fail / 9 Blocked (rounds 1–2). The 3 Fails were fixed on 18 Nov with Claude (Go 57/57, Vitest 161/161, Playwright 10/10); tester retest pending | [results.json](../03-test/results/20261028/results.json) · [fix results](../03-test/results/20261118-fix/README.md) |
+| System as a whole | 64 system test cases (TC01–TC64) on synthetic data | — | 52 Pass / 3 Fail / 9 Blocked (rounds 1–2). After the fixes made with Claude, round 3 (18 Nov): **55 Pass / 0 Fail / 9 Blocked**, [round 3](../03-test/results/20261118-retest/README.md) | [results.json](../03-test/results/20261028/results.json) · [fix results](../03-test/results/20261118-fix/README.md) |
 | UAT numbers are computed correctly | `analyze_uat.py` recomputes SUS/TAM without using the spreadsheet formulas | Spreadsheet formulas | Same values for all 10 participants | [analyze_uat.py](../03-test/results/20261102-uat/analyze_uat.py), [summary.txt](../03-test/results/20261102-uat/summary.txt) |
 
 Limits of this proof:
 
 - Passing tests show that the code does what the tests check. They do not show that the tests are
-  complete. `results.json` lists the 3 failing (fixed 18 Nov, retest pending) and 9 blocked system test cases.
+  complete. `results.json` lists the 3 failing (fixed 18 Nov, Pass in round 3) and 9 blocked system test cases.
 - QA-05 was tested with Vitest only. We did not repeat it in Playwright on Chromium or with a real
   barcode scanner.
 - The UAT comparison uses different participants before and after the fix (2 and 3 people). It
