@@ -22,3 +22,29 @@ I also went to Baansoi5 Dormitory from 2 to 5 November 2026 to collect user acce
 
 I used Claude (Claude Code) to help write and refactor UI code, and the Impeccable design skill to critique the interface. Claude is credited as co-author on the relevant commits. I reviewed, tested and approved every change myself, and all design decisions are mine. Claude also helped draft this statement, and I checked it for accuracy.
 
+
+## Reflection
+
+**1. Lessons learned.** 
+Building DPMS with AI changed the way I work as a designer and developer. Before this project, I spent a lot of time thinking about ideas, designing screens, and writing code. But with AI tools like Claude, I could work much faster.
+For example, I could turn a simple idea about the check-in and check-out process into a working React prototype in one session. This helped my team understand the system better because we could test a real prototype instead of only looking at pictures.
+One thing that got better was speed. AI helped me build the design system faster and keep the same colors, fonts, and styles across all screens. This saved a lot of time.
+However, there were also some problems. Sometimes, AI made mistakes that were difficult to notice. For example, the check-out screen looked complete, but it did not have a room number search feature. We did not find this problem until real staff tested the system during UAT at Baansoi5.
+Another problem was the focus ring. Its color contrast was only 1.73:1, which did not meet the WCAG standard.
+From this experience, I learned that AI can help us work faster, but it cannot make every decision correctly. We still need to check our work, test with real users, and think about accessibility.
+I also learned that teamwork is important. Clear commit messages and AI co-author credits helped the team understand who worked on each part of the project.
+
+**2. Where I stand today.** 
+Today, I see myself as a junior designer and developer. I can use AI to help me turn ideas into real applications. I have experience with both design and coding, and I want to improve in both areas.
+I think my most important skill is not only writing code. It is also understanding what users need and finding the right way to solve their problems.
+AI can help write code and create designs, but it does not always understand real people and their problems. For example, AI cannot sit with dormitory staff and watch how they use a system or where they have problems. I can do that by talking to users and testing the system with them.
+I still have many things to learn, especially about software development, problem-solving, and working with other developers.
+I believe that using AI together with my own skills will help me become better at my work.
+
+**3. My plan.** 
+Next year, I want to finish my degree and get an internship as a Full-stack Developer. I want to improve my skills in both front-end and back-end development.
+I want to learn more about building websites, designing user interfaces, working with databases, creating APIs, and connecting the front-end with the back-end. I also want to learn how real development teams work and how they manage projects.
+In the next five years, I want to become a skilled Full-stack Developer. I want to be able to build a complete application by myself, from the user interface to the server and database.
+I also want to find a stable way to earn money through technology. For example, I could work as a developer, work remotely, take freelance jobs, or build my own software products.
+My goal is to use my programming skills to create useful things, solve real problems, and earn money honestly. I want to have a stable career, support myself financially, and continue learning new technologies.
+I know that becoming a good developer takes time and practice. I am ready to learn from my mistakes, improve my skills, and work hard to reach my goals.
