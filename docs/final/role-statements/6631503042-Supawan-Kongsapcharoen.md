@@ -37,3 +37,36 @@ review of that code, which found two issues; both are fixed. Claude is credited 
 those commits. The field work, leading the interviews and the decisions about which problems to
 solve are my own. I reviewed and
 tested every AI-generated change before it was merged.
+
+## Reflection
+
+**1. Lessons learned.**
+AI sped up every stage I owned as Product Owner.
+
+What got better: speed. Claude helped me summarise the interview and questionnaire results. It
+also helped me turn the pains into backlog stories with Given/When/Then criteria, each linked to
+an interview, a law in `rule.md` or an ethics rule. When the system had to be handed over to a
+real dormitory, it built Staff registration and the resident CSV import (US-28/US-29) with tests in
+one day. It ran a security review that found two problems we had not seen, and we fixed both. It
+also helped prepare the UAT forms. Work that used to take days took hours.
+
+What got worse: our confidence in "done". All our tests passed, so the system looked finished.
+Then, in UAT, real Staff were slower at scanner Check-In with the new system than with their
+spreadsheet: 47.4 s against 23.6 s. This was the moment I remember most. The tests checked that
+the system was correct, but not that it was faster for the person at the desk. AI can write the
+code and the tests, but it cannot sit with the Staff and watch them work. Only real users showed
+us this, and it changed how I see testing: user testing is not optional.
+
+**2. Where I stand today.**
+AI can now write code, so my value is not in typing code. It is in deciding what should be built
+and in understanding people: listening to Staff and Residents, finding the real problem behind
+what they say, and checking the result with them. A tool cannot do this for me, and I want to
+keep getting better at it.
+
+**3. My plan.**
+Next year, I will do an internship in cyber security, and then study abroad, where I hope to find
+the field I most want to grow in.
+In five years, I want to be either a Product Manager for security products or a cyber diplomat,
+working on cyber security policy between countries. Both paths use what I practised as Product
+Owner: listening to many people, deciding what matters most, and keeping everyone working toward
+the same goal.
