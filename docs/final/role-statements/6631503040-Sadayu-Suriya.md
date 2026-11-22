@@ -20,3 +20,33 @@ I owned the technical side from repo setup to deployment. I set up the repositor
 ## AI disclosure
 
 I used Claude (Claude Code) with the project's agents and skills to write and refactor backend and frontend code, write tests, review security, and draft documents. Claude is credited as co-author on those commits. I reviewed and tested every change before merging it, and the technical decisions are mine. Claude also helped draft this statement, and I checked it for accuracy.
+
+## Reflection
+
+### 1. Lessons learned
+
+Building DPMS with AI made the build phase much faster. Code, tests and fixes that would have taken
+days took hours. On the night before the final check, we fixed two Critical defects, each with a
+regression test, in one night. Because building took less time, the team could spend more of it on
+requirements, design and testing, including a UAT with 5 Staff and 5 Residents.
+
+What got worse was not really caused by the AI. Most problems came from us, the developers, giving
+it unclear or incomplete instructions. When a request was missing detail, the AI filled the gap: it
+wrote "before" descriptions with no evidence behind them, committed Go code that failed the gofmt
+check in CI, and sometimes changed parts of the code we had not asked it to touch. The lesson for me
+is that every instruction must be clear and complete, and every AI change must be reviewed before it
+is merged. That is why we wrote the team's rules in `CLAUDE.md`.
+
+### 2. Where I stand in the software industry today
+
+I think software engineers still have a place in the AI era, but the work is changing. Building
+becomes easier, so the engineer's job moves towards design and towards judging the work the AI
+produces. In this project I already worked that way. As Tech Lead, I spent less time typing code
+and more time writing the rules the AI works by, reviewing pull requests and deciding what to merge
+and deploy. I see myself as someone who has started to adapt to this new way of working.
+
+### 3. My plan
+
+Next year I plan to work while I keep learning: improving my language skills and deepening my
+knowledge of the field. Within five years I want to do a master's degree abroad. Before that, I plan
+to build up my savings so that I can study without worrying about money.
