@@ -27,3 +27,22 @@ Before testing, I also worked on the Check-In and Check-Out screens.
 ## AI disclosure
 
 I used Claude (Claude Code) in my work. It helped me write the automated tests, run the regression and load tests, look through the UAT data. I still checked every result myself, and I decided how serious each bug was. I did the scanner and phone tests by hand.
+
+
+## Reflection
+
+### 1. Lessons learned
+
+Honestly, AI changed how our whole team worked. My teammates could write code much faster than before, so new features kept coming in every week. For me as the tester, that meant more things to check, not less.
+
+The part that got better was testing. I don't think I could have written all of our tests by myself in time. With Claude's help I made a test that checks if each type of user can only use the pages they are allowed to, ran tests on three different browsers, and ran a load test for 30 minutes with over 500,000 requests. It also helped with security. A scanning tool found a weakness in one of the Go libraries we used, and once a secret scanner even blocked my own commit because some text looked like a password.
+
+The part that got worse was my own understanding. AI wrote things faster than I could learn them. A few days before the presentation, I realized I couldn't explain some of my own test results, which was a bit embarrassing. So I went back and studied every test case and every document again until I understood them. I also learned that AI mistakes are hard to see because they look correct. For example, our audit log couldn't be edited, but it could still be deleted with one `TRUNCATE` command. I only found it because I tested it myself.
+
+### 2. Where I stand today
+
+Right now I see myself as the person who checks what AI makes. AI can write code, but somebody still has to ask whether it is really safe and whether the results are true, and then show proof. That was my job in this project, and I think this kind of job will matter even more in the future.
+
+### 3. My plan
+
+Next year I want to find a summer internship in cybersecurity. After that I plan to take a cybersecurity certificate, because I want to know the basics myself and not just depend on AI. In five years I hope to be working in cybersecurity, maybe in another country. Testing made me enjoy looking for ways to break a system, and I want to use that to help protect people's data.
